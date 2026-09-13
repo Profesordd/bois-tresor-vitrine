@@ -1,5 +1,5 @@
 -- =============================================
--- BOIS TRÉSOR — Schéma Supabase
+-- BOIS ÉMERAUDE — Schéma Supabase
 -- À exécuter dans l'éditeur SQL de Supabase
 --
 -- État actuel du site : le catalogue (produits/catégories) affiché sur le
@@ -41,7 +41,7 @@ create table if not exists products (
   original_price numeric(10,2)         check (original_price >= 0),
   stock          integer not null default 0 check (stock >= 0),
   family         text not null check (family in ('bois-de-chauffage', 'granules')),
-  subtype        text not null check (subtype in ('buche', 'bois-densifie', 'buche-compressee', 'granule')),
+  subtype        text not null check (subtype in ('buche', 'granule')),
   specs          jsonb not null default '[]',
   category_id    uuid references categories(id) on delete set null,
   badge          text,
@@ -51,10 +51,8 @@ create table if not exists products (
 );
 
 insert into categories (slug, name, family) values
-  ('buches-de-chauffage', 'Bûches de chauffage', 'bois-de-chauffage'),
-  ('bois-densifie',       'Bois densifié',       'bois-de-chauffage'),
-  ('buches-compressees',  'Bûches compressées',  'bois-de-chauffage'),
-  ('granules-de-bois',    'Granulés & pellets',  'granules')
+  ('bois-de-chauffage',   'Bois de chauffage',   'bois-de-chauffage'),
+  ('granules-et-pellets', 'Granulés & pellets',  'granules')
 on conflict (slug) do nothing;
 
 -- =============================================

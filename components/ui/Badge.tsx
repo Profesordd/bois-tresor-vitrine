@@ -11,7 +11,7 @@ export default function Badge({ variant, label, className }: BadgeProps) {
     promo:        'bg-promo text-white',
     'low-stock':  'bg-amber-500 text-white',
     'out-of-stock': 'bg-brand-400 text-white',
-    bestseller:   'bg-ember-500 text-white',
+    bestseller:   'bg-brand-700 text-white',
     new:          'bg-brand-500 text-white',
   }
 

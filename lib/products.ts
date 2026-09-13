@@ -1,20 +1,19 @@
 import type { Product, Category, Spec } from '@/types/database'
-import { slugify } from '@/lib/utils'
 
 /**
- * Catalogue de démonstration — Bois Trésor.
+ * Catalogue Bois Émeraude — repris du site en production du client
+ * (bois-emeraude.com) : mêmes intitulés produits, mêmes prix, mêmes
+ * caractéristiques techniques que celles publiées sur le site réel.
  *
- * Les prix ci-dessous sont des ESTIMATIONS INDICATIVES pour l'aperçu visuel.
- * Ils doivent être remplacés par la grille tarifaire réelle du client avant
- * toute mise en production (voir aussi la barre de chiffres clés en page
- * d'accueil, à ajuster avec les vraies statistiques de l'activité).
+ * Les photos produit sont les vraies photos du site (héro + bûches +
+ * palettes de granulés) ; faute d'une photo unique par référence sur le
+ * site source lui-même, les mêmes visuels sont réutilisés sur plusieurs
+ * fiches granulés, comme sur le site d'origine.
  */
 
 export const CATEGORIES: Category[] = [
-  { id: 'cat-buches',       slug: 'buches-de-chauffage', name: 'Bûches de chauffage', family: 'bois-de-chauffage', created_at: '' },
-  { id: 'cat-densifie',     slug: 'bois-densifie',       name: 'Bois densifié',       family: 'bois-de-chauffage', created_at: '' },
-  { id: 'cat-compressees',  slug: 'buches-compressees',  name: 'Bûches compressées',  family: 'bois-de-chauffage', created_at: '' },
-  { id: 'cat-granules',     slug: 'granules-de-bois',    name: 'Granulés & pellets',  family: 'granules',          created_at: '' },
+  { id: 'cat-buches',    slug: 'bois-de-chauffage',    name: 'Bois de chauffage',   family: 'bois-de-chauffage', created_at: '' },
+  { id: 'cat-granules',  slug: 'granules-et-pellets',  name: 'Granulés & pellets',  family: 'granules',          created_at: '' },
 ]
 
 function cat(id: string): Category {
@@ -22,35 +21,42 @@ function cat(id: string): Category {
 }
 
 let _n = 0
-function nextId() { _n += 1; return `bt-${String(_n).padStart(3, '0')}` }
+function nextId() { _n += 1; return `be-${String(_n).padStart(3, '0')}` }
 
-interface BucheInput {
-  length: number
-  price: number
-  originalPrice: number
-  badge?: string | null
-}
+const WOOD_IMAGE = '/products/buche-feuillus.jpg'
+const PELLET_IMAGES = ['/products/granules-1.jpg', '/products/granules-2.jpeg', '/products/granules-3.webp', '/products/granules-4.jpeg']
 
-function buildBuche({ length, price, originalPrice, badge = null }: BucheInput): Product {
-  const name = `Bois de chauffage ${length} cm — prix au stère`
+/* ─────────────────────────────────────────────
+   BOIS DE CHAUFFAGE — Mélange de bois durs
+   (chêne, charme, hêtre, frêne)
+   ───────────────────────────────────────────── */
+interface MelangeInput { length: string; stere: string; slug: string; price: number; badge?: string | null }
+
+function buildMelange({ length, stere, slug, price, badge = null }: MelangeInput): Product {
+  const name = `Mélange de bois durs – ${length} – Palette de ${stere} stères`
   const specs: Spec[] = [
-    { label: 'Essence',           value: 'Feuillus durs mélangés (chêne, charme, hêtre)' },
-    { label: 'Longueur des bûches', value: `${length} cm` },
-    { label: 'Taux d’humidité', value: '< 20 % — séché à cœur' },
-    { label: 'Conditionnement',    value: 'Vendu au stère, livraison en vrac ou palette filmée' },
-    { label: 'Usage conseillé',    value: 'Cheminée, insert, poêle à bûches' },
+    { label: 'Bûche',           value: 'Fendue et en grande partie écorcée' },
+    { label: 'Origine',         value: '100 % bois français' },
+    { label: 'Type de bois',    value: '100 % feuillus durs : chêne – charme – hêtre – frêne' },
+    { label: 'Longueur',        value: `${length} (±5 %)` },
+    { label: 'Stères',          value: stere },
+    { label: 'Taux d’humidité', value: '≤ 20 %' },
+    { label: 'PCI sur brut',    value: '≥ 3,9 kWh.kg⁻¹' },
+    { label: 'Taux de cendre',  value: '≤ 1,5 %' },
+    { label: 'Utilisation',     value: 'Immédiate' },
   ]
   return {
     id: nextId(),
-    slug: slugify(name),
+    slug,
     name,
-    tagline: 'Feuillus durs séchés à cœur, prêts à brûler',
-    description: `<p>Ce bois de chauffage ${length} cm est composé de feuillus durs (chêne, charme, hêtre) séchés à cœur pendant plusieurs saisons, pour un taux d’humidité contrôlé sous les 20 %. Une bûche bien sèche s’allume plus facilement, brûle plus longtemps et encrasse beaucoup moins vos conduits qu’un bois humide.</p><ul><li>Coupe calibrée ${length} cm, compatible avec la plupart des foyers fermés et inserts</li><li>Fendu pour une combustion homogène et un allumage rapide</li><li>Vendu au stère — quantité ajustable selon vos besoins</li><li>Livraison en vrac ou sur palette filmée selon le volume commandé</li></ul>`,
+    tagline: 'Chêne, charme, hêtre et frêne — séché à cœur',
+    description: `<p>Composé des meilleures essences de feuillus durs : chêne, charme, frêne et hêtre. Nous garantissons un rendement maximal de votre poêle à bois.</p><ul><li>Bûches fendues et en grande partie écorcées, longueur ${length} (±5 %)</li><li>100 % bois français, taux d’humidité ≤ 20 %</li><li>Palette de ${stere} stères, livraison offerte et soignée</li><li>Utilisation immédiate dès réception</li></ul>`,
     price,
-    original_price: originalPrice,
-    stock: 24,
+    original_price: null,
+    stock: 20,
     family: 'bois-de-chauffage',
     subtype: 'buche',
+    image: WOOD_IMAGE,
     specs,
     category_id: cat('cat-buches').id,
     category: cat('cat-buches'),
@@ -61,296 +67,159 @@ function buildBuche({ length, price, originalPrice, badge = null }: BucheInput):
   }
 }
 
-interface DensifieInput {
-  name: string
-  essence: string
-  weightLabel: string
-  price: number
-  originalPrice: number
-  badge?: string | null
-}
-
-function buildDensifie({ name, essence, weightLabel, price, originalPrice, badge = null }: DensifieInput): Product {
-  const specs: Spec[] = [
-    { label: 'Composition',        value: `Bois densifié 100 % ${essence}, sans additif` },
-    { label: 'Conditionnement',    value: weightLabel },
-    { label: 'Taux d’humidité', value: '< 12 %' },
-    { label: 'Pouvoir calorifique', value: 'Supérieur à la bûche traditionnelle à volume égal' },
-    { label: 'Usage conseillé',    value: 'Cheminée, insert, poêle à bûches — grande autonomie' },
-  ]
-  return {
-    id: nextId(),
-    slug: slugify(name),
-    name,
-    tagline: 'Combustion longue durée, très faible taux d’humidité',
-    description: `<p>Ce bois densifié 100 % ${essence} est compressé sans additif ni liant chimique, ce qui lui confère un pouvoir calorifique élevé et une combustion nettement plus longue qu’une bûche classique. Son taux d’humidité très bas (moins de 12 %) garantit un allumage propre et peu de cendres.</p><ul><li>Format compact et calibré, facile à stocker</li><li>Rendement supérieur à volume égal comparé au bois traditionnel</li><li>Conditionnement : ${weightLabel}</li><li>Livraison sur palette filmée, dépose au plus près de votre accès</li></ul>`,
-    price,
-    original_price: originalPrice,
-    stock: 10,
-    family: 'bois-de-chauffage',
-    subtype: 'bois-densifie',
-    specs,
-    category_id: cat('cat-densifie').id,
-    category: cat('cat-densifie'),
-    badge,
-    rating: null,
-    review_count: 0,
-    created_at: '',
-  }
-}
-
-interface CompresseeInput {
-  name: string
-  essence: string
-  weightLabel: string
-  price: number
-  originalPrice: number
-  badge?: string | null
-}
-
-function buildCompressee({ name, essence, weightLabel, price, originalPrice, badge = null }: CompresseeInput): Product {
-  const specs: Spec[] = [
-    { label: 'Composition',        value: essence },
-    { label: 'Conditionnement',    value: weightLabel },
-    { label: 'Taux d’humidité', value: '< 10 %' },
-    { label: 'Durée de combustion', value: 'Longue durée, braises persistantes' },
-    { label: 'Usage conseillé',    value: 'Cheminée, insert, poêle à bûches' },
-  ]
-  return {
-    id: nextId(),
-    slug: slugify(name),
-    name,
-    tagline: 'Bûche compressée haute densité, très peu de résidus',
-    description: `<p>Cette bûche de bois compressé est fabriquée à partir de sciures et copeaux compactés à haute pression, sans liant ajouté. Résultat : un combustible dense, très sec (moins de 10 % d’humidité) qui brûle longtemps en laissant peu de cendres.</p><ul><li>Composition : ${essence}</li><li>Conditionnement : ${weightLabel}</li><li>Idéale en complément ou en remplacement de la bûche traditionnelle</li><li>Livraison sur palette filmée</li></ul>`,
-    price,
-    original_price: originalPrice,
-    stock: 14,
-    family: 'bois-de-chauffage',
-    subtype: 'buche-compressee',
-    specs,
-    category_id: cat('cat-compressees').id,
-    category: cat('cat-compressees'),
-    badge,
-    rating: null,
-    review_count: 0,
-    created_at: '',
-  }
-}
-
-interface GranuleInput {
-  name: string
-  brandLabel: string
-  cert: string
-  totalWeightKg: number
-  bags: number
-  price: number
-  originalPrice: number
-  badge?: string | null
-  blurb: string
-}
-
-function buildGranule({ name, brandLabel, cert, totalWeightKg, bags, price, originalPrice, badge = null, blurb }: GranuleInput): Product {
-  const bagWeight = Math.round((totalWeightKg / bags) * 10) / 10
-  const specs: Spec[] = [
-    { label: 'Certification',   value: cert },
-    { label: 'Poids du sac',    value: `${bagWeight} kg` },
-    { label: 'Nombre de sacs',  value: `${bags} sacs` },
-    { label: 'Poids palette',   value: `${totalWeightKg} kg` },
-    { label: 'Taux de cendres', value: '< 0,7 % — combustion propre' },
-  ]
-  return {
-    id: nextId(),
-    slug: slugify(name),
-    name,
-    tagline: `${cert} — palette de ${totalWeightKg} kg`,
-    description: `<p>${blurb}</p><ul><li>Certification : ${cert}</li><li>Conditionnement : ${bags} sacs de ${bagWeight} kg, soit ${totalWeightKg} kg au total</li><li>Faible taux de cendres pour un poêle ou une chaudière toujours propre</li><li>Livraison sur palette filmée, housse de protection incluse</li></ul>`,
-    price,
-    original_price: originalPrice,
-    stock: 30,
-    family: 'granules',
-    subtype: 'granule',
-    specs,
-    category_id: cat('cat-granules').id,
-    category: cat('cat-granules'),
-    badge,
-    rating: null,
-    review_count: 0,
-    created_at: '',
-  }
-}
-
-/* ─────────────────────────────────────────────
-   BOIS DE CHAUFFAGE — bûches naturelles
-   ───────────────────────────────────────────── */
-const BUCHES: Product[] = [
-  buildBuche({ length: 33, price: 89.9,  originalPrice: 109.9, badge: 'bestseller' }),
-  buildBuche({ length: 40, price: 94.9,  originalPrice: 114.9 }),
-  buildBuche({ length: 45, price: 99.9,  originalPrice: 119.9 }),
-  buildBuche({ length: 50, price: 104.9, originalPrice: 124.9 }),
+const MELANGES: Product[] = [
+  buildMelange({ length: '45cm', stere: '2,6', slug: 'melange-de-bois-durs-45cm-palette-de-26-steres', price: 89,  badge: 'bestseller' }),
+  buildMelange({ length: '50cm', stere: '2,5', slug: 'melange-de-bois-durs-50cm-palette-de-25-steres', price: 99 }),
+  buildMelange({ length: '40cm', stere: '2,7', slug: 'melange-de-bois-durs-40cm-palette-de-27-steres', price: 105 }),
+  buildMelange({ length: '1m',   stere: '2',   slug: 'melange-de-bois-durs-1m-palette-de-2-steres',    price: 109 }),
+  buildMelange({ length: '33cm', stere: '2,9', slug: 'melange-de-bois-durs-33cm-palette-de-29-steres', price: 115 }),
+  buildMelange({ length: '25cm', stere: '3,3', slug: 'melange-de-bois-durs-25cm-palette-de-33-steres', price: 120 }),
+  buildMelange({ length: '30cm', stere: '3',   slug: 'melange-de-bois-durs-30cm-palette-de-3-steres',  price: 129 }),
 ]
 
 /* ─────────────────────────────────────────────
-   BOIS DENSIFIÉ
+   BOIS DE CHAUFFAGE — 100 % Hêtre
    ───────────────────────────────────────────── */
-const DENSIFIE: Product[] = [
-  buildDensifie({
-    name: 'Bois densifié — feuillus — 1/2 palette de 538 kg',
-    essence: 'feuillus', weightLabel: '1/2 palette de 538 kg',
-    price: 229, originalPrice: 269, badge: 'new',
-  }),
-  buildDensifie({
-    name: 'Bois densifié — résineux — palette de 960 kg',
-    essence: 'résineux', weightLabel: 'palette de 960 kg',
-    price: 339, originalPrice: 399,
-  }),
-  buildDensifie({
-    name: 'Bois densifié — feuillus — palette 1 tonne',
-    essence: 'feuillus', weightLabel: 'palette de 1000 kg',
-    price: 369, originalPrice: 429, badge: 'bestseller',
-  }),
-]
+interface HetreInput { stere: string; volumeNote: string; poids: string; slug: string; price: number }
 
-/* ─────────────────────────────────────────────
-   BÛCHES COMPRESSÉES
-   ───────────────────────────────────────────── */
-const COMPRESSEES: Product[] = [
-  buildCompressee({
-    name: 'Bûches compressées 100% feuillus — palette de 1040kg',
-    essence: '100 % feuillus compactés', weightLabel: 'palette de 1040 kg',
-    price: 319, originalPrice: 379,
-  }),
-  buildCompressee({
-    name: 'Bûches de bois compressé Tecsabuch Crépito (palette de 1t)',
-    essence: 'Bois compressé Tecsabuch Crépito', weightLabel: 'palette de 1000 kg',
-    price: 299, originalPrice: 349,
-  }),
+function buildHetre({ stere, volumeNote, poids, slug, price }: HetreInput): Product {
+  const name = `Bois de chauffage 30cm – Palette ${stere} stère${stere === '1,7' ? '' : 's'} – 100% Hêtre`
+  const specs: Spec[] = [
+    { label: 'Essence',            value: '100 % hêtre' },
+    { label: 'Longueur des bûches', value: '30 cm' },
+    { label: 'Volume',             value: volumeNote },
+    { label: 'Poids approximatif', value: poids },
+    { label: 'Séchage',            value: 'au four (prêt à l’emploi)' },
+    { label: 'Taux d’humidité',    value: '≤ 18 %' },
+    { label: 'Conditionnement',    value: 'palette jetable filmée' },
+    { label: 'Origine',            value: 'forêts gérées durablement' },
+  ]
+  return {
+    id: nextId(),
+    slug,
+    name,
+    tagline: '100 % hêtre, séché au four, prêt à brûler',
+    description: `<p>Bois de chauffage 100 % hêtre en bûches de 30 cm, séché au four et prêt à brûler immédiatement. Palette de ${volumeNote} livrée filmée.</p>`,
+    price,
+    original_price: null,
+    stock: 15,
+    family: 'bois-de-chauffage',
+    subtype: 'buche',
+    image: WOOD_IMAGE,
+    specs,
+    category_id: cat('cat-buches').id,
+    category: cat('cat-buches'),
+    badge: null,
+    rating: null,
+    review_count: 0,
+    created_at: '',
+  }
+}
+
+const HETRES: Product[] = [
+  buildHetre({ stere: '1,7', volumeNote: '1,7 stère (1 RM)', poids: '600 kg',  slug: 'bois-de-chauffage-30cm-palette-17-stere-100-hetre', price: 149 }),
+  buildHetre({ stere: '3',   volumeNote: '3 stères (env. 3 SRM)', poids: '800 kg', slug: 'bois-de-chauffage-30cm-palette-3-steres-100-hetre', price: 189 }),
 ]
 
 /* ─────────────────────────────────────────────
    GRANULÉS & PELLETS
    ───────────────────────────────────────────── */
+interface GranuleInput {
+  name: string
+  slug: string
+  price: number
+  bags: number
+  bagKg?: number
+  cert?: string | null
+  comp?: string | null
+}
+
+function buildGranule({ name, slug, price, bags, bagKg = 15, cert = null, comp = null }: GranuleInput, index: number): Product {
+  const totalWeight = bags * bagKg
+  const specs: Spec[] = [
+    { label: 'Conditionnement', value: `${bags} sacs de ${bagKg} kg` },
+    { label: 'Poids palette',   value: `${totalWeight} kg` },
+  ]
+  if (comp) specs.push({ label: 'Composition', value: comp })
+  if (cert) specs.push({ label: 'Certification', value: cert })
+
+  const bits: string[] = []
+  bits.push(`Palette de ${bags} sacs de ${bagKg} kg (${totalWeight} kg au total)`)
+  if (comp) bits.push(comp.toLowerCase())
+  if (cert) bits.push(`certifié ${cert}`)
+
+  return {
+    id: nextId(),
+    slug,
+    name,
+    tagline: cert ?? (comp ?? `Palette de ${totalWeight} kg`),
+    description: `<p>${name}. ${bits.join(', ')}. Livraison offerte, palette filmée, expédition sous 48 h.</p>`,
+    price,
+    original_price: null,
+    stock: 25,
+    family: 'granules',
+    subtype: 'granule',
+    image: PELLET_IMAGES[index % PELLET_IMAGES.length],
+    specs,
+    category_id: cat('cat-granules').id,
+    category: cat('cat-granules'),
+    badge: null,
+    rating: null,
+    review_count: 0,
+    created_at: '',
+  }
+}
+
 const GRANULE_DEFS: GranuleInput[] = [
-  {
-    name: 'Granulés de Bois Belges Badger Pellets — Palette 975kg (65 sacs)',
-    brandLabel: 'Badger Pellets', cert: 'ENplus A1', totalWeightKg: 975, bags: 65,
-    price: 349, originalPrice: 399,
-    blurb: 'Les granulés Badger Pellets sont fabriqués en Belgique à partir de sciures de résineux non traitées. Un pellet dense et homogène, pensé pour un rendement stable dans les poêles comme dans les chaudières automatiques.',
-  },
-  {
-    name: 'Granulés de Bois d’Auvergne Moulin Bois Energie — Palette 975kg (65 sacs)',
-    brandLabel: 'Moulin Bois Energie', cert: 'DINplus', totalWeightKg: 975, bags: 65,
-    price: 359, originalPrice: 409,
-    blurb: 'Produits en Auvergne à partir de résineux locaux, les granulés Moulin Bois Energie associent circuit court et pouvoir calorifique élevé. Un choix apprécié des utilisateurs soucieux de l’origine de leur combustible.',
-  },
-  {
-    name: 'Granulés de Bois Excellent Pellets Premium — Palette 975kg (65 sacs)',
-    brandLabel: 'Excellent Pellets', cert: 'ENplus A1', totalWeightKg: 975, bags: 65,
-    price: 339, originalPrice: 389,
-    blurb: 'Excellent Pellets Premium se distingue par sa faible teneur en fines et son taux de cendres très bas, pour un entretien réduit de votre appareil de chauffage.',
-    badge: 'bestseller',
-  },
-  {
-    name: 'Granulés de Bois Français Crépito® Premium — Palette 1080kg (72 sacs)',
-    brandLabel: 'Crépito® Premium', cert: 'DIN+ / EN+ A1', totalWeightKg: 1080, bags: 72,
-    price: 369, originalPrice: 419,
-    blurb: 'Fabriqués en France, les granulés Crépito® Premium offrent un très bon pouvoir calorifique et une combustion régulière, avec une double certification DIN+ et EN+ A1.',
-  },
-  {
-    name: 'Granulés de Bois Français Natural Energie — Palette 1050kg (70 sacs)',
-    brandLabel: 'Natural Energie', cert: 'ENplus A1', totalWeightKg: 1050, bags: 70,
-    price: 349, originalPrice: 399,
-    blurb: 'Natural Energie propose un granulé français issu de sciures de résineux, calibré pour limiter les fines et préserver l’alimentation automatique de votre chaudière.',
-  },
-  {
-    name: 'Granulés de Bois Français Piveteau HP+ — Palette 1080kg (72 sacs)',
-    brandLabel: 'Piveteau HP+', cert: 'DINplus / EN+ A1', totalWeightKg: 1080, bags: 72,
-    price: 379, originalPrice: 429,
-    blurb: 'Piveteau HP+ est un granulé haute performance produit en France, réputé pour sa densité élevée et son faible taux d’humidité, gage d’un rendement thermique optimal.',
-    badge: 'bestseller',
-  },
-  {
-    name: 'Granulés de Bois Français SunPower (Triple Certification) — Palette 1050kg',
-    brandLabel: 'SunPower', cert: 'ENplus A1 · DINplus · NF Biocombustibles', totalWeightKg: 1050, bags: 70,
-    price: 389, originalPrice: 439,
-    blurb: 'SunPower cumule trois certifications de qualité, un gage de constance sur toute la palette : faible taux de cendres, faible humidité et pouvoir calorifique élevé.',
-  },
-  {
-    name: 'Granulés de Bois Français Valboval — Palette 975kg (65 sacs)',
-    brandLabel: 'Valboval', cert: 'ENplus A1', totalWeightKg: 975, bags: 65,
-    price: 319, originalPrice: 379,
-    blurb: 'Valboval propose un granulé français au excellent rapport qualité-prix, adapté à un usage quotidien en poêle à granulés.',
-  },
-  {
-    name: 'Granulés de Bois Français Woodstock® Premium — Palette 1170kg (78 sacs)',
-    brandLabel: 'Woodstock® Premium', cert: 'ENplus A1', totalWeightKg: 1170, bags: 78,
-    price: 409, originalPrice: 459,
-    blurb: 'La gamme Woodstock® Premium en grand conditionnement (78 sacs) permet de couvrir une consommation hivernale complète en une seule livraison.',
-  },
-  {
-    name: 'Granulés de Bois Français Woodstock® Premium — Palette 990kg (66 sacs)',
-    brandLabel: 'Woodstock® Premium', cert: 'ENplus A1', totalWeightKg: 990, bags: 66,
-    price: 359, originalPrice: 409,
-    blurb: 'Même qualité Woodstock® Premium que la grande palette, en conditionnement 66 sacs pour les besoins plus modestes ou les espaces de stockage réduits.',
-  },
-  {
-    name: 'Granulés de Bois HELIOS Haute Performance — Palette 975kg (65 sacs)',
-    brandLabel: 'Helios Haute Performance', cert: 'ENplus A1', totalWeightKg: 975, bags: 65,
-    price: 349, originalPrice: 399,
-    blurb: 'Helios Haute Performance mise sur une granulométrie régulière et un séchage optimal pour une alimentation fluide des systèmes automatiques.',
-  },
-  {
-    name: 'Granulés de Bois Naturels Badger Pellets — Palette 990kg (66 sacs)',
-    brandLabel: 'Badger Pellets Naturels', cert: 'ENplus A1', totalWeightKg: 990, bags: 66,
-    price: 349, originalPrice: 399,
-    blurb: 'Version « Naturels » de la gamme Badger Pellets, issue exclusivement de résineux non traités, sans écorce.',
-  },
-  {
-    name: 'Granulés de Bois Premium Allemands Van Roje — Palette 975kg (65 sacs)',
-    brandLabel: 'Van Roje', cert: 'ENplus A1', totalWeightKg: 975, bags: 65,
-    price: 359, originalPrice: 409,
-    blurb: 'Van Roje est un granulé premium d’origine allemande, reconnu pour sa régularité de calibre et sa faible production de fines pendant le transport.',
-  },
-  {
-    name: 'Granulés de Bois Premium TotalEnergies — Palette 990kg (66 sacs)',
-    brandLabel: 'TotalEnergies', cert: 'ENplus A1', totalWeightKg: 990, bags: 66,
-    price: 369, originalPrice: 419,
-    blurb: 'Le granulé premium TotalEnergies offre une combustion stable et un bon pouvoir calorifique, avec une disponibilité fiable tout au long de la saison.',
-  },
-  {
-    name: 'Granulés de Bois Premium TotalEnergies (DIN+/EN+ A1) — Palette 990kg',
-    brandLabel: 'TotalEnergies DIN+/EN+ A1', cert: 'DIN+ / EN+ A1', totalWeightKg: 990, bags: 66,
-    price: 379, originalPrice: 429,
-    blurb: 'Version double-certifiée DIN+ et EN+ A1 du granulé TotalEnergies, pour les foyers qui recherchent la meilleure garantie de qualité disponible sur le marché.',
-  },
-  {
-    name: 'Granulés de Bois Starforest Premium (DINplus) — Palette 1050kg (70 sacs)',
-    brandLabel: 'Starforest Premium', cert: 'DINplus', totalWeightKg: 1050, bags: 70,
-    price: 359, originalPrice: 409,
-    blurb: 'Starforest Premium associe certification DINplus et prix maîtrisé, un bon compromis pour un usage régulier en poêle à granulés.',
-  },
-  {
-    name: 'Granulés de bois Woodstock qualité premium — palette de 78 sacs de 15 kg',
-    brandLabel: 'Woodstock Qualité Premium', cert: 'ENplus A1', totalWeightKg: 1170, bags: 78,
-    price: 399, originalPrice: 449,
-    blurb: 'Grand conditionnement Woodstock en sacs de 15 kg, pratique à manipuler et à stocker, pour une autonomie de chauffage prolongée.',
-  },
-  {
-    name: 'Palette de pellets MM Royal (Royal Pellets) — 78 sacs plastique',
-    brandLabel: 'MM Royal Pellets', cert: 'ENplus A1', totalWeightKg: 1170, bags: 78,
-    price: 389, originalPrice: 439,
-    blurb: 'Royal Pellets propose un granulé régulier conditionné en sacs plastique renforcés, faciles à stocker à l’abri de l’humidité.',
-  },
-  {
-    name: 'Pellets de bois Helios — palette de 65 sacs de 15 kg',
-    brandLabel: 'Helios', cert: 'ENplus A1', totalWeightKg: 975, bags: 65,
-    price: 349, originalPrice: 399,
-    blurb: 'La gamme Helios classique complète l’offre Haute Performance avec un pellet fiable au quotidien, au meilleur rapport qualité-prix.',
-  },
+  { name: 'Granulés bois BADGER — 1/2 Palette de 36 sacs de 15 kg',                       slug: 'granules-bois-badger-demi-palette-36-sacs',            price: 200.00, bags: 36 },
+  { name: 'Pellet Moulin Bois Energie — 65 sacs de 15 kg',                                 slug: 'pellet-moulin-bois-energie-65-sacs',                   price: 204.00, bags: 65 },
+  { name: 'Pellet HELIOS — Palette de 65 sacs de 15 kg — 100% résineux',                   slug: 'pellet-helios-palette-65-sacs-resineux',               price: 205.00, bags: 65, comp: '100 % résineux' },
+  { name: 'Pellets Green Energy DINplus — 65 Sacs de 15 KG',                               slug: 'pellets-green-energy-dinplus-65-sacs',                 price: 205.00, bags: 65, cert: 'DINplus' },
+  { name: 'Granulés Holz Westerwalder — 1/2 Palette 36 sacs de 15 kg',                      slug: 'granules-holz-westerwalder-demi-palette-36-sacs',      price: 208.00, bags: 36 },
+  { name: 'Granulés Forest Pellets — 1/2 Palette de 36 sacs de 15 kg',                      slug: 'granules-forest-pellets-demi-palette-36-sacs',         price: 210.00, bags: 36 },
+  { name: 'Pellet Starforest 100% résineux — 70 sacs de 15 kg',                             slug: 'pellet-starforest-100-resineux-70-sacs',               price: 210.99, bags: 70, comp: '100 % résineux' },
+  { name: 'Granulés de bois Limouzi — 66 sacs de 15 Kg',                                    slug: 'granules-bois-limouzi-66-sacs',                        price: 230.00, bags: 66 },
+  { name: 'Pellets Pellini EN+ A1 — Palette de 66 sacs de 10 kg',                           slug: 'pellets-pellini-enplus-a1-66-sacs-10kg',               price: 244.40, bags: 66, bagKg: 10, cert: 'EN+ A1' },
+  { name: 'Granulés de bois Dragon EN+ A1 — 65 sacs x 15kg',                                slug: 'granules-bois-dragon-enplus-a1-65-sacs',               price: 255.00, bags: 65, cert: 'EN+ A1' },
+  { name: 'Pellet Badger — Palette de 65 sacs de 15 kg',                                    slug: 'pellet-badger-palette-65-sacs',                        price: 255.00, bags: 65 },
+  { name: 'Pellets HS Timber — Palette de 66 sacs de 15 kg — 100% résineux',                slug: 'pellets-hs-timber-palette-66-sacs-resineux',           price: 256.74, bags: 66, comp: '100 % résineux' },
+  { name: 'Pellet Excellent Pellets — Palette de 65 sacs de 15 kg',                         slug: 'pellet-excellent-pellets-palette-65-sacs',             price: 265.00, bags: 65 },
+  { name: 'Pellet Confort — Palette de 70 sacs de 15 kg — 100% résineux',                   slug: 'pellet-confort-palette-70-sacs-resineux',              price: 275.00, bags: 70, comp: '100 % résineux' },
+  { name: 'Pellet Van Roje — Palette de 65 sacs de 15 kg',                                  slug: 'pellet-van-roje-palette-65-sacs',                      price: 276.00, bags: 65 },
+  { name: 'Granulés de bois Naturkraft — Palette de 66 sacs',                               slug: 'granules-bois-naturkraft-palette-66-sacs',             price: 285.00, bags: 66 },
+  { name: 'Pellet Total Premium — Palette de 66 sacs de 15 kg',                             slug: 'pellet-total-premium-palette-66-sacs',                 price: 285.00, bags: 66 },
+  { name: 'Granulés de bois Forest Pellets — Palette de 65 sacs de 15 kg',                  slug: 'granules-bois-forest-pellets-palette-65-sacs',         price: 288.00, bags: 65 },
+  { name: 'Granulés de bois Holz Westerwalder — Palette 66 sacs de 15 kg',                  slug: 'granules-bois-holz-westerwalder-palette-66-sacs',      price: 290.00, bags: 66 },
+  { name: 'Pellet ANVIL — Palette de 70 sacs de 15Kg — EN Plus A1',                         slug: 'pellet-anvil-palette-70-sacs-enplus-a1',               price: 300.00, bags: 70, cert: 'EN Plus A1' },
+  { name: 'Granulés OLIMP Din+, EN+A1 — Palette de 15 sacs de 15kg',                        slug: 'granules-olimp-dinplus-enplus-a1-15-sacs',             price: 300.00, bags: 15, cert: 'Din+ / EN+ A1' },
+  { name: 'Granulés GOLD 100% résineux — Palette de 65 sacs de 15 kg',                      slug: 'granules-gold-100-resineux-palette-65-sacs',           price: 302.00, bags: 65, comp: '100 % résineux' },
+  { name: 'Granulés de bois BADGER — Palette de 65 sacs de 15 kg',                          slug: 'granules-bois-badger-palette-65-sacs',                 price: 302.00, bags: 65 },
+  { name: 'Pellet LAVA 100% résineux — Palette de 65 sacs de 15 kg',                        slug: 'pellet-lava-100-resineux-palette-65-sacs',             price: 305.00, bags: 65, comp: '100 % résineux' },
+  { name: 'Pellets Pellini EN+ A1 — Palette de 66 sacs de 15 kg',                           slug: 'pellets-pellini-enplus-a1-66-sacs-15kg',               price: 309.00, bags: 66, cert: 'EN+ A1' },
+  { name: 'Pellet MAGIC POLAR — Palette de 70 sacs de 15kg — EN Plus A1',                   slug: 'pellet-magic-polar-palette-70-sacs-enplus-a1',         price: 310.00, bags: 70, cert: 'EN Plus A1' },
+  { name: 'Pellet Rochefort — Palette de 65 sacs de 15kg — 100% résineux',                  slug: 'pellet-rochefort-palette-65-sacs-resineux',            price: 310.00, bags: 65, comp: '100 % résineux' },
+  { name: 'Granulés de bois Crépito — Palette 72 sacs de 15 kg',                            slug: 'granules-bois-crepito-palette-72-sacs',                price: 310.00, bags: 72 },
+  { name: 'Pellets Arapellet (En+ A1, Din+) — Palette de 77 sacs de 15 Kg',                 slug: 'pellets-arapellet-enplus-a1-dinplus-77-sacs',          price: 315.00, bags: 77, cert: 'EN+ A1 / Din+' },
+  { name: 'Granulés German Flames 6mm EN+ A1 — Palette 990kg',                              slug: 'granules-german-flames-6mm-enplus-a1-990kg',           price: 315.00, bags: 66, cert: 'EN+ A1' },
+  { name: 'Pellet Valboval — Palette de 65 sacs de 15 kg',                                  slug: 'pellet-valboval-palette-65-sacs',                      price: 316.00, bags: 65 },
+  { name: 'Pellet Le petit scieur français — 65 sacs de 15 kg — 100% résineux',             slug: 'pellet-petit-scieur-francais-65-sacs-resineux',        price: 325.00, bags: 65, comp: '100 % résineux' },
+  { name: 'Pellet SunPower — Palette de 70 sacs de 15 kg',                                  slug: 'pellet-sunpower-palette-70-sacs',                      price: 328.99, bags: 70 },
+  { name: 'Granulés de bois Piveteau HP+ — 72 Sacs de 15kg',                                slug: 'granules-bois-piveteau-hp-plus-72-sacs',               price: 340.00, bags: 72 },
+  { name: 'Granulés PIKS — Palette de 66 sacs (990kg) certifié Din Plus',                   slug: 'granules-piks-palette-66-sacs-990kg-dinplus',          price: 352.00, bags: 66, cert: 'Din Plus' },
+  { name: 'Pellets Alpes Energie Bois — Palette de 70 sacs de 15 Kg',                       slug: 'pellets-alpes-energie-bois-palette-70-sacs',           price: 355.00, bags: 70 },
+  { name: 'Pellet Moulin Bois Energie — Palette de 65 sacs de 15 kg',                       slug: 'pellet-moulin-bois-energie-palette-65-sacs-premium',   price: 355.00, bags: 65 },
+  { name: 'Pellets Natural Energie — Palette de 70 sacs de 15 kg',                          slug: 'pellets-natural-energie-palette-70-sacs',              price: 377.00, bags: 70 },
+  { name: 'Granulés HEIZFUXX bleu EN+ A1 — Palette 65 sacs x 15kg',                         slug: 'granules-heizfuxx-bleu-enplus-a1-65-sacs',             price: 379.00, bags: 65, cert: 'EN+ A1' },
+  { name: 'Granulés de bois Woodstock — 78 sacs de 15 kg',                                  slug: 'granules-bois-woodstock-78-sacs',                      price: 380.00, bags: 78 },
+  { name: 'Granulés HEIZFUXX gris EN+ A2 — Palette 65 sacs x 15kg',                         slug: 'granules-heizfuxx-gris-enplus-a2-65-sacs',             price: 387.00, bags: 65, cert: 'EN+ A2' },
+  { name: 'Pellet Starforest — Palette de 70 sacs de 15 kg',                                slug: 'pellet-starforest-palette-70-sacs',                    price: 405.00, bags: 70 },
+  { name: 'Granulés HEIZFUXX rouge EN+ A1 — Palette 65 sacs x 15kg',                        slug: 'granules-heizfuxx-rouge-enplus-a1-65-sacs',            price: 475.00, bags: 65, cert: 'EN+ A1' },
+  { name: 'Pellet Ardenforest 100% résineux — 70 sacs de 15 kg',                            slug: 'pellet-ardenforest-100-resineux-70-sacs',              price: 480.00, bags: 70, comp: '100 % résineux' },
 ]
 
-const GRANULES: Product[] = GRANULE_DEFS.map(buildGranule)
+const GRANULES: Product[] = GRANULE_DEFS.map((def, i) => buildGranule(def, i))
 
-export const PRODUCTS: Product[] = [...BUCHES, ...DENSIFIE, ...COMPRESSEES, ...GRANULES]
+export const PRODUCTS: Product[] = [...MELANGES, ...HETRES, ...GRANULES]
 
 export const BOIS_CHAUFFAGE_PRODUCTS = PRODUCTS.filter(p => p.family === 'bois-de-chauffage')
 export const GRANULES_PRODUCTS       = PRODUCTS.filter(p => p.family === 'granules')

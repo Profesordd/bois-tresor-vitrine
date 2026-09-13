@@ -9,31 +9,19 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        // Bois / écorce — teinte chaude principale
         brand: {
-          50:  '#FBF3EA',
-          100: '#F3E1CB',
-          200: '#E6C299',
-          300: '#D6A468',
-          400: '#BD7F42',
-          500: '#9C5F2C',
-          600: '#7E4A22',
-          700: '#623A1B',
-          800: '#452812',
-          900: '#2A180A',
+          50:  '#ECFBF5',
+          100: '#C9F3E3',
+          200: '#94E4C8',
+          300: '#5ECFAD',
+          400: '#2FB88E',
+          500: '#0F8F6B',
+          600: '#0C7256',
+          700: '#0A5C45',
+          800: '#084633',
+          900: '#06301F',
         },
-        // Braise / flamme — accent chaleureux
-        ember: {
-          300: '#F6B26B',
-          400: '#EE9145',
-          500: '#DD7A2E',
-          600: '#BC5F1E',
-        },
-        cream: {
-          DEFAULT: '#FBF6EE',
-          100: '#FBF6EE',
-          200: '#F4EADA',
-        },
+        ink: '#0E1B16',
         promo: '#B4432A',
       },
       fontFamily: {

@@ -1,8 +1,8 @@
 import { Resend } from 'resend'
 
-export const FROM_EMAIL  = process.env.EMAIL_FROM ?? 'Bois Trésor <contact@bois-tresor.com>'
-export const ADMIN_EMAIL = process.env.ADMIN_EMAIL ?? 'contact@bois-tresor.com'
-export const SITE_URL    = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://bois-tresor-vitrine.vercel.app'
+export const FROM_EMAIL  = process.env.EMAIL_FROM ?? 'Bois Émeraude <contact@bois-emeraude.com>'
+export const ADMIN_EMAIL = process.env.ADMIN_EMAIL ?? 'contact@bois-emeraude.com'
+export const SITE_URL    = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://bois-emeraude-vitrine.vercel.app'
 
 // Instanciation lazy — évite le crash au build si RESEND_API_KEY absent
 let _resend: Resend | null = null

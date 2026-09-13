@@ -181,7 +181,7 @@ export default function SuiviCommandePage() {
                   <input
                     type="text" required value={form.number}
                     onChange={e => setForm(f => ({ ...f, number: e.target.value.toUpperCase() }))}
-                    placeholder="ex : A1B2C3D4"
+                    placeholder="ex : BA4F2C1D"
                     className="w-full border border-brand-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 font-mono tracking-wider"
                   />
                 </div>

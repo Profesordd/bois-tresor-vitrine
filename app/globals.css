@@ -5,8 +5,8 @@
 @tailwind utilities;
 
 :root {
-  --background: #FBF6EE;
-  --foreground: #2A180A;
+  --background: #ffffff;
+  --foreground: #0E1B16;
 }
 
 body {
@@ -58,9 +58,9 @@ html {
 .product-description h2,
 .product-description h3 {
   font-weight: 700;
-  color: #2A180A;
+  color: #0E1B16;
   margin: 1.5rem 0 0.5rem;
 }
 .product-description h2 { font-size: 1.25rem; }
 .product-description h3 { font-size: 1.05rem; }
-.product-description strong { font-weight: 700; color: #452812; }
+.product-description strong { font-weight: 700; color: #0A5C45; }

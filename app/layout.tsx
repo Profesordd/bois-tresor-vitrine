@@ -4,15 +4,15 @@ import SiteShell from '@/components/layout/SiteShell'
 
 export const metadata: Metadata = {
   title: {
-    default: 'Bois Trésor — Bois de chauffage & granulés premium',
-    template: '%s | Bois Trésor',
+    default: 'Bois Émeraude — Maison du feu de bois',
+    template: '%s | Bois Émeraude',
   },
-  description: 'Bois de chauffage et granulés de bois premium, séchés à cœur, livrés chez vous. Site de démonstration.',
-  keywords: ['bois de chauffage', 'granulés de bois', 'pellets', 'bûches', 'bois densifié', 'chauffage au bois'],
+  description: 'Le bois de chauffage, dans sa plus belle expression. Bûches de feuillus durs séchées à cœur et granulés certifiés EN+ A1, livrés partout en France.',
+  keywords: ['bois de chauffage', 'granulés de bois', 'pellets', 'bûches', 'chauffage au bois', 'bois émeraude'],
   openGraph: {
     type: 'website',
     locale: 'fr_FR',
-    siteName: 'Bois Trésor',
+    siteName: 'Bois Émeraude',
   },
 }
 
@@ -20,7 +20,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
   return (
     <html lang="fr">
       <head></head>
-      <body className="antialiased font-sans text-brand-900 bg-cream">
+      <body className="antialiased font-sans text-ink bg-white">
         <SiteShell>{children}</SiteShell>
       </body>
     </html>

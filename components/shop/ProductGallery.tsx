@@ -1,15 +1,14 @@
-import type { ProductSubtype } from '@/types/database'
 import ProductVisual from '@/components/shop/ProductVisual'
 
 interface ProductGalleryProps {
-  subtype: ProductSubtype
+  image: string
   name: string
 }
 
-export default function ProductGallery({ subtype, name }: ProductGalleryProps) {
+export default function ProductGallery({ image, name }: ProductGalleryProps) {
   return (
-    <div className="relative aspect-square rounded-2xl overflow-hidden shadow-sm" role="img" aria-label={name}>
-      <ProductVisual subtype={subtype} />
+    <div className="relative aspect-square rounded-2xl overflow-hidden shadow-sm bg-gray-50">
+      <ProductVisual image={image} name={name} priority />
     </div>
   )
 }
