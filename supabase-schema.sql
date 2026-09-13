@@ -1,5 +1,5 @@
 -- =============================================
--- BOIS ÉMERAUDE — Schéma Supabase
+-- BOIS TRESOR — Schéma Supabase
 -- À exécuter dans l'éditeur SQL de Supabase
 --
 -- État actuel du site : le catalogue (produits/catégories) affiché sur le

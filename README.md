@@ -1,8 +1,8 @@
-# Bois Émeraude — vitrine
+# Bois Tresor — vitrine
 
-Reconstruction Next.js du site en production du client (bois-emeraude.com) :
-mêmes produits, mêmes prix, mêmes textes et mêmes photos que le site réel,
-avec paiement en ligne pas encore branché (démo).
+Reconstruction Next.js du site en production du client, sous le nom **Bois
+Tresor** : mêmes produits, mêmes prix, mêmes textes et mêmes photos que le
+site réel (bois-emeraude.com), avec paiement en ligne pas encore branché (démo).
 
 ## État actuel
 

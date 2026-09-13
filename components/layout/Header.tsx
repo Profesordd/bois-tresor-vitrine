@@ -13,15 +13,16 @@ const categories = [
 
 function Logo() {
   return (
-    <Link href="/" className="flex items-center gap-2 group flex-shrink-0">
-      <svg width="30" height="30" viewBox="0 0 36 36" fill="none" aria-hidden>
-        <path d="M18 30 C10 30 6 25 6 19 C6 13 10 9 12 5 C11 10 14 11 14 15 C14 18 16 15 16 12 C19 15 22 15 22 21 C22 27 26 22 25 17 C29 20 30 24 30 27 C30 29 26 30 18 30 Z" fill="#0F8F6B" />
+    <Link href="/" className="flex items-center gap-1.5 group flex-shrink-0">
+      <span className="font-sans font-semibold text-xl tracking-tight" style={{ color: '#5B3A29' }}>
+        Bois
+      </span>
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden className="-mx-0.5">
+        <path d="M12 3 C7 6 5 10 5 14 C5 18.4 8.1 21 12 21 C15.9 21 19 18.4 19 14 C19 10 17 6 12 3 Z" fill="none" stroke="#3E7A3E" strokeWidth="1.6" />
+        <path d="M12 20 V9 M12 13 C10 13 8.5 12.2 7.5 11" fill="none" stroke="#3E7A3E" strokeWidth="1.6" strokeLinecap="round" />
       </svg>
-      <span className="flex flex-col leading-none">
-        <span className="font-serif font-semibold text-xl text-ink group-hover:text-brand-600 transition-colors">
-          Bois Émeraude
-        </span>
-        <span className="text-[10px] uppercase tracking-widest text-gray-400">Maison du feu de bois</span>
+      <span className="font-sans font-semibold text-xl tracking-tight" style={{ color: '#3E7A3E' }}>
+        Tresor
       </span>
     </Link>
   )

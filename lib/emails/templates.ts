@@ -22,9 +22,9 @@ function base(title: string, body: string): string {
         <tr>
           <td style="background:${BROWN};padding:28px 40px;text-align:center;">
             <p style="margin:0;font-size:22px;font-weight:700;color:#ffffff;letter-spacing:-0.5px;">
-              Bois Émeraude
+              Bois Tresor
             </p>
-            <p style="margin:6px 0 0;font-size:13px;color:#F3E1CB;">Maison du feu de bois</p>
+            <p style="margin:6px 0 0;font-size:13px;color:#DCEEE6;">Bois de chauffage & granulés premium</p>
           </td>
         </tr>
 
@@ -33,7 +33,7 @@ function base(title: string, body: string): string {
         <tr>
           <td style="background:${LIGHT};border-top:1px solid ${BORDER};padding:24px 40px;text-align:center;">
             <p style="margin:0 0 8px;font-size:12px;color:${GRAY};">
-              Bois Émeraude — Maison du feu de bois
+              Bois Tresor — Bois de chauffage & granulés premium
             </p>
             <p style="margin:0;font-size:12px;color:${GRAY};">
               <a href="${SITE_URL}/contact" style="color:${BROWN};text-decoration:none;">Nous contacter</a>
@@ -94,5 +94,5 @@ export function contactNotificationHtml(name: string, email: string, subject: st
       <a href="mailto:${email}" style="display:inline-block;background:${BROWN};color:#ffffff;font-weight:700;font-size:15px;padding:14px 28px;border-radius:8px;text-decoration:none;">Répondre par email</a>
     </div>
   `
-  return base('Nouveau message — Bois Émeraude', body)
+  return base('Nouveau message — Bois Tresor', body)
 }

@@ -73,7 +73,7 @@ export const useCartStore = create<CartStore>()(
         get().items.reduce((sum, i) => sum + i.product.price * i.quantity, 0),
     }),
     {
-      name: 'bois-emeraude-cart',
+      name: 'bois-tresor-cart',
       storage: createJSONStorage(() => localStorage),
       partialize: (state) => ({ items: state.items }),
     }

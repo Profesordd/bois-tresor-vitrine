@@ -1,8 +1,8 @@
 import type { Product, Category, Spec } from '@/types/database'
 
 /**
- * Catalogue Bois Émeraude — repris du site en production du client
- * (bois-emeraude.com) : mêmes intitulés produits, mêmes prix, mêmes
+ * Catalogue Bois Tresor — repris du site en production du client
+ * (bois-tresor.com) : mêmes intitulés produits, mêmes prix, mêmes
  * caractéristiques techniques que celles publiées sur le site réel.
  *
  * Les photos produit sont les vraies photos du site (héro + bûches +

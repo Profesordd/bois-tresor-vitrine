@@ -15,7 +15,7 @@ export async function POST(req: NextRequest) {
       getResend().emails.send({
         from:    FROM_EMAIL,
         to:      email,
-        subject: 'Votre message a bien été reçu — Bois Émeraude',
+        subject: 'Votre message a bien été reçu — Bois Tresor',
         html:    contactConfirmationHtml(name, message),
       }),
       getResend().emails.send({

@@ -7,7 +7,7 @@ import NewsletterForm from '@/components/ui/NewsletterForm'
 
 /**
  * Chiffres clés et avis — repris tels quels du site en production du
- * client (bois-emeraude.com), à la demande explicite du client.
+ * client (bois-tresor.com), à la demande explicite du client.
  */
 const KEY_FIGURES = [
   { value: '12 000+', label: 'stères livrés' },
@@ -23,11 +23,11 @@ const STRENGTHS = [
 ]
 
 const TESTIMONIALS = [
-  { initials: 'PL', name: 'Pierre L.',    text: 'Livré en 5 jours, bois très sec et propre. Brûle parfaitement dans ma cheminée. Je recommande Bois Émeraude.' },
+  { initials: 'PL', name: 'Pierre L.',    text: 'Livré en 5 jours, bois très sec et propre. Brûle parfaitement dans ma cheminée. Je recommande Bois Tresor.' },
   { initials: 'MD', name: 'Marie D.',     text: 'Les granulés sont de très bonne qualité, mon poêle fonctionne au top. Rapport qualité-prix imbattable.' },
   { initials: 'JB', name: 'Jean-Marc B.', text: 'Commande reçue en 4 jours, palette bien emballée. Le bois est sec et calibré. Deuxième commande chez eux.' },
   { initials: 'CR', name: 'Catherine R.', text: 'Bûches densifiées de qualité, faciles à stocker. Un peu plus cher qu’en grande surface mais la qualité est là.' },
-  { initials: 'FM', name: 'François M.',  text: '3ème hiver avec Bois Émeraude. Toujours la même qualité, toujours ponctuel. Les allume-feux sont top aussi.' },
+  { initials: 'FM', name: 'François M.',  text: '3ème hiver avec Bois Tresor. Toujours la même qualité, toujours ponctuel. Les allume-feux sont top aussi.' },
   { initials: 'ST', name: 'Sophie T.',    text: 'Enfin un fournisseur sérieux avec du vrai bois français. Pas de surprises, tout est conforme à la description.' },
 ]
 
@@ -190,7 +190,7 @@ export default function HomePage() {
       {/* ── À PROPOS ── */}
       <section className="py-16">
         <div className="max-w-3xl mx-auto px-4 text-center">
-          <h2 className="font-serif text-2xl font-bold text-ink mb-4">Bois Émeraude</h2>
+          <h2 className="font-serif text-2xl font-bold text-ink mb-4">Bois Tresor</h2>
           <p className="text-gray-600 leading-relaxed">
             La maison française du bois de chauffage haut de gamme : bûches de feuillus durs
             séchées à cœur et granulés certifiés EN+ A1, sélectionnés avec exigence et livrés

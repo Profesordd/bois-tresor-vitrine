@@ -4,7 +4,7 @@ export default function PolitiqueCookiesPage() {
   return (
     <div className="max-w-3xl mx-auto px-4 sm:px-6 py-16">
       <h1 className="text-3xl font-bold text-ink mb-2 font-serif">Politique cookies</h1>
-      <p className="text-gray-500 mb-10">Le site Bois Émeraude utilise un minimum de cookies, uniquement nécessaires à son bon fonctionnement.</p>
+      <p className="text-gray-500 mb-10">Le site Bois Tresor utilise un minimum de cookies, uniquement nécessaires à son bon fonctionnement.</p>
 
       <div className="prose prose-gray max-w-none text-gray-700 space-y-8">
         <section>
@@ -13,7 +13,7 @@ export default function PolitiqueCookiesPage() {
         </section>
         <section>
           <h2 className="text-xl font-bold text-ink">Absence de traceurs publicitaires</h2>
-          <p>Bois Émeraude n’utilise pas de cookies publicitaires ni de traceurs tiers à des fins de profilage marketing.</p>
+          <p>Bois Tresor n’utilise pas de cookies publicitaires ni de traceurs tiers à des fins de profilage marketing.</p>
         </section>
         <section>
           <h2 className="text-xl font-bold text-ink">Gestion</h2>

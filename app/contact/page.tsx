@@ -48,7 +48,7 @@ export default function ContactPage() {
             <h2 className="text-xl font-bold text-ink mb-6">Coordonnées</h2>
 
             {[
-              { icon: Mail,   title: 'Email',    val: 'contact@bois-emeraude.com', sub: 'Réponse sous 24h' },
+              { icon: Mail,   title: 'Email',    val: 'contact@bois-tresor.com', sub: 'Réponse sous 24h' },
               { icon: Clock,  title: 'Horaires',  val: 'Lun – Ven · 9h – 18h', sub: 'Fermé week-end et jours fériés' },
               { icon: MapPin, title: 'Zone de livraison', val: 'Toute la France métropolitaine', sub: 'Service 100% en ligne' },
             ].map(({ icon: Icon, title, val, sub }) => (
