@@ -54,7 +54,8 @@ export default function HomePage() {
           </h1>
           <p className="text-lg sm:text-xl mb-10 text-gray-200 font-light max-w-2xl mx-auto">
             Bûches de feuillus durs séchées à cœur et granulés certifiés EN+ A1, sélectionnés
-            auprès des meilleures scieries et livrés partout en France — offerts, palettisés, soignés.
+            auprès des meilleures scieries et livrés partout en France, palettisés et soignés
+            — livraison offerte pour votre première commande.
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center mb-10">
@@ -148,7 +149,7 @@ export default function HomePage() {
           <h2 className="font-serif text-3xl sm:text-4xl font-bold text-white mb-3">Prêt pour l’hiver</h2>
           <p className="text-brand-300 text-lg mb-6">Un feu d’exception commence par un bois d’exception.</p>
           <p className="text-gray-300 mb-10">
-            Palettes à partir de 89,00 € — livraison offerte, paiement 100 % sécurisé, expédition sous 48 h.
+            Palettes à partir de 89,00 € — livraison offerte pour votre première commande, paiement 100 % sécurisé, expédition sous 48 h.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link href="/produits?categorie=bois-de-chauffage" className="inline-block bg-brand-500 hover:bg-brand-400 text-white px-7 py-3 rounded-lg font-semibold transition-colors">

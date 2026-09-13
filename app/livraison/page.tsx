@@ -21,7 +21,7 @@ export default function LivraisonPage() {
         </section>
         <section>
           <h2 className="text-xl font-bold text-ink">Frais de livraison</h2>
-          <p>La livraison est incluse dans nos prix, sans minimum de commande, sauf mention contraire sur la fiche produit.</p>
+          <p>La livraison est offerte pour votre première commande. Pour les commandes suivantes, des frais de livraison pourront s’appliquer selon le volume commandé et votre région, sauf mention contraire sur la fiche produit.</p>
         </section>
       </div>
     </div>

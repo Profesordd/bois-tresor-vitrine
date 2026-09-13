@@ -70,7 +70,7 @@ export default function ProductAccordion({ description, specs }: Props) {
         content={
           <ul className="space-y-2 text-sm text-brand-700">
             {[
-              'Livraison offerte dès 150 € d’achat, en France métropolitaine',
+              'Livraison offerte pour votre première commande, en France métropolitaine',
               'Expédition sur palette filmée pour les gros conditionnements',
               'Un e-mail de suivi vous est envoyé dès l’expédition',
             ].map(item => <li key={item}>{item}</li>)}

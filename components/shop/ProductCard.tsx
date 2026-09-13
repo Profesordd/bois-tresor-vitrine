@@ -43,7 +43,7 @@ export default function ProductCard({ product }: ProductCardProps) {
 
         <div className="flex items-center gap-1.5 text-xs text-brand-700 font-medium">
           <Truck size={12} className="flex-shrink-0" />
-          <span>Livraison offerte</span>
+          <span>1ère commande offerte</span>
         </div>
 
         <AddToCartButton product={product} compact />

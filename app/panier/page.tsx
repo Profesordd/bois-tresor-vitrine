@@ -69,7 +69,7 @@ export default function PanierPage() {
 
       <div className="bg-brand-50 border border-brand-100 rounded-xl p-3 mb-6 flex items-center gap-2 text-brand-700 text-sm font-semibold">
         <Truck size={16} />
-        Livraison offerte partout en France
+        Livraison offerte pour votre 1ère commande
       </div>
 
       <div className="grid lg:grid-cols-3 gap-8">

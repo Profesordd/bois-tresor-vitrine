@@ -6,7 +6,7 @@ export default function PromoBar() {
       <div className="flex items-center justify-center gap-4 sm:gap-8 flex-wrap">
         <span className="flex items-center gap-1.5">
           <Truck size={14} className="text-brand-300 flex-shrink-0" />
-          Livraison offerte partout en France
+          Livraison offerte pour votre 1ère commande
         </span>
         <span className="hidden sm:inline text-brand-600">·</span>
         <span className="flex items-center gap-1.5">

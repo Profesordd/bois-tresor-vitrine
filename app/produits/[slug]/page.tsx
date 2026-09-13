@@ -59,7 +59,7 @@ export default async function ProductPage({ params }: Props) {
           </div>
           <p className="flex items-center gap-1.5 text-sm text-brand-700 font-medium mb-6">
             <Truck size={15} />
-            Livraison offerte partout en France
+            Livraison offerte pour votre première commande
           </p>
 
           <QuantitySelector product={product} />

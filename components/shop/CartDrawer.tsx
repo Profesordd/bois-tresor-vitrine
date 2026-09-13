@@ -44,7 +44,7 @@ export default function CartDrawer() {
         {mounted && total > 0 && (
           <div className="px-4 py-2 bg-brand-50 border-b border-gray-100 flex items-center gap-2 text-xs text-brand-700">
             <Truck size={14} />
-            <span className="font-semibold">Livraison offerte partout en France</span>
+            <span className="font-semibold">Livraison offerte pour votre 1ère commande</span>
           </div>
         )}
 
