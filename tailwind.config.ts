@@ -25,7 +25,7 @@ const config: Config = {
         promo: '#B4432A',
       },
       fontFamily: {
-        serif: ['Fraunces', 'Georgia', 'serif'],
+        serif: ['Georgia', 'Times New Roman', 'serif'],
         sans:  ['Inter', 'Helvetica Neue', 'sans-serif'],
       },
     },

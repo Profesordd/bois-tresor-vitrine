@@ -2,8 +2,7 @@
 
 import Link from 'next/link'
 import { useState } from 'react'
-import { Mail, Clock, MapPin, CheckCircle, Package, Phone } from 'lucide-react'
-import Fill from '@/components/ui/Fill'
+import { Mail, Clock, MapPin, CheckCircle, Package } from 'lucide-react'
 
 export default function ContactPage() {
   const [sent, setSent]       = useState(false)
@@ -32,7 +31,7 @@ export default function ContactPage() {
 
   return (
     <div>
-      <div className="bg-gradient-to-r from-brand-800 to-brand-600 text-white py-12 px-4">
+      <div className="bg-brand-800 text-white py-12 px-4">
         <div className="max-w-4xl mx-auto text-center">
           <h1 className="text-3xl sm:text-4xl font-bold mb-3 font-serif">On vous répond.</h1>
           <p className="text-brand-100">
@@ -49,12 +48,11 @@ export default function ContactPage() {
             <h2 className="text-xl font-bold text-ink mb-6">Coordonnées</h2>
 
             {[
-              { icon: Phone,  title: 'Téléphone', val: <Fill>numéro à compléter</Fill>, sub: 'Un vrai humain vous répond' },
-              { icon: Mail,   title: 'E-mail',    val: 'contact@bois-tresor.com', sub: 'Réponse sous 24h' },
+              { icon: Mail,   title: 'E-mail',    val: 'contact@bois-tresor.com', sub: 'Un vrai humain vous répond sous 24h' },
               { icon: Clock,  title: 'Horaires',  val: 'Lun – Ven · 9h – 18h', sub: 'Fermé week-end et jours fériés' },
               { icon: MapPin, title: 'Zone de livraison', val: 'Toute la France métropolitaine', sub: 'France métropolitaine' },
             ].map(({ icon: Icon, title, val, sub }) => (
-              <div key={title} className="flex gap-4 p-4 bg-brand-50 rounded-xl">
+              <div key={title} className="flex gap-4 p-4 bg-brand-50 rounded-lg">
                 <div className="w-10 h-10 bg-white rounded-lg flex items-center justify-center flex-shrink-0">
                   <Icon size={18} className="text-brand-600" />
                 </div>
@@ -66,7 +64,7 @@ export default function ContactPage() {
               </div>
             ))}
 
-            <div className="p-4 border border-brand-100 rounded-xl">
+            <div className="p-4 border border-brand-100 rounded-lg">
               <p className="font-semibold text-ink text-sm mb-2 flex items-center gap-2">
                 <Package size={15} className="text-brand-600" /> Pour un traitement plus rapide
               </p>
@@ -98,7 +96,7 @@ export default function ContactPage() {
                       type="text"
                       value={form.name}
                       onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
-                      className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent"
+                      className="w-full border border-gray-200 rounded-lg px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent"
                       placeholder="Jean Dupont"
                     />
                   </div>
@@ -109,7 +107,7 @@ export default function ContactPage() {
                       type="email"
                       value={form.email}
                       onChange={e => setForm(f => ({ ...f, email: e.target.value }))}
-                      className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent"
+                      className="w-full border border-gray-200 rounded-lg px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent"
                       placeholder="jean@exemple.com"
                     />
                   </div>
@@ -120,7 +118,7 @@ export default function ContactPage() {
                   <select
                     value={form.subject}
                     onChange={e => setForm(f => ({ ...f, subject: e.target.value }))}
-                    className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent bg-white"
+                    className="w-full border border-gray-200 rounded-lg px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent bg-white"
                   >
                     <option value="">Choisir un sujet…</option>
                     <option>Question sur un produit</option>
@@ -137,19 +135,19 @@ export default function ContactPage() {
                     rows={6}
                     value={form.message}
                     onChange={e => setForm(f => ({ ...f, message: e.target.value }))}
-                    className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent resize-none"
+                    className="w-full border border-gray-200 rounded-lg px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent resize-none"
                     placeholder="Décrivez votre demande en détail…"
                   />
                 </div>
 
                 {error && (
-                  <p className="text-sm text-red-600 bg-red-50 px-4 py-3 rounded-xl">{error}</p>
+                  <p className="text-sm text-red-600 bg-red-50 px-4 py-3 rounded-lg">{error}</p>
                 )}
 
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full bg-brand-600 hover:bg-brand-700 disabled:opacity-60 text-white font-semibold py-3.5 rounded-xl transition-colors flex items-center justify-center gap-2"
+                  className="w-full bg-brand-600 hover:bg-brand-700 disabled:opacity-60 text-white font-semibold py-3.5 rounded-lg transition-colors flex items-center justify-center gap-2"
                 >
                   {loading
                     ? <><span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" /> Envoi en cours…</>

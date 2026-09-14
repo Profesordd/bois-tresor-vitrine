@@ -55,7 +55,7 @@ function buildMelange({ length, stere, slug, price, badge = null }: MelangeInput
       '100 % feuillus durs français : chêne, charme, hêtre et frêne.',
       `Bûches de ${length}, fendues et en grande partie écorcées.`,
       `Palette de ${stere} stères, livrée filmée.`,
-      'Livraison offerte pour votre 1ère commande, partout en France métropolitaine.',
+      'Livraison offerte dès 89 € d’achat, partout en France métropolitaine.',
       'Paiement sécurisé en ligne. E-mail de confirmation avec votre numéro de commande.',
     ],
     description: `<p>Composé des meilleures essences de feuillus durs : chêne, charme, frêne et hêtre. Nous garantissons un rendement maximal de votre poêle à bois.</p><ul><li>Bûches fendues et en grande partie écorcées, longueur ${length} (±5 %)</li><li>100 % bois français, taux d’humidité ≤ 20 %</li><li>Palette de ${stere} stères, livraison soignée</li><li>Utilisation immédiate dès réception</li></ul>`,
@@ -112,7 +112,7 @@ function buildHetre({ stere, volumeNote, poids, slug, price }: HetreInput): Prod
       '100 % hêtre, issu de forêts gérées durablement.',
       'Bûches de 30 cm, séchées au four.',
       `Palette de ${volumeNote}, ${poids} environ, livrée filmée.`,
-      'Livraison offerte pour votre 1ère commande, partout en France métropolitaine.',
+      'Livraison offerte dès 89 € d’achat, partout en France métropolitaine.',
       'Paiement sécurisé en ligne. E-mail de confirmation avec votre numéro de commande.',
     ],
     description: `<p>Bois de chauffage 100 % hêtre en bûches de 30 cm, séché au four et prêt à brûler immédiatement. Palette de ${volumeNote} livrée filmée.</p>`,
@@ -169,7 +169,7 @@ function buildGranule({ name, slug, price, bags, bagKg = 15, cert = null, comp =
     comp ? `Composition : ${comp}.` : null,
     cert ? `Certification ${cert}.` : null,
     `${bags} sacs de ${bagKg} kg, soit ${totalWeight} kg. Palette filmée.`,
-    'Livraison offerte pour votre 1ère commande, partout en France métropolitaine.',
+    'Livraison offerte dès 89 € d’achat, partout en France métropolitaine.',
     'Paiement sécurisé en ligne. E-mail de confirmation avec votre numéro de commande.',
   ].filter((p): p is string => p !== null)
 

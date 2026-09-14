@@ -5,7 +5,9 @@ import Link from 'next/link'
 import { useEffect, useState } from 'react'
 import { useCartStore } from '@/stores/cart'
 import { formatPrice } from '@/lib/utils'
+import { FREE_SHIPPING_THRESHOLD } from '@/lib/site'
 import ProductVisual from '@/components/shop/ProductVisual'
+import Fill from '@/components/ui/Fill'
 
 export default function CartDrawer() {
   const [mounted, setMounted] = useState(false)
@@ -44,7 +46,11 @@ export default function CartDrawer() {
         {mounted && total > 0 && (
           <div className="px-4 py-2 bg-brand-50 border-b border-gray-100 flex items-center gap-2 text-xs text-brand-700">
             <Truck size={14} />
-            <span className="font-semibold">Livraison offerte pour votre 1ère commande</span>
+            <span className="font-semibold">
+              {total >= FREE_SHIPPING_THRESHOLD
+                ? 'Livraison offerte'
+                : `Plus que ${formatPrice(FREE_SHIPPING_THRESHOLD - total)} pour la livraison offerte`}
+            </span>
           </div>
         )}
 
@@ -107,7 +113,11 @@ export default function CartDrawer() {
             </div>
             <div className="flex justify-between text-sm text-gray-600">
               <span>Livraison</span>
-              <span className="text-brand-700 font-semibold">Offerte</span>
+              {total >= FREE_SHIPPING_THRESHOLD ? (
+                <span className="text-brand-700 font-semibold">Offerte</span>
+              ) : (
+                <Fill>frais à compléter</Fill>
+              )}
             </div>
             <div className="flex justify-between text-base font-bold text-ink pt-1 border-t border-gray-100">
               <span>Total TTC</span>
@@ -117,7 +127,7 @@ export default function CartDrawer() {
             <Link
               href="/panier"
               onClick={() => setOpen(false)}
-              className="block w-full bg-brand-600 hover:bg-brand-700 text-white text-center py-4 rounded-xl font-bold text-base transition-colors shadow-md"
+              className="block w-full bg-brand-600 hover:bg-brand-700 text-white text-center py-4 rounded-lg font-bold text-base transition-colors shadow-md"
             >
               Voir mon panier
             </Link>

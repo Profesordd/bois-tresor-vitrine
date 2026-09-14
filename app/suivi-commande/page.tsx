@@ -38,7 +38,7 @@ function TrackingView({ result, onReset, onCopy, copied }: { result: TrackResult
   return (
     <div className="space-y-5">
       <div className="grid sm:grid-cols-[1fr_260px] gap-5">
-        <div className="bg-white rounded-2xl border border-brand-100 shadow-sm overflow-hidden">
+        <div className="bg-white rounded-lg border border-brand-100 shadow-sm overflow-hidden">
           <div className="p-6">
             <div className="flex flex-wrap gap-2 mb-5">
               <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-brand-200 bg-brand-50 text-xs font-semibold text-brand-600">
@@ -54,7 +54,7 @@ function TrackingView({ result, onReset, onCopy, copied }: { result: TrackResult
               </span>
             </div>
 
-            <div className="bg-brand-50 border border-brand-100 rounded-2xl p-5 mb-5">
+            <div className="bg-brand-50 border border-brand-100 rounded-lg p-5 mb-5">
               <p className="text-xs font-bold uppercase tracking-wider text-brand-400 mb-1">Statut actuel</p>
               <p className="text-2xl font-extrabold text-brand-900 tracking-tight mb-4">{STATUS_LABEL[result.status]}</p>
               <div className="h-1.5 bg-brand-200 rounded-full overflow-hidden">
@@ -67,7 +67,7 @@ function TrackingView({ result, onReset, onCopy, copied }: { result: TrackResult
 
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
               {steps.map((s, i) => (
-                <div key={s} className="bg-white border border-brand-100 rounded-xl p-3">
+                <div key={s} className="bg-white border border-brand-100 rounded-lg p-3">
                   <div className="flex items-center gap-2 mb-2">
                     <span className={`w-2 h-2 rounded-sm flex-shrink-0 ${i <= currentIdx ? 'bg-brand-600' : 'bg-brand-200'}`} />
                     <span className="text-xs font-bold text-brand-800">{STATUS_LABEL[s]}</span>
@@ -78,7 +78,7 @@ function TrackingView({ result, onReset, onCopy, copied }: { result: TrackResult
           </div>
         </div>
 
-        <div className="bg-white rounded-2xl border border-brand-100 shadow-sm overflow-hidden flex flex-col">
+        <div className="bg-white rounded-lg border border-brand-100 shadow-sm overflow-hidden flex flex-col">
           <div className="p-5 border-b border-brand-100 flex-1">
             <h3 className="font-bold text-brand-900 text-sm mb-2">Besoin d’aide ?</h3>
             <p className="text-brand-500 text-sm leading-relaxed">Notre équipe répond sous 24h ouvrées.</p>
@@ -86,21 +86,21 @@ function TrackingView({ result, onReset, onCopy, copied }: { result: TrackResult
           <div className="p-4 flex flex-col gap-2">
             <button
               onClick={onCopy}
-              className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border border-brand-200 bg-white hover:bg-brand-50 text-sm font-semibold text-brand-700 transition-colors"
+              className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg border border-brand-200 bg-white hover:bg-brand-50 text-sm font-semibold text-brand-700 transition-colors"
             >
               <Copy size={13} />
               {copied ? 'Copié !' : 'Copier le n° de commande'}
             </button>
             <button
               onClick={onReset}
-              className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border border-brand-200 bg-white hover:bg-brand-50 text-sm font-semibold text-brand-700 transition-colors"
+              className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg border border-brand-200 bg-white hover:bg-brand-50 text-sm font-semibold text-brand-700 transition-colors"
             >
               <ArrowLeft size={13} />
               Modifier les informations
             </button>
             <a
               href="/contact"
-              className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-brand-600 hover:bg-brand-700 text-white text-sm font-semibold transition-colors"
+              className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg bg-brand-600 hover:bg-brand-700 text-white text-sm font-semibold transition-colors"
             >
               Contacter le support
             </a>
@@ -150,7 +150,7 @@ export default function SuiviCommandePage() {
 
   return (
     <div>
-      <div className="bg-gradient-to-r from-brand-700 to-brand-500 text-white py-12 px-4">
+      <div className="bg-brand-800 text-white py-12 px-4">
         <div className="max-w-4xl mx-auto text-center">
           <Package size={40} className="mx-auto mb-3 opacity-90" />
           <h1 className="text-3xl sm:text-4xl font-bold mb-3 font-serif">Suivi de commande</h1>
@@ -160,7 +160,7 @@ export default function SuiviCommandePage() {
 
       <div className="max-w-3xl mx-auto px-4 sm:px-6 py-14">
         {!result ? (
-          <div className="bg-white rounded-2xl border border-brand-100 shadow-sm p-8">
+          <div className="bg-white rounded-lg border border-brand-100 shadow-sm p-8">
             <h2 className="text-2xl font-bold text-brand-900 mb-1">Où est ma commande ?</h2>
             <p className="text-brand-500 text-sm mb-7">
               Entrez votre email et votre numéro de commande pour consulter l&apos;état de votre livraison.
@@ -173,7 +173,7 @@ export default function SuiviCommandePage() {
                     type="email" required value={form.email}
                     onChange={e => setForm(f => ({ ...f, email: e.target.value }))}
                     placeholder="votre@email.com"
-                    className="w-full border border-brand-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
+                    className="w-full border border-brand-200 rounded-lg px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
                   />
                 </div>
                 <div>
@@ -182,14 +182,14 @@ export default function SuiviCommandePage() {
                     type="text" required value={form.number}
                     onChange={e => setForm(f => ({ ...f, number: e.target.value.toUpperCase() }))}
                     placeholder="ex : BA4F2C1D"
-                    className="w-full border border-brand-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 font-mono tracking-wider"
+                    className="w-full border border-brand-200 rounded-lg px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 font-mono tracking-wider"
                   />
                 </div>
               </div>
               {error && <p className="text-red-500 text-sm">{error}</p>}
               <button
                 type="submit" disabled={loading}
-                className="w-full bg-brand-500 hover:bg-brand-600 disabled:opacity-60 text-white font-semibold py-3.5 rounded-xl flex items-center justify-center gap-2 transition-colors"
+                className="w-full bg-brand-500 hover:bg-brand-600 disabled:opacity-60 text-white font-semibold py-3.5 rounded-lg flex items-center justify-center gap-2 transition-colors"
               >
                 {loading
                   ? <><span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" /> Recherche en cours…</>

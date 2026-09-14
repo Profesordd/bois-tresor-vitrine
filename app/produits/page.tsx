@@ -3,6 +3,7 @@ import { PRODUCTS, CATEGORIES } from '@/lib/products'
 import ProductGrid from '@/components/shop/ProductGrid'
 import FamilyBlock from '@/components/ui/FamilyBlock'
 import UrgencyNote from '@/components/ui/UrgencyNote'
+import SocialProof from '@/components/ui/SocialProof'
 
 export const metadata = {
   title: 'Bois de chauffage sec & granulés — livraison offerte',
@@ -24,7 +25,7 @@ export default async function ProduitsPage({ searchParams }: Props) {
   return (
     <div>
       {/* ── En-tête : message n°1 = confiance, puis produit ── */}
-      <div className="bg-gradient-to-r from-brand-800 to-brand-600 text-white py-14 px-4">
+      <div className="bg-brand-800 text-white py-14 px-4">
         <div className="max-w-4xl mx-auto text-center">
           <p className="text-brand-200 font-semibold mb-3 text-base sm:text-lg">
             Entreprise familiale française — Thomas &amp; Julien
@@ -40,6 +41,11 @@ export default async function ProduitsPage({ searchParams }: Props) {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+
+        {/* ── Preuve sociale, vue dès l'arrivée ── */}
+        <div className="mb-8">
+          <SocialProof />
+        </div>
 
         {/* ── Réassurance : qui nous sommes ── */}
         <FamilyBlock />

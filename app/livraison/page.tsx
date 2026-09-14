@@ -21,7 +21,11 @@ export default function LivraisonPage() {
         </section>
         <section>
           <h2 className="text-xl font-bold text-ink">Frais de livraison</h2>
-          <p>La livraison est offerte pour votre première commande. Pour les commandes suivantes, des frais de livraison pourront s’appliquer selon le volume commandé et votre région, sauf mention contraire sur la fiche produit.</p>
+          <p>
+            La livraison est offerte dès 89 € d’achat, partout en France métropolitaine. En dessous
+            de ce montant, les frais de livraison sont affichés dans votre panier avant toute
+            validation : vous ne découvrez jamais de frais au moment de payer.
+          </p>
         </section>
       </div>
     </div>

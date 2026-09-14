@@ -8,7 +8,7 @@ export default function MentionsLegalesPage() {
     <div className="max-w-3xl mx-auto px-4 sm:px-6 py-16">
       <h1 className="text-3xl font-bold text-ink mb-4 font-serif">Mentions légales</h1>
 
-      <div className="flex gap-4 bg-brand-50 border border-brand-100 rounded-2xl p-5 mb-10">
+      <div className="flex gap-4 bg-brand-50 border border-brand-100 rounded-lg p-5 mb-10">
         <ShieldCheck size={24} className="text-brand-600 flex-shrink-0 mt-0.5" />
         <p className="text-[15px] text-gray-700 leading-relaxed">
           Vous vérifiez qui se cache derrière ce site avant de commander ? Vous avez raison.
@@ -26,7 +26,6 @@ export default function MentionsLegalesPage() {
             <li>Siège social : <Fill>adresse physique à compléter</Fill></li>
             <li>SIRET : <Fill>à compléter</Fill></li>
             <li>Numéro de TVA intracommunautaire : <Fill>à compléter</Fill></li>
-            <li>Téléphone : <Fill>numéro actif à compléter</Fill></li>
             <li>E-mail : contact@bois-tresor.com</li>
           </ul>
         </section>

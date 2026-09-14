@@ -5,7 +5,9 @@ import { useState } from 'react'
 import { Trash2, ShoppingBag, Truck, ArrowRight, CheckCircle2 } from 'lucide-react'
 import { useCartStore } from '@/stores/cart'
 import { formatPrice } from '@/lib/utils'
+import { FREE_SHIPPING_THRESHOLD } from '@/lib/site'
 import ProductVisual from '@/components/shop/ProductVisual'
+import Fill from '@/components/ui/Fill'
 
 export default function PanierPage() {
   const { items, removeItem, updateQuantity, getTotalPrice, getTotalItems, clearCart } = useCartStore()
@@ -28,7 +30,7 @@ export default function PanierPage() {
         <p className="text-gray-600 mb-2">
           Commande de démonstration <strong>#{confirmed.orderNumber}</strong> — total {formatPrice(confirmed.total)}.
         </p>
-        <p className="text-sm text-gray-500 bg-brand-50 border border-brand-100 rounded-xl p-4 mt-6 mb-8">
+        <p className="text-sm text-gray-500 bg-brand-50 border border-brand-100 rounded-lg p-4 mt-6 mb-8">
           Ceci est une démonstration visuelle : aucun paiement n’a été effectué et aucune commande réelle n’a été enregistrée.
           Le paiement en ligne sera activé après validation du site.
         </p>
@@ -67,15 +69,17 @@ export default function PanierPage() {
         {count} article{count !== 1 ? 's' : ''}
       </p>
 
-      <div className="bg-brand-50 border border-brand-100 rounded-xl p-3 mb-6 flex items-center gap-2 text-brand-700 text-sm font-semibold">
+      <div className="bg-brand-50 border border-brand-100 rounded-lg p-3 mb-6 flex items-center gap-2 text-brand-700 text-sm font-semibold">
         <Truck size={16} />
-        Livraison offerte pour votre 1ère commande
+        {total >= FREE_SHIPPING_THRESHOLD
+          ? 'Livraison offerte — votre commande dépasse 89 €'
+          : `Plus que ${formatPrice(FREE_SHIPPING_THRESHOLD - total)} pour la livraison offerte`}
       </div>
 
       <div className="grid lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2 space-y-4">
           {items.map(({ product, quantity }) => (
-            <div key={product.id} className="flex gap-4 bg-white rounded-xl p-4 shadow-sm">
+            <div key={product.id} className="flex gap-4 bg-white rounded-lg p-4 shadow-sm">
               <div className="relative w-24 h-24 rounded-lg overflow-hidden flex-shrink-0 bg-gray-50">
                 <ProductVisual image={product.image} name={product.name} />
               </div>
@@ -122,7 +126,7 @@ export default function PanierPage() {
         </div>
 
         <div>
-          <div className="bg-white rounded-xl p-6 shadow-sm sticky top-24">
+          <div className="bg-white rounded-lg p-6 shadow-sm sticky top-24">
             <h2 className="font-serif text-xl font-semibold mb-5">Récapitulatif</h2>
             <div className="space-y-3 text-sm mb-4">
               <div className="flex justify-between text-gray-600">
@@ -131,7 +135,11 @@ export default function PanierPage() {
               </div>
               <div className="flex justify-between text-gray-600">
                 <span>Livraison</span>
-                <span className="text-brand-700 font-semibold">Offerte</span>
+                {total >= FREE_SHIPPING_THRESHOLD ? (
+                  <span className="text-brand-700 font-semibold">Offerte</span>
+                ) : (
+                  <Fill>frais à compléter</Fill>
+                )}
               </div>
             </div>
             <div className="border-t border-gray-100 pt-4 mb-5">
@@ -139,7 +147,9 @@ export default function PanierPage() {
                 <span>Total</span>
                 <span>{formatPrice(total)}</span>
               </div>
-              <p className="text-xs text-gray-400 mt-1">TTC, livraison incluse</p>
+              <p className="text-xs text-gray-400 mt-1">
+                {total >= FREE_SHIPPING_THRESHOLD ? 'TTC, livraison incluse' : 'TTC, hors frais de livraison'}
+              </p>
             </div>
             <button
               onClick={handleConfirm}

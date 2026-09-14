@@ -8,9 +8,11 @@ import ProductDetails from '@/components/shop/ProductDetails'
 import QuantitySelector from '@/components/shop/QuantitySelector'
 import ProductGrid from '@/components/shop/ProductGrid'
 import VideoSlot from '@/components/shop/VideoSlot'
+import ProductFaq from '@/components/shop/ProductFaq'
 import BuyReassurance from '@/components/ui/BuyReassurance'
 import FamilyBlock from '@/components/ui/FamilyBlock'
 import UrgencyNote from '@/components/ui/UrgencyNote'
+import SocialProof from '@/components/ui/SocialProof'
 
 export function generateStaticParams() {
   return PRODUCTS.map((p) => ({ slug: p.slug }))
@@ -72,7 +74,7 @@ export default async function ProductPage({ params }: Props) {
           <p className="text-4xl font-bold text-ink mb-2">{formatPrice(product.price)}</p>
           <p className="flex items-center gap-2 text-lg font-semibold text-brand-700 mb-7">
             <Truck size={20} />
-            Livraison offerte pour votre 1ère commande
+            Livraison offerte dès 89 € d’achat
           </p>
 
           {/* ── L'essentiel, un sujet par ligne ── */}
@@ -85,6 +87,10 @@ export default async function ProductPage({ params }: Props) {
             ))}
           </ul>
 
+          <div className="mb-5">
+            <SocialProof variant="inline" />
+          </div>
+
           <QuantitySelector product={product} />
 
           <div className="mt-6">
@@ -93,7 +99,7 @@ export default async function ProductPage({ params }: Props) {
 
           <p className="flex items-center justify-center gap-2 text-sm text-gray-500 mt-6">
             <Lock size={15} />
-            Tout se règle en ligne, de façon sécurisée. Aucun paiement par téléphone.
+            Tout se règle en ligne, de façon sécurisée.
           </p>
 
           <div className="mt-6 lg:hidden space-y-5">
@@ -104,11 +110,15 @@ export default async function ProductPage({ params }: Props) {
       </div>
 
       <div className="mt-12">
-        <ProductDetails specs={product.specs} />
+        <ProductDetails specs={product.specs} showNf={product.family === 'bois-de-chauffage'} />
       </div>
 
       <div className="mt-10">
         <UrgencyNote />
+      </div>
+
+      <div className="mt-12 max-w-3xl">
+        <ProductFaq />
       </div>
 
       {related.length > 0 && (

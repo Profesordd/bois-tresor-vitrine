@@ -8,7 +8,7 @@ export default function ConfidentialitePage() {
 
       <div className="prose prose-gray max-w-none text-gray-700 space-y-8">
         {[
-          { title: '1. Données collectées', body: 'Nom, prénom, e-mail, téléphone, adresse de livraison, ainsi que le détail des commandes (produits et montants). Les données de paiement (carte bancaire) ne sont jamais stockées par Bois Tresor.' },
+          { title: '1. Données collectées', body: 'Nom, prénom, e-mail, adresse de livraison, ainsi que le détail des commandes (produits et montants). Les données de paiement (carte bancaire) ne sont jamais stockées par Bois Tresor.' },
           { title: '2. Finalités', body: 'Ces données servent à traiter et livrer vos commandes, gérer la relation client et le service après-vente, et respecter nos obligations légales et comptables.' },
           { title: '3. Durée de conservation', body: 'Données de commande et de facturation : 10 ans (obligation comptable). Données clients : 3 ans après le dernier contact.' },
           { title: '4. Destinataires', body: 'Vos informations ne sont transmises qu’à Bois Tresor et à ses prestataires techniques (hébergement, transport, paiement), tenus à la confidentialité.' },

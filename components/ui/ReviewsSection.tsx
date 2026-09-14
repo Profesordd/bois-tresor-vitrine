@@ -9,7 +9,7 @@ export default function ReviewsSection() {
   return (
     <section className="bg-brand-50 py-16">
       <div className="max-w-3xl mx-auto px-4 text-center">
-        <div className="w-14 h-14 bg-white rounded-2xl flex items-center justify-center mx-auto mb-5 shadow-sm">
+        <div className="w-14 h-14 bg-white rounded-lg flex items-center justify-center mx-auto mb-5 shadow-sm">
           <MessageSquareText size={26} className="text-brand-600" />
         </div>
         <h2 className="font-serif text-3xl font-bold text-brand-900 mb-3">Avis clients</h2>

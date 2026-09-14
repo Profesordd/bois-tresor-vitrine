@@ -7,7 +7,7 @@ import Fill from '@/components/ui/Fill'
  */
 export default function BuyReassurance() {
   return (
-    <ul className="space-y-3 bg-brand-50 border border-brand-100 rounded-2xl p-5">
+    <ul className="space-y-3 bg-brand-50 border border-brand-100 rounded-lg p-5">
       <li className="flex gap-3 text-[15px] text-gray-800">
         <Home size={19} className="text-brand-600 flex-shrink-0 mt-0.5" />
         <span>

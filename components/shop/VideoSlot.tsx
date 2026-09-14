@@ -6,7 +6,7 @@ import { PlayCircle } from 'lucide-react'
  */
 export default function VideoSlot() {
   return (
-    <div className="relative aspect-video rounded-2xl bg-ink overflow-hidden flex flex-col items-center justify-center text-center px-6">
+    <div className="relative aspect-video rounded-lg bg-ink overflow-hidden flex flex-col items-center justify-center text-center px-6">
       <div
         className="absolute inset-0 opacity-20"
         style={{ background: 'radial-gradient(ellipse at center, #0F8F6B 0%, transparent 70%)' }}

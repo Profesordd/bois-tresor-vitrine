@@ -34,7 +34,7 @@ export default function QuantitySelector({ product }: Props) {
             onClick={dec}
             disabled={qty <= 1}
             aria-label="Retirer un article"
-            className="w-14 h-14 border-2 border-gray-200 rounded-l-xl flex items-center justify-center text-gray-700 hover:bg-gray-50 disabled:opacity-40 transition-colors"
+            className="w-14 h-14 border-2 border-gray-200 rounded-l-lg flex items-center justify-center text-gray-700 hover:bg-gray-50 disabled:opacity-40 transition-colors"
           >
             <Minus size={20} />
           </button>
@@ -44,7 +44,7 @@ export default function QuantitySelector({ product }: Props) {
           <button
             onClick={inc}
             aria-label="Ajouter un article"
-            className="w-14 h-14 border-2 border-gray-200 rounded-r-xl flex items-center justify-center text-gray-700 hover:bg-gray-50 transition-colors"
+            className="w-14 h-14 border-2 border-gray-200 rounded-r-lg flex items-center justify-center text-gray-700 hover:bg-gray-50 transition-colors"
           >
             <Plus size={20} />
           </button>
@@ -52,13 +52,13 @@ export default function QuantitySelector({ product }: Props) {
       </div>
 
       {isOutOfStock ? (
-        <button disabled className="w-full py-5 rounded-xl bg-gray-100 text-gray-400 font-bold text-lg cursor-not-allowed">
+        <button disabled className="w-full py-5 rounded-lg bg-gray-100 text-gray-400 font-bold text-lg cursor-not-allowed">
           Rupture de stock
         </button>
       ) : (
         <button
           onClick={handleAdd}
-          className={`w-full py-5 rounded-xl font-bold text-xl flex items-center justify-center gap-3 transition-all duration-200 shadow-md
+          className={`w-full py-5 rounded-lg font-bold text-xl flex items-center justify-center gap-3 transition-all duration-200 shadow-md
             ${added
               ? 'bg-brand-800 text-white'
               : 'bg-brand-600 hover:bg-brand-700 text-white hover:shadow-lg'

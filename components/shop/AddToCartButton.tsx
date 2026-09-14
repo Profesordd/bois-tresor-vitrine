@@ -29,7 +29,7 @@ export default function AddToCartButton({ product, quantity = 1, compact }: AddT
       <button
         disabled
         className={cn(
-          'w-full flex items-center justify-center gap-2 rounded-xl font-semibold cursor-not-allowed bg-gray-100 text-gray-400',
+          'w-full flex items-center justify-center gap-2 rounded-lg font-semibold cursor-not-allowed bg-gray-100 text-gray-400',
           compact ? 'py-2.5 text-sm' : 'py-4 text-lg'
         )}
       >
@@ -42,7 +42,7 @@ export default function AddToCartButton({ product, quantity = 1, compact }: AddT
     <button
       onClick={handleAdd}
       className={cn(
-        'w-full flex items-center justify-center gap-2.5 rounded-xl font-bold transition-colors shadow-sm',
+        'w-full flex items-center justify-center gap-2.5 rounded-lg font-bold transition-colors shadow-sm',
         compact ? 'py-2.5 text-sm' : 'py-4 text-lg',
         added
           ? 'bg-brand-800 text-white'

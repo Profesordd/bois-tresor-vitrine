@@ -1,4 +1,7 @@
-@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@300;400;500;600;700;800&display=swap');
+/* Typographie volontairement classique : Inter pour le texte courant, Georgia
+   (police système) pour les titres. Le persona cible se méfie d'un site trop
+   « tendance » — on vise le marchand établi, pas la startup. */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -13,6 +16,9 @@ body {
   color: var(--foreground);
   background: var(--background);
   font-family: 'Inter', 'Helvetica Neue', sans-serif;
+  /* Texte de base agrandi : lisibilité avant tout pour une cible 50-70 ans. */
+  font-size: 17px;
+  line-height: 1.6;
   overflow-x: hidden;
 }
 
@@ -25,7 +31,7 @@ html {
     text-wrap: balance;
   }
   .font-serif {
-    font-family: 'Fraunces', Georgia, serif;
+    font-family: Georgia, 'Times New Roman', serif;
   }
   .scrollbar-hide {
     -ms-overflow-style: none;

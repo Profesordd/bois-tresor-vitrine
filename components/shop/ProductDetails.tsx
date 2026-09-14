@@ -1,11 +1,14 @@
 import type { Spec } from '@/types/database'
+import NfBadge from '@/components/ui/NfBadge'
 
 interface Props {
   specs: Spec[]
+  /** La certification NF Bois de Chauffage ne couvre que les bûches, pas les granulés. */
+  showNf?: boolean
 }
 
 const DELIVERY = [
-  'Livraison offerte pour votre 1ère commande, partout en France métropolitaine.',
+  'Livraison offerte dès 89 € d’achat, partout en France métropolitaine.',
   'Préparation sous 48 h ouvrées, livraison en 3 à 7 jours ouvrés selon votre région.',
   'Livraison par camion avec hayon : la palette est déposée au plus près de votre lieu de stockage.',
   'Vous recevez un e-mail dès l’expédition, avec le suivi de votre commande.',
@@ -19,10 +22,10 @@ const PAYMENT = [
 ]
 
 /** Détails produit : rien n'est masqué derrière un accordéon, le persona ne clique pas. */
-export default function ProductDetails({ specs }: Props) {
+export default function ProductDetails({ specs, showNf = false }: Props) {
   return (
     <div className="grid md:grid-cols-3 gap-6 items-start">
-      <section className="border-2 border-gray-100 rounded-2xl p-5">
+      <section className="border-2 border-gray-100 rounded-lg p-5">
         <h2 className="font-bold text-ink text-lg mb-4">Caractéristiques</h2>
         <dl className="divide-y divide-gray-100">
           {specs.map((s) => (
@@ -32,16 +35,21 @@ export default function ProductDetails({ specs }: Props) {
             </div>
           ))}
         </dl>
+        {showNf && (
+          <div className="pt-4 mt-1">
+            <NfBadge />
+          </div>
+        )}
       </section>
 
-      <section className="border-2 border-gray-100 rounded-2xl p-5">
+      <section className="border-2 border-gray-100 rounded-lg p-5">
         <h2 className="font-bold text-ink text-lg mb-4">Livraison</h2>
         <ul className="space-y-2.5 text-[15px] text-gray-700 leading-relaxed">
           {DELIVERY.map(item => <li key={item}>{item}</li>)}
         </ul>
       </section>
 
-      <section className="border-2 border-gray-100 rounded-2xl p-5">
+      <section className="border-2 border-gray-100 rounded-lg p-5">
         <h2 className="font-bold text-ink text-lg mb-4">Paiement</h2>
         <ul className="space-y-2.5 text-[15px] text-gray-700 leading-relaxed">
           {PAYMENT.map(item => <li key={item}>{item}</li>)}

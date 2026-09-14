@@ -32,7 +32,7 @@ const STRENGTHS = [
   {
     icon: Truck,
     title: 'Comment il arrive chez vous',
-    desc: 'Palettisé, filmé et déposé au plus près de votre stockage. Livraison offerte pour votre 1ère commande.',
+    desc: 'Palettisé, filmé et déposé au plus près de votre stockage. Livraison offerte dès 89 € d’achat.',
   },
 ]
 
@@ -71,7 +71,7 @@ export default function HomePage() {
           </h1>
           <p className="text-lg sm:text-xl mb-10 text-gray-200 max-w-2xl mx-auto">
             Moins de 20 % d’humidité : notre bois chauffe vraiment et ne fume pas.
-            Livraison offerte pour votre 1ère commande, paiement sécurisé.
+            Livraison offerte dès 89 € d’achat, paiement sécurisé.
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center mb-10">
@@ -83,7 +83,7 @@ export default function HomePage() {
             </Link>
             <Link
               href="/produits?categorie=granules-et-pellets"
-              className="inline-block bg-white/10 hover:bg-white/20 backdrop-blur border border-white/30 text-white px-8 py-4 rounded-lg text-base font-semibold transition-colors"
+              className="inline-block bg-white hover:bg-gray-100 text-brand-800 border-2 border-white px-8 py-4 rounded-lg text-base font-semibold transition-colors"
             >
               Granulés & pellets
             </Link>
@@ -137,7 +137,7 @@ export default function HomePage() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {STRENGTHS.map(({ icon: Icon, title, desc }) => (
               <div key={title} className="flex gap-4">
-                <div className="w-14 h-14 bg-white rounded-xl flex items-center justify-center flex-shrink-0 shadow-sm">
+                <div className="w-14 h-14 bg-white rounded-lg flex items-center justify-center flex-shrink-0 shadow-sm">
                   <Icon size={26} className="text-brand-600" />
                 </div>
                 <div>
@@ -175,7 +175,7 @@ export default function HomePage() {
           <h2 className="font-serif text-3xl sm:text-4xl font-bold text-white mb-3">Prêt pour l’hiver</h2>
           <p className="text-brand-300 text-lg mb-6">Un feu d’exception commence par un bois d’exception.</p>
           <p className="text-gray-300 mb-10">
-            Palettes à partir de 89,00 € — livraison offerte pour votre première commande, paiement 100 % sécurisé, expédition sous 48 h.
+            Palettes à partir de 89,00 € — livraison offerte dès 89 € d’achat, paiement 100 % sécurisé, expédition sous 48 h.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link href="/produits?categorie=bois-de-chauffage" className="inline-block bg-brand-500 hover:bg-brand-400 text-white px-7 py-3 rounded-lg font-semibold transition-colors">
@@ -197,7 +197,7 @@ export default function HomePage() {
           </div>
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
             {TESTIMONIALS.map((t) => (
-              <div key={t.name} className="bg-white rounded-2xl p-6 shadow-sm">
+              <div key={t.name} className="bg-white rounded-lg p-6 shadow-sm">
                 <div className="flex gap-0.5 mb-3">
                   {[1, 2, 3, 4, 5].map(i => <Star key={i} size={14} className="fill-brand-500 text-brand-500" />)}
                 </div>
@@ -228,8 +228,6 @@ export default function HomePage() {
 
       {/* ── NEWSLETTER ── */}
       <section className="relative overflow-hidden py-20 bg-ink">
-        <div className="absolute -top-24 -right-24 w-96 h-96 bg-brand-500/20 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute -bottom-24 -left-24 w-96 h-96 bg-brand-500/10 rounded-full blur-3xl pointer-events-none" />
 
         <div className="relative max-w-2xl mx-auto px-4 text-center">
           <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4 leading-tight font-serif">

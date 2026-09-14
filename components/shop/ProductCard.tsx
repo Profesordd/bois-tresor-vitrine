@@ -14,14 +14,14 @@ export default function ProductCard({ product }: ProductCardProps) {
   const isOutOfStock = stock === 0
 
   return (
-    <div className="group bg-white rounded-2xl border-2 border-gray-100 hover:border-brand-300 hover:shadow-lg transition-all duration-300 overflow-hidden flex flex-col">
+    <div className="group bg-white rounded-lg border-2 border-gray-100 hover:border-brand-300 hover:shadow-lg transition-all duration-300 overflow-hidden flex flex-col">
 
       <Link href={`/produits/${slug}`} className="block relative aspect-[4/3] overflow-hidden flex-shrink-0 bg-gray-50">
         <ProductVisual image={image} name={name} className="group-hover:scale-105 transition-transform duration-500" />
 
         {isOutOfStock && (
           <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
-            <span className="bg-ink text-white text-base font-semibold px-4 py-2 rounded-xl">
+            <span className="bg-ink text-white text-base font-semibold px-4 py-2 rounded-lg">
               Rupture de stock
             </span>
           </div>
@@ -44,7 +44,7 @@ export default function ProductCard({ product }: ProductCardProps) {
 
         <p className="flex items-center gap-2 text-[15px] font-semibold text-brand-700">
           <Truck size={16} className="flex-shrink-0" />
-          Livraison offerte — 1ère commande
+          Livraison offerte dès 89 €
         </p>
 
         <AddToCartButton product={product} />

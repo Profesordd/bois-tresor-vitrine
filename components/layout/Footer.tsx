@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import Fill from '@/components/ui/Fill'
+import NfBadge from '@/components/ui/NfBadge'
 
 const shopLinks = [
   { label: 'Bois de chauffage',  href: '/produits?categorie=bois-de-chauffage' },
@@ -42,10 +42,6 @@ export default function Footer() {
             </p>
             <div className="space-y-1.5 text-sm">
               <p className="flex items-center gap-2">
-                <svg className="w-4 h-4 text-brand-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>
-                <Fill>téléphone à compléter</Fill>
-              </p>
-              <p className="flex items-center gap-2">
                 <svg className="w-4 h-4 text-brand-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
                 contact@bois-tresor.com
               </p>
@@ -87,9 +83,12 @@ export default function Footer() {
                 </span>
               ))}
             </div>
-            <p className="text-xs text-gray-500 leading-relaxed">
+            <p className="text-xs text-gray-500 leading-relaxed mb-5">
               3D-Secure · Site de démonstration — le paiement en ligne sera activé après validation par le client.
             </p>
+            <div className="bg-white rounded p-1.5 inline-block">
+              <NfBadge />
+            </div>
           </div>
         </div>
       </div>

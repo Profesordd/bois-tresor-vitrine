@@ -16,9 +16,9 @@ export default function FamilyBlock({ variant = 'full' }: Props) {
     return (
       <Link
         href="/a-propos"
-        className="flex items-center gap-4 bg-brand-50 border border-brand-100 rounded-2xl p-4 hover:border-brand-300 transition-colors"
+        className="flex items-center gap-4 bg-brand-50 border border-brand-100 rounded-lg p-4 hover:border-brand-300 transition-colors"
       >
-        <div className="relative w-20 h-20 rounded-xl overflow-hidden flex-shrink-0">
+        <div className="relative w-20 h-20 rounded-lg overflow-hidden flex-shrink-0">
           <Image src="/thomas-julien.jpg" alt="Thomas et Julien" fill className="object-cover" sizes="80px" />
         </div>
         <div className="min-w-0">
@@ -33,15 +33,16 @@ export default function FamilyBlock({ variant = 'full' }: Props) {
   }
 
   return (
-    <section className="bg-brand-50 border border-brand-100 rounded-2xl overflow-hidden">
-      <div className="grid sm:grid-cols-[260px_1fr] gap-0">
-        <div className="relative h-48 sm:h-full min-h-[200px]">
+    <section className="bg-brand-50 border border-brand-100 rounded-lg overflow-hidden">
+      {/* Colonne image large : un cadrage étroit couperait l'un des deux frères. */}
+      <div className="grid sm:grid-cols-2 gap-0">
+        <div className="relative h-56 sm:h-full min-h-[260px]">
           <Image
             src="/thomas-julien.jpg"
             alt="Thomas et Julien devant leur stock de bûches"
             fill
             className="object-cover"
-            sizes="(max-width: 640px) 100vw, 260px"
+            sizes="(max-width: 640px) 100vw, 50vw"
           />
         </div>
         <div className="p-6 sm:p-7">
@@ -52,9 +53,13 @@ export default function FamilyBlock({ variant = 'full' }: Props) {
             Nous sommes Thomas et Julien, deux frères du Jura. Notre père était bûcheron, notre
             grand-père aussi.
           </p>
-          <p className="text-gray-700 leading-relaxed mb-5">
-            Nous vendons le bois que nous préparons nous-mêmes, et nous répondons au téléphone.
+          <p className="text-gray-700 leading-relaxed mb-3">
+            Nous vendons le bois que nous préparons nous-mêmes, et nous répondons nous-mêmes à vos e-mails.
             Pas de société anonyme, pas de mauvaise surprise.
+          </p>
+          <p className="text-gray-800 leading-relaxed mb-5 font-medium">
+            On se chauffe nous-mêmes au bois depuis toujours : on sait ce que c’est d’attendre une
+            livraison en plein hiver.
           </p>
           <Link
             href="/a-propos"

@@ -12,7 +12,7 @@ const PROMISES = [
   {
     icon: Building2,
     title: 'Une vraie entreprise française',
-    text: 'Une adresse, un atelier, un numéro de téléphone, et un vrai humain qui décroche.',
+    text: 'Une adresse, un atelier, une vraie adresse e-mail, et un vrai humain qui vous répond.',
   },
   {
     icon: Truck,
@@ -24,7 +24,7 @@ const PROMISES = [
 export default function AProposPage() {
   return (
     <div>
-      <div className="bg-gradient-to-r from-brand-800 to-brand-600 text-white py-12 px-4">
+      <div className="bg-brand-800 text-white py-12 px-4">
         <div className="max-w-4xl mx-auto text-center">
           <h1 className="text-3xl sm:text-4xl font-bold mb-3 font-serif">Qui sommes-nous</h1>
           <p className="text-brand-100">L’histoire derrière Bois Tresor</p>
@@ -40,7 +40,7 @@ export default function AProposPage() {
         </div>
 
         <figure className="my-8">
-          <div className="relative aspect-[16/10] rounded-2xl overflow-hidden shadow-sm">
+          <div className="relative aspect-[16/10] rounded-lg overflow-hidden shadow-sm">
             <Image
               src="/thomas-julien.jpg"
               alt="Thomas et Julien devant leur stock de bûches de bois"
@@ -62,6 +62,11 @@ export default function AProposPage() {
             un bon bois sec à l’oreille, rien qu’au son de deux bûches qu’on entrechoque.
           </p>
 
+          <p className="font-semibold text-ink">
+            On se chauffe nous-mêmes au bois, comme vous : on sait ce que c’est d’attendre une
+            livraison en plein hiver, et de se demander si elle arrivera.
+          </p>
+
           <p>
             Il y a quelques années, un voisin nous a raconté comment il s’était fait avoir en
             commandant du bois sur internet : payé d’avance, jamais livré, et impossible de
@@ -77,8 +82,8 @@ export default function AProposPage() {
 
         <div className="grid gap-6 my-10">
           {PROMISES.map(({ icon: Icon, title, text }) => (
-            <div key={title} className="flex gap-4 bg-brand-50 rounded-2xl p-5">
-              <div className="w-11 h-11 bg-white rounded-xl flex items-center justify-center flex-shrink-0 shadow-sm">
+            <div key={title} className="flex gap-4 bg-brand-50 rounded-lg p-5">
+              <div className="w-11 h-11 bg-white rounded-lg flex items-center justify-center flex-shrink-0 shadow-sm">
                 <Icon size={22} className="text-brand-600" />
               </div>
               <div>
@@ -93,8 +98,8 @@ export default function AProposPage() {
           <p>
             On ne sera jamais le site le moins cher d’internet, et c’est assumé : on veut être
             celui sur lequel vous pouvez compter, année après année. Notre plus belle récompense,
-            c’est le client méfiant au départ qui nous rappelle l’hiver suivant en disant :
-            « cette fois, je savais que je pouvais vous faire confiance. »
+            c’est le client méfiant au départ qui revient commander l’hiver suivant en nous
+            écrivant : « cette fois, je savais que je pouvais vous faire confiance. »
           </p>
 
           <p className="font-serif text-xl font-semibold text-ink">
