@@ -6,6 +6,7 @@ const shopLinks = [
 ]
 
 const helpLinks = [
+  { label: 'Qui sommes-nous',    href: '/a-propos' },
   { label: 'Suivi de commande',  href: '/suivi-commande' },
   { label: 'Livraison',          href: '/livraison' },
   { label: 'Paiement sécurisé',  href: '/paiement-securise' },

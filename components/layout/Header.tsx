@@ -54,6 +54,9 @@ export default function Header() {
                 {c.label}
               </Link>
             ))}
+            <Link href="/a-propos" className="px-3 py-2 text-sm font-medium text-gray-700 hover:text-brand-600 hover:bg-brand-50 rounded-lg transition-colors">
+              Qui sommes-nous
+            </Link>
             <Link href="/contact" className="px-3 py-2 text-sm font-medium text-gray-700 hover:text-brand-600 hover:bg-brand-50 rounded-lg transition-colors">
               Contact
             </Link>
@@ -108,6 +111,7 @@ export default function Header() {
                 {c.label}
               </Link>
             ))}
+            <Link href="/a-propos" onClick={() => setMobileOpen(false)} className="px-3 py-2.5 text-sm font-medium text-gray-700 hover:bg-brand-50 hover:text-brand-600 rounded-lg">Qui sommes-nous</Link>
             <Link href="/contact" onClick={() => setMobileOpen(false)} className="px-3 py-2.5 text-sm font-medium text-gray-700 hover:bg-brand-50 hover:text-brand-600 rounded-lg">Contact</Link>
             <Link href="/suivi-commande" onClick={() => setMobileOpen(false)} className="px-3 py-2.5 text-sm font-medium text-gray-700 hover:bg-brand-50 hover:text-brand-600 rounded-lg flex items-center gap-2">
               <Package size={15} /> Suivi de commande
