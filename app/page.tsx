@@ -64,7 +64,7 @@ export default function HomePage() {
 
         <div className="relative z-10 max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-24 text-center text-white">
           <p className="text-brand-300 font-semibold text-base sm:text-lg mb-4">
-            Entreprise familiale française — Thomas &amp; Julien
+            Entreprise familiale française — Jean-Paul &amp; Julien
           </p>
           <h1 className="font-serif text-4xl sm:text-5xl lg:text-6xl font-bold mb-6 leading-tight">
             Du bois de chauffage sec, prêt à brûler.

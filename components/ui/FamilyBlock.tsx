@@ -19,12 +19,12 @@ export default function FamilyBlock({ variant = 'full' }: Props) {
         className="flex items-center gap-4 bg-brand-50 border border-brand-100 rounded-lg p-4 hover:border-brand-300 transition-colors"
       >
         <div className="relative w-20 h-20 rounded-lg overflow-hidden flex-shrink-0">
-          <Image src="/thomas-julien.jpg" alt="Thomas et Julien" fill className="object-cover" sizes="80px" />
+          <Image src="/equipe.jpg" alt="Jean-Paul et Julien" fill className="object-cover" sizes="80px" />
         </div>
         <div className="min-w-0">
           <p className="font-bold text-ink leading-snug">Entreprise familiale française</p>
           <p className="text-sm text-gray-600 mt-1 leading-snug">
-            Thomas et Julien, deux frères du Jura. Notre histoire
+            Jean-Paul et Julien, deux frères du Jura. Notre histoire
             <ArrowRight size={14} className="inline ml-1 -mt-0.5 text-brand-600" />
           </p>
         </div>
@@ -38,8 +38,8 @@ export default function FamilyBlock({ variant = 'full' }: Props) {
       <div className="grid sm:grid-cols-2 gap-0">
         <div className="relative h-56 sm:h-full min-h-[260px]">
           <Image
-            src="/thomas-julien.jpg"
-            alt="Thomas et Julien devant leur stock de bûches"
+            src="/equipe.jpg"
+            alt="Jean-Paul et Julien devant leur stock de bûches"
             fill
             className="object-cover"
             sizes="(max-width: 640px) 100vw, 50vw"
@@ -50,7 +50,7 @@ export default function FamilyBlock({ variant = 'full' }: Props) {
             Une entreprise familiale française
           </h2>
           <p className="text-gray-700 leading-relaxed mb-2">
-            Nous sommes Thomas et Julien, deux frères du Jura. Notre père était bûcheron, notre
+            Nous sommes Jean-Paul et Julien, deux frères du Jura. Notre père était bûcheron, notre
             grand-père aussi.
           </p>
           <p className="text-gray-700 leading-relaxed mb-3">

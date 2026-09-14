@@ -28,7 +28,7 @@ export default async function ProduitsPage({ searchParams }: Props) {
       <div className="bg-brand-800 text-white py-14 px-4">
         <div className="max-w-4xl mx-auto text-center">
           <p className="text-brand-200 font-semibold mb-3 text-base sm:text-lg">
-            Entreprise familiale française — Thomas &amp; Julien
+            Entreprise familiale française — Jean-Paul &amp; Julien
           </p>
           <h1 className="text-3xl sm:text-5xl font-bold mb-4 font-serif leading-tight">
             {activeCategory ? activeCategory.name : 'Bois de chauffage sec, prêt à brûler'}

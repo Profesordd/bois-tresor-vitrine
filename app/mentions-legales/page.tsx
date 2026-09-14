@@ -10,10 +10,18 @@ export default function MentionsLegalesPage() {
 
       <div className="flex gap-4 bg-brand-50 border border-brand-100 rounded-lg p-5 mb-10">
         <ShieldCheck size={24} className="text-brand-600 flex-shrink-0 mt-0.5" />
-        <p className="text-[15px] text-gray-700 leading-relaxed">
-          Vous vérifiez qui se cache derrière ce site avant de commander ? Vous avez raison.
-          Voici nos informations légales : elles sont vérifiables publiquement.
-        </p>
+        <div className="text-[15px] text-gray-700 leading-relaxed space-y-2">
+          <p>
+            <strong className="text-ink">Bois Tresor est le nouveau site internet de notre entreprise.</strong>{' '}
+            Même équipe, même bois, mêmes conditions : seul le site change, pour vous permettre de
+            commander plus simplement en ligne.
+          </p>
+          <p>
+            Vous vérifiez qui se cache derrière ce site avant de commander ? Vous avez raison.
+            Voici nos informations légales complètes — elles sont vérifiables publiquement auprès
+            du registre des entreprises.
+          </p>
+        </div>
       </div>
 
       <div className="prose prose-gray max-w-none space-y-8 text-gray-700 text-[16px]">
@@ -22,9 +30,9 @@ export default function MentionsLegalesPage() {
           <ul>
             <li>Raison sociale : <Fill>à compléter</Fill></li>
             <li>Forme juridique : <Fill>à compléter</Fill></li>
-            <li>Dirigeants : Thomas Vallée et Julien Vallée</li>
-            <li>Siège social : <Fill>adresse physique à compléter</Fill></li>
-            <li>SIRET : <Fill>à compléter</Fill></li>
+            <li>Responsable : Jean-Paul MONMEJA</li>
+            <li>Adresse de la société et siège social : 380 Route du Moulin, 13100 Aix-en-Provence</li>
+            <li>SIRET : 844 733 964 00010</li>
             <li>Numéro de TVA intracommunautaire : <Fill>à compléter</Fill></li>
             <li>E-mail : contact@bois-tresor.com</li>
           </ul>
@@ -32,7 +40,7 @@ export default function MentionsLegalesPage() {
 
         <section>
           <h2 className="text-xl font-bold text-ink">2. Directeur de la publication</h2>
-          <p>Thomas Vallée — contact@bois-tresor.com</p>
+          <p>Jean-Paul MONMEJA — contact@bois-tresor.com</p>
         </section>
 
         <section>

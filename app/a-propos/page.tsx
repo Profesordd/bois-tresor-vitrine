@@ -35,28 +35,28 @@ export default function AProposPage() {
 
         <div className="prose prose-gray max-w-none text-gray-700 space-y-6 text-base leading-relaxed">
           <h2 className="font-serif text-2xl font-bold text-ink">
-            Nous, c’est Thomas et Julien — deux frères, une passion du bois.
+            Nous, c’est Jean-Paul et Julien — deux frères, une passion du bois.
           </h2>
         </div>
 
         <figure className="my-8">
           <div className="relative aspect-[16/10] rounded-lg overflow-hidden shadow-sm">
             <Image
-              src="/thomas-julien.jpg"
-              alt="Thomas et Julien devant leur stock de bûches de bois"
+              src="/equipe.jpg"
+              alt="Jean-Paul et Julien devant leur stock de bûches de bois"
               fill
               className="object-cover"
               priority
             />
           </div>
           <figcaption className="text-center text-sm text-gray-400 mt-2">
-            Thomas (à gauche) et Julien (à droite), dans leur dépôt de bois.
+            Jean-Paul (à gauche) et Julien (à droite), dans leur dépôt de bois.
           </figcaption>
         </figure>
 
         <div className="prose prose-gray max-w-none text-gray-700 space-y-6 text-base leading-relaxed">
           <p>
-            Je m’appelle Thomas Vallée, j’ai 44 ans, et avec mon frère Julien, on a grandi au
+            Je m’appelle Jean-Paul, j’ai 44 ans, et avec mon frère Julien, on a grandi au
             milieu des forêts du Jura. Chez nous, le bois n’a jamais été une mode écolo : c’était
             la vie. Notre père était bûcheron, notre grand-père aussi. On a appris à reconnaître
             un bon bois sec à l’oreille, rien qu’au son de deux bûches qu’on entrechoque.

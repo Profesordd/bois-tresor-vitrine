@@ -10,7 +10,7 @@ import { PlayCircle } from 'lucide-react'
  * ATTENTION — la vidéo actuellement branchée est celle de SERVI BOIS
  * (Aix-en-Provence) : c'est une AUTRE entreprise, son camion et son logo sont
  * visibles à l'écran. Elle sert uniquement à tester le rendu. À remplacer par
- * la vidéo de Thomas et Julien avant toute mise en ligne réelle.
+ * la vidéo de Jean-Paul et Julien avant toute mise en ligne réelle.
  *
  * Lecture au clic seulement, et domaine youtube-nocookie : rien n'est chargé
  * depuis YouTube tant que le visiteur ne lance pas la vidéo. C'est ce qui
