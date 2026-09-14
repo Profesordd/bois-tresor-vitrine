@@ -29,9 +29,8 @@ export default function AddToCartButton({ product, quantity = 1, compact }: AddT
       <button
         disabled
         className={cn(
-          'w-full flex items-center justify-center gap-2 rounded-lg font-medium transition-colors cursor-not-allowed',
-          compact ? 'py-2 text-sm' : 'py-3',
-          'bg-brand-100 text-brand-400'
+          'w-full flex items-center justify-center gap-2 rounded-xl font-semibold cursor-not-allowed bg-gray-100 text-gray-400',
+          compact ? 'py-2.5 text-sm' : 'py-4 text-lg'
         )}
       >
         Rupture de stock
@@ -43,21 +42,21 @@ export default function AddToCartButton({ product, quantity = 1, compact }: AddT
     <button
       onClick={handleAdd}
       className={cn(
-        'w-full flex items-center justify-center gap-2 rounded-lg font-medium transition-colors',
-        compact ? 'py-2 text-sm' : 'py-3',
+        'w-full flex items-center justify-center gap-2.5 rounded-xl font-bold transition-colors shadow-sm',
+        compact ? 'py-2.5 text-sm' : 'py-4 text-lg',
         added
-          ? 'bg-brand-700 text-white'
-          : 'bg-brand-900 hover:bg-brand-800 text-white'
+          ? 'bg-brand-800 text-white'
+          : 'bg-brand-600 hover:bg-brand-700 text-white'
       )}
     >
       {added ? (
         <>
-          <Check size={16} />
-          Ajouté !
+          <Check size={compact ? 16 : 22} />
+          Ajouté au panier
         </>
       ) : (
         <>
-          <ShoppingCart size={16} />
+          <ShoppingCart size={compact ? 16 : 22} />
           {compact ? 'Ajouter' : 'Ajouter au panier'}
         </>
       )}

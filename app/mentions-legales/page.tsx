@@ -1,23 +1,39 @@
+import { ShieldCheck } from 'lucide-react'
+import Fill from '@/components/ui/Fill'
+
 export const metadata = { title: 'Mentions légales' }
 
 export default function MentionsLegalesPage() {
   return (
     <div className="max-w-3xl mx-auto px-4 sm:px-6 py-16">
-      <h1 className="text-3xl font-bold text-ink mb-2 font-serif">Mentions légales</h1>
-      <p className="text-gray-400 text-sm mb-10">Bois Tresor</p>
+      <h1 className="text-3xl font-bold text-ink mb-4 font-serif">Mentions légales</h1>
 
-      <div className="prose prose-gray max-w-none space-y-8 text-gray-700">
+      <div className="flex gap-4 bg-brand-50 border border-brand-100 rounded-2xl p-5 mb-10">
+        <ShieldCheck size={24} className="text-brand-600 flex-shrink-0 mt-0.5" />
+        <p className="text-[15px] text-gray-700 leading-relaxed">
+          Vous vérifiez qui se cache derrière ce site avant de commander ? Vous avez raison.
+          Voici nos informations légales : elles sont vérifiables publiquement.
+        </p>
+      </div>
+
+      <div className="prose prose-gray max-w-none space-y-8 text-gray-700 text-[16px]">
         <section>
           <h2 className="text-xl font-bold text-ink">1. Éditeur du site</h2>
-          <p>Le site <strong>bois-tresor.com</strong> est édité par Bois Tresor.</p>
           <ul>
-            <li>Email : contact@bois-tresor.com</li>
+            <li>Raison sociale : <Fill>à compléter</Fill></li>
+            <li>Forme juridique : <Fill>à compléter</Fill></li>
+            <li>Dirigeants : Thomas Vallée et Julien Vallée</li>
+            <li>Siège social : <Fill>adresse physique à compléter</Fill></li>
+            <li>SIRET : <Fill>à compléter</Fill></li>
+            <li>Numéro de TVA intracommunautaire : <Fill>à compléter</Fill></li>
+            <li>Téléphone : <Fill>numéro actif à compléter</Fill></li>
+            <li>E-mail : contact@bois-tresor.com</li>
           </ul>
         </section>
 
         <section>
-          <h2 className="text-xl font-bold text-ink">2. Directeur de publication</h2>
-          <p>Bois Tresor — contact@bois-tresor.com</p>
+          <h2 className="text-xl font-bold text-ink">2. Directeur de la publication</h2>
+          <p>Thomas Vallée — contact@bois-tresor.com</p>
         </section>
 
         <section>
@@ -31,22 +47,39 @@ export default function MentionsLegalesPage() {
 
         <section>
           <h2 className="text-xl font-bold text-ink">4. Propriété intellectuelle</h2>
-          <p>L&apos;ensemble des éléments du site (textes, images, graphismes, logo) est protégé par le droit de la propriété intellectuelle. Toute reproduction, même partielle, est interdite sans l&apos;accord préalable de Bois Tresor.</p>
+          <p>
+            L&apos;ensemble des éléments du site (textes, images, graphismes, logo) est protégé par
+            le droit de la propriété intellectuelle. Toute reproduction, même partielle, est
+            interdite sans l&apos;accord préalable de Bois Tresor.
+          </p>
         </section>
 
         <section>
           <h2 className="text-xl font-bold text-ink">5. Responsabilité</h2>
-          <p>Bois Tresor s&apos;efforce de maintenir les informations du site à jour et exactes, sans garantie absolue d&apos;exhaustivité. Bois Tresor ne saurait être tenu responsable des dommages résultant de l&apos;utilisation du site.</p>
+          <p>
+            Bois Tresor s&apos;efforce de maintenir les informations du site à jour et exactes, sans
+            garantie absolue d&apos;exhaustivité. Bois Tresor ne saurait être tenu responsable des
+            dommages résultant de l&apos;utilisation du site.
+          </p>
         </section>
 
         <section>
           <h2 className="text-xl font-bold text-ink">6. Données personnelles</h2>
-          <p>Le traitement des données personnelles est détaillé dans notre <a href="/confidentialite" className="text-brand-600 underline">politique de confidentialité</a>, conforme au RGPD.</p>
+          <p>
+            Le traitement des données personnelles est détaillé dans notre{' '}
+            <a href="/confidentialite" className="text-brand-700 underline">politique de confidentialité</a>,
+            conforme au RGPD.
+          </p>
         </section>
 
         <section>
-          <h2 className="text-xl font-bold text-ink">7. Litiges</h2>
-          <p>En cas de litige, les parties rechercheront une solution amiable. À défaut, le droit français est applicable et les tribunaux français seront compétents.</p>
+          <h2 className="text-xl font-bold text-ink">7. Médiation et litiges</h2>
+          <p>
+            Conformément à l&apos;article L612-1 du Code de la consommation, vous pouvez recourir
+            gratuitement à un médiateur de la consommation : <Fill>médiateur à désigner</Fill>. À
+            défaut de solution amiable, le droit français est applicable et les tribunaux français
+            sont compétents.
+          </p>
         </section>
       </div>
     </div>

@@ -10,13 +10,14 @@ export default function ProductGrid({ products }: ProductGridProps) {
     return (
       <div className="text-center py-16 text-gray-500">
         <p className="text-lg">Aucun produit trouvé.</p>
-        <p className="text-sm mt-2">Essayez de modifier vos filtres.</p>
       </div>
     )
   }
 
+  /* Grille volontairement aérée : 3 colonnes max, grandes photos et gros
+     boutons — le persona cible se perd dans les grilles denses. */
   return (
-    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
       {products.map((product) => (
         <ProductCard key={product.id} product={product} />
       ))}

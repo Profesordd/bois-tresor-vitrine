@@ -26,53 +26,51 @@ export default function QuantitySelector({ product }: Props) {
   }
 
   return (
-    <div className="space-y-3">
-      <div className="flex items-center gap-0">
-        <button
-          onClick={dec}
-          disabled={qty <= 1}
-          className="w-12 h-12 border border-brand-200 rounded-l-xl flex items-center justify-center text-brand-600 hover:bg-brand-50 disabled:opacity-40 transition-colors"
-        >
-          <Minus size={16} />
-        </button>
-        <div className="w-16 h-12 border-t border-b border-brand-200 flex items-center justify-center font-bold text-brand-900 text-lg">
-          {qty}
+    <div className="space-y-4">
+      <div className="flex items-center gap-4">
+        <span className="text-base font-semibold text-gray-700">Quantité</span>
+        <div className="flex items-center">
+          <button
+            onClick={dec}
+            disabled={qty <= 1}
+            aria-label="Retirer un article"
+            className="w-14 h-14 border-2 border-gray-200 rounded-l-xl flex items-center justify-center text-gray-700 hover:bg-gray-50 disabled:opacity-40 transition-colors"
+          >
+            <Minus size={20} />
+          </button>
+          <div className="w-16 h-14 border-t-2 border-b-2 border-gray-200 flex items-center justify-center font-bold text-ink text-xl">
+            {qty}
+          </div>
+          <button
+            onClick={inc}
+            aria-label="Ajouter un article"
+            className="w-14 h-14 border-2 border-gray-200 rounded-r-xl flex items-center justify-center text-gray-700 hover:bg-gray-50 transition-colors"
+          >
+            <Plus size={20} />
+          </button>
         </div>
-        <button
-          onClick={inc}
-          className="w-12 h-12 border border-brand-200 rounded-r-xl flex items-center justify-center text-brand-600 hover:bg-brand-50 transition-colors"
-        >
-          <Plus size={16} />
-        </button>
       </div>
 
       {isOutOfStock ? (
-        <button disabled className="w-full py-4 rounded-xl bg-brand-100 text-brand-400 font-semibold cursor-not-allowed">
+        <button disabled className="w-full py-5 rounded-xl bg-gray-100 text-gray-400 font-bold text-lg cursor-not-allowed">
           Rupture de stock
         </button>
       ) : (
         <button
           onClick={handleAdd}
-          className={`w-full py-4 rounded-xl font-bold text-base flex items-center justify-center gap-2.5 transition-all duration-200
+          className={`w-full py-5 rounded-xl font-bold text-xl flex items-center justify-center gap-3 transition-all duration-200 shadow-md
             ${added
-              ? 'bg-brand-700 text-white'
-              : 'bg-brand-900 hover:bg-brand-800 text-white shadow-md hover:shadow-lg'
+              ? 'bg-brand-800 text-white'
+              : 'bg-brand-600 hover:bg-brand-700 text-white hover:shadow-lg'
             }`}
         >
           {added ? (
-            <><Check size={20} />Ajouté au panier !</>
+            <><Check size={26} strokeWidth={2.5} />Ajouté au panier</>
           ) : (
-            <><ShoppingCart size={20} />Ajouter au panier</>
+            <><ShoppingCart size={26} />Commander maintenant</>
           )}
         </button>
       )}
-
-      <p className="text-center text-xs text-brand-400 flex items-center justify-center gap-1.5">
-        <svg className="w-3.5 h-3.5 text-brand-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-          <path strokeLinecap="round" strokeLinejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
-        </svg>
-        Paiement sécurisé — démonstration, aucun débit réel
-      </p>
     </div>
   )
 }

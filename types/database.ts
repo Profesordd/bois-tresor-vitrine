@@ -28,6 +28,8 @@ export interface Product {
   family: ProductFamily
   subtype: ProductSubtype
   image: string
+  /** Points clés courts, un sujet par ligne, dans l'ordre de priorité du persona. */
+  keyPoints: string[]
   specs: Spec[]
   category_id: string | null
   badge: string | null

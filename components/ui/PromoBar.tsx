@@ -1,23 +1,28 @@
-import { Truck, Droplets, ShieldCheck } from 'lucide-react'
+import { Home, Flame, Truck, ShieldCheck } from 'lucide-react'
+
+/**
+ * Bandeau de réassurance, visible sur toutes les pages.
+ * Ordre imposé par le persona : confiance d'abord, puis produit,
+ * puis livraison, puis paiement.
+ */
+const ITEMS = [
+  { icon: Home,        label: 'Entreprise familiale française' },
+  { icon: Flame,       label: 'Bois sec prêt à brûler' },
+  { icon: Truck,       label: 'Livraison offerte' },
+  { icon: ShieldCheck, label: 'Paiement 100 % sécurisé' },
+]
 
 export default function PromoBar() {
   return (
-    <div className="bg-brand-800 text-white text-center text-xs sm:text-sm py-2.5 px-4 font-medium tracking-wide">
-      <div className="flex items-center justify-center gap-4 sm:gap-8 flex-wrap">
-        <span className="flex items-center gap-1.5">
-          <Truck size={14} className="text-brand-300 flex-shrink-0" />
-          Livraison offerte pour votre 1ère commande
-        </span>
-        <span className="hidden sm:inline text-brand-600">·</span>
-        <span className="flex items-center gap-1.5">
-          <Droplets size={14} className="text-brand-300 flex-shrink-0" />
-          Séché à cœur ≤ 20 % d’humidité
-        </span>
-        <span className="hidden sm:inline text-brand-600">·</span>
-        <span className="flex items-center gap-1.5">
-          <ShieldCheck size={14} className="text-brand-300 flex-shrink-0" />
-          Paiement 100 % sécurisé
-        </span>
+    <div className="bg-brand-800 text-white text-sm sm:text-base py-3 px-4 font-medium">
+      <div className="max-w-7xl mx-auto flex items-center justify-center gap-x-6 gap-y-1.5 flex-wrap">
+        {ITEMS.map(({ icon: Icon, label }, i) => (
+          <span key={label} className="flex items-center gap-2">
+            {i > 0 && <span className="hidden lg:inline text-brand-500 mr-4">•</span>}
+            <Icon size={17} className="text-brand-300 flex-shrink-0" />
+            {label}
+          </span>
+        ))}
       </div>
     </div>
   )

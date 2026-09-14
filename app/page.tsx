@@ -4,6 +4,8 @@ import { Star, Flame, Droplets, Truck } from 'lucide-react'
 import { BOIS_CHAUFFAGE_PRODUCTS, GRANULES_PRODUCTS } from '@/lib/products'
 import ProductGrid from '@/components/shop/ProductGrid'
 import NewsletterForm from '@/components/ui/NewsletterForm'
+import FamilyBlock from '@/components/ui/FamilyBlock'
+import UrgencyNote from '@/components/ui/UrgencyNote'
 
 /**
  * Chiffres clés et avis — repris tels quels du site en production du
@@ -17,9 +19,21 @@ const KEY_FIGURES = [
 ]
 
 const STRENGTHS = [
-  { icon: Flame,    title: 'Sélection exigeante', desc: 'Feuillus durs — chêne, charme, hêtre et frêne — choisis auprès des meilleures scieries françaises.' },
-  { icon: Droplets, title: 'Séchage à cœur',       desc: 'Taux d’humidité garanti sous les 20 % pour un allumage facile et un rendement maximal.' },
-  { icon: Truck,    title: 'Livraison soignée',    desc: 'Palettisé, filmé et déposé chez vous, offert partout en France métropolitaine.' },
+  {
+    icon: Flame,
+    title: 'D’où vient notre bois',
+    desc: '100 % bois français, feuillus durs : chêne, charme, hêtre et frêne. Nous le préparons nous-mêmes.',
+  },
+  {
+    icon: Droplets,
+    title: 'Comment il est séché',
+    desc: 'Séché 18 à 24 mois, jusqu’à moins de 20 % d’humidité. Un bois sec chauffe vraiment et ne fume pas.',
+  },
+  {
+    icon: Truck,
+    title: 'Comment il arrive chez vous',
+    desc: 'Palettisé, filmé et déposé au plus près de votre stockage. Livraison offerte pour votre 1ère commande.',
+  },
 ]
 
 const TESTIMONIALS = [
@@ -49,13 +63,15 @@ export default function HomePage() {
         <div className="absolute inset-0 bg-gradient-to-t from-ink via-ink/60 to-ink/20" />
 
         <div className="relative z-10 max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-24 text-center text-white">
+          <p className="text-brand-300 font-semibold text-base sm:text-lg mb-4">
+            Entreprise familiale française — Thomas &amp; Julien
+          </p>
           <h1 className="font-serif text-4xl sm:text-5xl lg:text-6xl font-bold mb-6 leading-tight">
-            Le bois de chauffage, dans sa plus belle expression.
+            Du bois de chauffage sec, prêt à brûler.
           </h1>
-          <p className="text-lg sm:text-xl mb-10 text-gray-200 font-light max-w-2xl mx-auto">
-            Bûches de feuillus durs séchées à cœur et granulés certifiés EN+ A1, sélectionnés
-            auprès des meilleures scieries et livrés partout en France, palettisés et soignés
-            — livraison offerte pour votre première commande.
+          <p className="text-lg sm:text-xl mb-10 text-gray-200 max-w-2xl mx-auto">
+            Moins de 20 % d’humidité : notre bois chauffe vraiment et ne fume pas.
+            Livraison offerte pour votre 1ère commande, paiement sécurisé.
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center mb-10">
@@ -94,6 +110,11 @@ export default function HomePage() {
             ))}
           </div>
         </div>
+      </section>
+
+      {/* ── QUI NOUS SOMMES (message n°1 du persona) ── */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-16">
+        <FamilyBlock />
       </section>
 
       {/* ── COLLECTION BOIS DE CHAUFFAGE ── */}
@@ -141,6 +162,11 @@ export default function HomePage() {
           </Link>
         </div>
         <ProductGrid products={granulesHighlights} />
+      </section>
+
+      {/* ── URGENCE CRÉDIBLE ── */}
+      <section className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 pb-16">
+        <UrgencyNote />
       </section>
 
       {/* ── PRÊT POUR L'HIVER ── */}
