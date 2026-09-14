@@ -1,5 +1,5 @@
-import { AlertTriangle, Flame, Building2, Truck } from 'lucide-react'
-import Fill from '@/components/ui/Fill'
+import Image from 'next/image'
+import { Flame, Building2, Truck } from 'lucide-react'
 
 export const metadata = { title: 'Qui sommes-nous' }
 
@@ -37,7 +37,24 @@ export default function AProposPage() {
           <h2 className="font-serif text-2xl font-bold text-ink">
             Nous, c’est Thomas et Julien — deux frères, une passion du bois.
           </h2>
+        </div>
 
+        <figure className="my-8">
+          <div className="relative aspect-[16/10] rounded-2xl overflow-hidden shadow-sm">
+            <Image
+              src="/thomas-julien.jpg"
+              alt="Thomas et Julien devant leur stock de bûches de bois"
+              fill
+              className="object-cover"
+              priority
+            />
+          </div>
+          <figcaption className="text-center text-sm text-gray-400 mt-2">
+            Thomas (à gauche) et Julien (à droite), dans leur dépôt de bois.
+          </figcaption>
+        </figure>
+
+        <div className="prose prose-gray max-w-none text-gray-700 space-y-6 text-base leading-relaxed">
           <p>
             Je m’appelle Thomas Vallée, j’ai 44 ans, et avec mon frère Julien, on a grandi au
             milieu des forêts du Jura. Chez nous, le bois n’a jamais été une mode écolo : c’était
@@ -83,20 +100,6 @@ export default function AProposPage() {
           <p className="font-serif text-xl font-semibold text-ink">
             Bienvenue chez Bois Tresor. Cet hiver, vous serez au chaud — c’est notre métier, et
             notre engagement.
-          </p>
-        </div>
-
-        <div className="flex gap-3 bg-amber-50 border border-amber-200 rounded-2xl p-4 mt-10 mb-6">
-          <AlertTriangle size={20} className="text-amber-500 flex-shrink-0 mt-0.5" />
-          <p className="text-sm text-amber-800 leading-relaxed">
-            Il ne manque plus qu’une vraie photo de Thomas et Julien (ou de l’atelier) à la place
-            de l’encadré ci-dessous — c’est ce détail qui achève de convaincre un visiteur méfiant.
-          </p>
-        </div>
-
-        <div className="aspect-video rounded-2xl border-2 border-dashed border-amber-300 bg-amber-50 flex items-center justify-center">
-          <p className="text-amber-700 text-sm font-medium px-6 text-center">
-            Emplacement pour une vraie photo — <Fill>Thomas & Julien / l’atelier</Fill>
           </p>
         </div>
       </div>
