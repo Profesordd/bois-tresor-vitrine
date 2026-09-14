@@ -1,24 +1,66 @@
+'use client'
+
+import { useState } from 'react'
+import Image from 'next/image'
 import { PlayCircle } from 'lucide-react'
 
 /**
- * Emplacement réservé à la vidéo (dépôt / bois / fondateurs), fournie plus tard.
- * Remplacer ce composant par le <video> ou l'iframe une fois la vidéo tournée.
+ * Emplacement vidéo de la fiche produit.
+ *
+ * ATTENTION — la vidéo actuellement branchée est celle de SERVI BOIS
+ * (Aix-en-Provence) : c'est une AUTRE entreprise, son camion et son logo sont
+ * visibles à l'écran. Elle sert uniquement à tester le rendu. À remplacer par
+ * la vidéo de Thomas et Julien avant toute mise en ligne réelle.
+ *
+ * Lecture au clic seulement, et domaine youtube-nocookie : rien n'est chargé
+ * depuis YouTube tant que le visiteur ne lance pas la vidéo. C'est ce qui
+ * permet à la page « politique cookies » de rester exacte.
  */
+const VIDEO_ID = 'HD0YeBFFbw8'
+
 export default function VideoSlot() {
+  const [playing, setPlaying] = useState(false)
+
   return (
-    <div className="relative aspect-video rounded-lg bg-ink overflow-hidden flex flex-col items-center justify-center text-center px-6">
-      <div
-        className="absolute inset-0 opacity-20"
-        style={{ background: 'radial-gradient(ellipse at center, #0F8F6B 0%, transparent 70%)' }}
-      />
-      <PlayCircle size={52} className="text-brand-300 mb-3 relative" strokeWidth={1.4} />
-      <p className="text-white font-semibold relative">Notre dépôt en vidéo</p>
-      <p className="text-gray-400 text-sm mt-1 relative">
-        Voyez notre bois, notre stock et notre équipe — vidéo bientôt disponible.
-      </p>
-      <span className="absolute top-3 right-3 bg-amber-100 text-amber-800 text-xs font-medium px-2 py-0.5 rounded border border-dashed border-amber-400">
-        emplacement vidéo à fournir
-      </span>
-    </div>
+    <figure>
+      <div className="relative aspect-video rounded-lg bg-ink overflow-hidden">
+        {playing ? (
+          <iframe
+            className="absolute inset-0 w-full h-full"
+            src={`https://www.youtube-nocookie.com/embed/${VIDEO_ID}?autoplay=1&rel=0`}
+            title="Livraison de bois de chauffage sur palette"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowFullScreen
+          />
+        ) : (
+          <button
+            onClick={() => setPlaying(true)}
+            className="group absolute inset-0 w-full h-full"
+            aria-label="Lire la vidéo de livraison"
+          >
+            <Image
+              src="/video/apercu-video.jpg"
+              alt="Livraison d’une palette de bois de chauffage par camion"
+              fill
+              className="object-cover opacity-85 group-hover:opacity-100 transition-opacity"
+              sizes="(max-width: 1024px) 100vw, 50vw"
+            />
+            <span className="absolute inset-0 flex flex-col items-center justify-center bg-black/35">
+              <PlayCircle size={62} className="text-white drop-shadow" strokeWidth={1.4} />
+              <span className="text-white font-semibold mt-2 drop-shadow">
+                Voir une livraison en vidéo
+              </span>
+            </span>
+            <span className="absolute top-3 right-3 bg-amber-100 text-amber-800 text-xs font-medium px-2 py-0.5 rounded border border-dashed border-amber-400">
+              vidéo d’exemple — à remplacer
+            </span>
+          </button>
+        )}
+      </div>
+      <figcaption className="text-sm text-gray-500 mt-2">
+        Vidéo d’exemple (SERVI BOIS) affichée pour le test : à remplacer par votre propre vidéo
+        avant la mise en ligne.
+      </figcaption>
+    </figure>
   )
 }
