@@ -86,8 +86,9 @@ export default function Footer() {
             <p className="text-xs text-gray-500 leading-relaxed mb-5">
               3D-Secure · Site de démonstration — le paiement en ligne sera activé après validation par le client.
             </p>
-            <div className="bg-white rounded p-1.5 inline-block">
-              <NfBadge />
+            {/* Fond blanc : le logo NF est bleu foncé, invisible sur le footer sombre. */}
+            <div className="bg-white rounded px-3 py-2 inline-block">
+              <NfBadge width={66} />
             </div>
           </div>
         </div>

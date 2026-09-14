@@ -1,43 +1,32 @@
 import Image from 'next/image'
 
 /**
- * Certification NF Bois de Chauffage.
+ * Marque NF délivrée par le FCBA.
  *
- * Le logo NF est une marque de certification déposée : il ne peut pas être
- * redessiné, seul le fichier officiel remis au certifié par l'organisme peut
- * être affiché. En attendant ce fichier, on affiche une mention textuelle
- * sobre — véridique puisque le client est certifié — sans imiter la marque.
+ * ATTENTION — le fichier fourni s'appelait « NF-Parquets_generique_logo.png ».
+ * Le visuel lui-même est générique (« NF » + « Certifié par FCBA », sans
+ * mention de gamme), et le FCBA est bien l'organisme certificateur de
+ * NF Bois de Chauffage. Il reste à faire confirmer par le client que c'est
+ * bien le visuel que le FCBA lui a remis pour SA certification bois de
+ * chauffage — le remplacer ici le cas échéant.
  *
- * Pour activer le vrai logo : déposer le fichier dans
- * public/certifications/nf-bois-de-chauffage.png puis renseigner NF_LOGO_SRC.
+ * Ce logo ne doit apparaître que sur les bûches : la certification
+ * NF Bois de Chauffage ne couvre pas les granulés.
  */
-const NF_LOGO_SRC: string | null = null
-
 interface Props {
+  /** Largeur affichée en pixels. */
+  width?: number
   className?: string
 }
 
-export default function NfBadge({ className = '' }: Props) {
-  if (NF_LOGO_SRC) {
-    return (
-      <Image
-        src={NF_LOGO_SRC}
-        alt="Certifié NF Bois de Chauffage"
-        width={64}
-        height={64}
-        className={className}
-      />
-    )
-  }
-
+export default function NfBadge({ width = 74, className = '' }: Props) {
   return (
-    <span
-      className={`inline-flex flex-col items-center leading-tight border-2 border-gray-300 rounded px-3 py-1.5 text-center ${className}`}
-      title="Certification NF Bois de Chauffage — logo officiel à intégrer"
-    >
-      <span className="text-[11px] font-bold tracking-wide text-gray-600">CERTIFIÉ</span>
-      <span className="text-[13px] font-bold text-gray-700">NF Bois de Chauffage</span>
-      <span className="text-[10px] text-amber-700 mt-0.5">logo officiel à fournir</span>
-    </span>
+    <Image
+      src="/certifications/nf-fcba.png"
+      alt="Certifié NF Bois de Chauffage par le FCBA"
+      width={width}
+      height={Math.round((width * 560) / 701)}
+      className={className}
+    />
   )
 }
