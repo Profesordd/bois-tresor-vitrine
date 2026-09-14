@@ -1,10 +1,7 @@
 import type { Spec } from '@/types/database'
-import NfBadge from '@/components/ui/NfBadge'
 
 interface Props {
   specs: Spec[]
-  /** La certification NF Bois de Chauffage ne couvre que les bûches, pas les granulés. */
-  showNf?: boolean
 }
 
 const DELIVERY = [
@@ -22,7 +19,7 @@ const PAYMENT = [
 ]
 
 /** Détails produit : rien n'est masqué derrière un accordéon, le persona ne clique pas. */
-export default function ProductDetails({ specs, showNf = false }: Props) {
+export default function ProductDetails({ specs }: Props) {
   return (
     <div className="grid md:grid-cols-3 gap-6 items-start">
       <section className="border-2 border-gray-100 rounded-lg p-5">
@@ -35,11 +32,6 @@ export default function ProductDetails({ specs, showNf = false }: Props) {
             </div>
           ))}
         </dl>
-        {showNf && (
-          <div className="pt-4 mt-1">
-            <NfBadge />
-          </div>
-        )}
       </section>
 
       <section className="border-2 border-gray-100 rounded-lg p-5">

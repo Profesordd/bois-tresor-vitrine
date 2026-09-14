@@ -110,7 +110,7 @@ export default async function ProductPage({ params }: Props) {
       </div>
 
       <div className="mt-12">
-        <ProductDetails specs={product.specs} showNf={product.family === 'bois-de-chauffage'} />
+        <ProductDetails specs={product.specs} />
       </div>
 
       <div className="mt-10">
