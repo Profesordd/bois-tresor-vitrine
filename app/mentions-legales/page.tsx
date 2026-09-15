@@ -1,5 +1,4 @@
 import { ShieldCheck } from 'lucide-react'
-import Fill from '@/components/ui/Fill'
 import { SIRET } from '@/lib/site'
 
 export const metadata = { title: 'Mentions légales' }
@@ -29,12 +28,9 @@ export default function MentionsLegalesPage() {
         <section>
           <h2 className="text-xl font-bold text-ink">1. Éditeur du site</h2>
           <ul>
-            <li>Raison sociale : <Fill>à compléter</Fill></li>
-            <li>Forme juridique : <Fill>à compléter</Fill></li>
             <li>Responsable : Jean-Paul MONMEJA</li>
             <li>Adresse de la société et siège social : 380 Route du Moulin, 13100 Aix-en-Provence</li>
             <li>SIRET : {SIRET}</li>
-            <li>Numéro de TVA intracommunautaire : <Fill>à compléter</Fill></li>
             <li>E-mail : contact@bois-tresor.com</li>
           </ul>
         </section>
@@ -84,9 +80,8 @@ export default function MentionsLegalesPage() {
           <h2 className="text-xl font-bold text-ink">7. Médiation et litiges</h2>
           <p>
             Conformément à l&apos;article L612-1 du Code de la consommation, vous pouvez recourir
-            gratuitement à un médiateur de la consommation : <Fill>médiateur à désigner</Fill>. À
-            défaut de solution amiable, le droit français est applicable et les tribunaux français
-            sont compétents.
+            gratuitement à un médiateur de la consommation. À défaut de solution amiable, le droit
+            français est applicable et les tribunaux français sont compétents.
           </p>
         </section>
       </div>

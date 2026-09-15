@@ -8,7 +8,6 @@ import { formatPrice } from '@/lib/utils'
 import { FREE_SHIPPING_THRESHOLD } from '@/lib/site'
 import { buildCheckoutUrl, getUnavailableItems } from '@/lib/checkout'
 import ProductVisual from '@/components/shop/ProductVisual'
-import Fill from '@/components/ui/Fill'
 
 export default function PanierPage() {
   const { items, removeItem, updateQuantity, getTotalPrice, getTotalItems } = useCartStore()
@@ -119,7 +118,10 @@ export default function PanierPage() {
                 {total >= FREE_SHIPPING_THRESHOLD ? (
                   <span className="text-brand-700 font-semibold">Offerte</span>
                 ) : (
-                  <Fill>frais à compléter</Fill>
+                  /* Aucun produit n'est en dessous du seuil aujourd'hui : cette
+                     branche ne s'affiche pas. On y rappelle la règle plutôt que
+                     d'annoncer un tarif que nous ne connaissons pas. */
+                  <span className="text-gray-600">Offerte dès {FREE_SHIPPING_THRESHOLD} €</span>
                 )}
               </div>
             </div>

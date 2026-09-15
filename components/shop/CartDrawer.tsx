@@ -7,7 +7,6 @@ import { useCartStore } from '@/stores/cart'
 import { formatPrice } from '@/lib/utils'
 import { FREE_SHIPPING_THRESHOLD } from '@/lib/site'
 import ProductVisual from '@/components/shop/ProductVisual'
-import Fill from '@/components/ui/Fill'
 
 export default function CartDrawer() {
   const [mounted, setMounted] = useState(false)
@@ -116,7 +115,7 @@ export default function CartDrawer() {
               {total >= FREE_SHIPPING_THRESHOLD ? (
                 <span className="text-brand-700 font-semibold">Offerte</span>
               ) : (
-                <Fill>frais à compléter</Fill>
+                <span className="text-gray-600">Offerte dès {FREE_SHIPPING_THRESHOLD} €</span>
               )}
             </div>
             <div className="flex justify-between text-base font-bold text-ink pt-1 border-t border-gray-100">
