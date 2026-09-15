@@ -20,10 +20,18 @@ export default function ContactPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(form),
       })
-      if (!res.ok) throw new Error()
+      /* Le serveur explique précisément ce qui a échoué et donne l'adresse
+         de repli : on affiche son message plutôt qu'un texte générique. */
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}))
+        throw new Error(data.error || '')
+      }
       setSent(true)
-    } catch {
-      setError('Une erreur est survenue. Réessayez ou contactez-nous directement par email.')
+    } catch (err) {
+      setError(
+        (err instanceof Error && err.message) ||
+          'Une erreur est survenue. Réessayez ou écrivez-nous directement à contact@bois-tresor.com.'
+      )
     } finally {
       setLoading(false)
     }
