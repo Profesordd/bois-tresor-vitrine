@@ -58,8 +58,13 @@ export default function CollectionView({ categorySlug }: Props) {
         {/* ── Réassurance : qui nous sommes ── */}
         <FamilyBlock />
 
-        {/* ── Urgence crédible ── */}
-        <div className="mt-6">
+        {/* ── Urgence crédible ──
+             Sur grand écran elle précède les produits. Sur téléphone elle
+             passe après : placée ici, elle repoussait les produits d'un
+             écran entier, alors qu'elle se lit très bien une fois le choix
+             fait — le client vient de voir les palettes, on l'incite à ne
+             pas attendre. ── */}
+        <div className="mt-6 hidden sm:block">
           <UrgencyNote />
         </div>
 
@@ -111,6 +116,11 @@ export default function CollectionView({ categorySlug }: Props) {
             })}
           </div>
         )}
+
+        {/* Sur téléphone uniquement : l'urgence arrive après les produits. */}
+        <div className="mt-10 sm:hidden">
+          <UrgencyNote />
+        </div>
       </div>
     </div>
   )
