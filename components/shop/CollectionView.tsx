@@ -27,16 +27,25 @@ export default function CollectionView({ categorySlug }: Props) {
 
   return (
     <div>
-      {/* ── En-tête : message n°1 = confiance, puis produit ── */}
-      <div className="bg-brand-800 text-white py-14 px-4">
+      {/* ── En-tête : message n°1 = confiance, puis produit ──
+             Resserré sur téléphone : mêmes informations, moins de hauteur,
+             pour que les palettes arrivent plus vite à l'écran. Les tailles
+             de texte sont conservées — seuls les espaces se réduisent, et
+             le sous-titre passe à sa formulation courte. ── */}
+      <div className="bg-brand-800 text-white py-8 sm:py-14 px-4">
         <div className="max-w-4xl mx-auto text-center">
-          <p className="text-brand-200 font-semibold mb-3 text-base sm:text-lg">
+          <p className="text-brand-200 font-semibold mb-2 sm:mb-3 text-[15px] sm:text-lg">
             Entreprise familiale française — Jean-Paul &amp; Julien
           </p>
-          <h1 className="text-3xl sm:text-5xl font-bold mb-4 font-serif leading-tight">
+          <h1 className="text-3xl sm:text-5xl font-bold mb-2.5 sm:mb-4 font-serif leading-tight">
             {activeCategory ? activeCategory.name : 'Bois de chauffage sec, prêt à brûler'}
           </h1>
-          <p className="text-brand-50 text-lg sm:text-xl max-w-2xl mx-auto">
+
+          {/* Téléphone : l'essentiel en une ligne de moins. */}
+          <p className="sm:hidden text-brand-50 text-[17px] leading-snug">
+            Moins de 20 % d’humidité : il chauffe vraiment et ne fume pas.
+          </p>
+          <p className="hidden sm:block text-brand-50 text-xl max-w-2xl mx-auto">
             Moins de 20 % d’humidité : notre bois chauffe vraiment et ne fume pas.
             Livraison offerte, paiement sécurisé.
           </p>
