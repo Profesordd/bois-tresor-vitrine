@@ -45,6 +45,40 @@ export interface SessionEvent {
   meta: Record<string, unknown>
 }
 
+export interface DeviceFunnel {
+  device: string
+  visites: number
+  saw_collection: number
+  saw_product: number
+  clicked_buy: number
+  duree_moyenne_s: number
+  pages_par_visite: number
+}
+
+export interface ProductPerformance {
+  slug: string
+  name: string
+  vues: number
+  achats: number
+  taux: number
+  valeur_totale: number
+  scroll_moyen: number
+}
+
+export async function getFunnelByDevice(days: number): Promise<DeviceFunnel[]> {
+  const supabase = createAdminClient()
+  const { data, error } = await supabase.rpc('analytics_funnel_by_device', { p_days: days })
+  if (error || !data) return []
+  return data as DeviceFunnel[]
+}
+
+export async function getProductPerformance(days: number): Promise<ProductPerformance[]> {
+  const supabase = createAdminClient()
+  const { data, error } = await supabase.rpc('analytics_product_performance', { p_days: days })
+  if (error || !data) return []
+  return data as ProductPerformance[]
+}
+
 export async function getOverview(days: number): Promise<Overview | null> {
   const supabase = createAdminClient()
   const { data, error } = await supabase.rpc('analytics_overview', { p_days: days })

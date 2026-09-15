@@ -23,6 +23,26 @@ function labelOf(el: HTMLElement): string {
 }
 
 /**
+ * Données produit portées par le bouton d'achat.
+ *
+ * Indispensable pour attribuer un achat au bon produit : depuis une carte
+ * de collection, l'URL de la page est celle de la collection, pas celle du
+ * produit. Sans ces attributs, tous ces clics seraient comptés sur la page
+ * collection et aucun produit ne se verrait attribuer sa propre conversion.
+ */
+function productOf(el: HTMLElement): Record<string, unknown> | null {
+  const node = el.closest<HTMLElement>('[data-product-slug]')
+  if (!node) return null
+  const { productSlug, productName, productQty, productValue } = node.dataset
+  return {
+    slug: productSlug,
+    name: productName?.slice(0, 160),
+    quantity: Number(productQty) || 1,
+    value: Number(productValue) || null,
+  }
+}
+
+/**
  * Mesure du comportement : temps par page, parcours, scroll, clics.
  *
  * Tout est agrégé dans le navigateur et envoyé au départ de chaque page :
@@ -57,6 +77,7 @@ export default function AnalyticsTracker() {
       if (!target) return
 
       const href = target.getAttribute('href')
+      const product = productOf(target)
       queue.current.push({
         type: 'click',
         path: currentPath.current,
@@ -64,8 +85,11 @@ export default function AnalyticsTracker() {
         meta: {
           tag: target.tagName.toLowerCase(),
           ...(href ? { href: href.slice(0, 200) } : {}),
+          ...(product ? { product } : {}),
         },
       })
+      /* Un achat quitte le site immédiatement : on n'attend pas. */
+      if (product) flush()
       /* Un clic qui quitte la page doit partir tout de suite. */
       if (href && !href.startsWith('#')) flush()
     }

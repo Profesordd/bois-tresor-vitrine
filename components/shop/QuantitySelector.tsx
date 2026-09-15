@@ -88,6 +88,11 @@ export default function QuantitySelector({ product }: Props) {
         <button
           onClick={handleBuy}
           disabled={redirecting}
+          data-track="Commander"
+          data-product-slug={product.slug}
+          data-product-name={product.name}
+          data-product-qty={qty}
+          data-product-value={(product.price * qty).toFixed(2)}
           className="w-full py-5 rounded-lg font-bold text-xl flex items-center justify-center gap-3 transition-all duration-200 shadow-md bg-brand-600 hover:bg-brand-700 hover:shadow-lg disabled:opacity-70 text-white"
         >
           {redirecting ? (

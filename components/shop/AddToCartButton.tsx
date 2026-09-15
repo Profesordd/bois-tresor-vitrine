@@ -71,6 +71,11 @@ export default function AddToCartButton({ product, quantity = 1, compact }: AddT
     <button
       onClick={handleBuy}
       disabled={redirecting}
+      data-track="Commander"
+      data-product-slug={product.slug}
+      data-product-name={product.name}
+      data-product-qty={quantity}
+      data-product-value={(product.price * quantity).toFixed(2)}
       className={cn(
         'w-full flex items-center justify-center gap-1.5 sm:gap-2.5 rounded-lg font-bold transition-colors shadow-sm bg-brand-600 hover:bg-brand-700 disabled:opacity-70 text-white',
         compact ? 'py-2.5 text-sm' : 'py-3 text-[14px] sm:py-4 sm:text-lg'

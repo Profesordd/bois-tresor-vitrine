@@ -1,6 +1,13 @@
 import Link from 'next/link'
-import { Users, Clock, FileText, LogOut, TrendingDown, MousePointerClick, AlertTriangle, Inbox } from 'lucide-react'
-import { getOverview, getRecentSessions, formatDuration } from '@/lib/analytics/queries'
+import { Users, Clock, FileText, LogOut, TrendingDown, MousePointerClick, AlertTriangle, Inbox, Package } from 'lucide-react'
+import { formatPrice } from '@/lib/utils'
+import {
+  getOverview,
+  getRecentSessions,
+  getFunnelByDevice,
+  getProductPerformance,
+  formatDuration,
+} from '@/lib/analytics/queries'
 import { createAdminClient } from '@/lib/supabase/server'
 import RefreshButton from '@/components/admin/RefreshButton'
 
@@ -52,10 +59,12 @@ export default async function AdminDashboard({ searchParams }: Props) {
   const { jours } = await searchParams
   const days = PERIODS.includes(Number(jours)) ? Number(jours) : 7
 
-  const [overview, sessions, pendingMessages] = await Promise.all([
+  const [overview, sessions, pendingMessages, byDevice, products] = await Promise.all([
     getOverview(days),
     getRecentSessions(days, 100),
     countPendingMessages(),
+    getFunnelByDevice(days),
+    getProductPerformance(days),
   ])
   const r = overview?.resume
 
@@ -83,8 +92,17 @@ export default async function AdminDashboard({ searchParams }: Props) {
     { label: 'Visites', value: visites },
     { label: 'A vu une collection', value: r.etape_collection },
     { label: 'A ouvert une fiche produit', value: r.etape_produit },
-    { label: 'A cliqué sur Commander', value: r.etape_achat },
+    { label: 'A mis au panier (départ vers le paiement)', value: r.etape_achat },
   ]
+
+  /* Écart de conversion entre appareils : au-delà d'un facteur 2, c'est un
+     défaut d'affichage, pas une préférence des visiteurs. */
+  const taux = (d: { clicked_buy: number; visites: number }) =>
+    d.visites > 0 ? (d.clicked_buy / d.visites) * 100 : 0
+  const comparables = byDevice.filter((d) => d.visites >= 20 && d.device !== 'inconnu')
+  const meilleur = comparables.length > 1 ? Math.max(...comparables.map(taux)) : 0
+  const pire = comparables.length > 1 ? Math.min(...comparables.map(taux)) : 0
+  const ecartSuspect = comparables.length > 1 && meilleur > 0 && pire < meilleur / 2
 
   return (
     <div className="max-w-6xl mx-auto px-4 sm:px-6 py-10 space-y-10">
@@ -188,6 +206,122 @@ export default async function AdminDashboard({ searchParams }: Props) {
             )
           })}
         </div>
+      </section>
+
+      {/* ── Entonnoir par appareil ── */}
+      <section>
+        <h2 className="font-serif text-xl font-bold text-ink mb-1">Entonnoir par appareil</h2>
+        <p className="text-sm text-gray-500 mb-4">
+          Un appareil qui convertit deux fois moins que l’autre signale un défaut d’affichage, pas
+          une préférence des visiteurs.
+        </p>
+
+        {ecartSuspect && (
+          <p className="flex items-start gap-2.5 text-sm text-amber-900 bg-amber-50 border border-amber-200 rounded-lg p-4 mb-4">
+            <AlertTriangle size={18} className="flex-shrink-0 mt-0.5 text-amber-600" />
+            <span>
+              Écart important entre appareils : {pire.toFixed(1)} % contre {meilleur.toFixed(1)} %.
+              Testez le parcours d’achat sur l’appareil le moins performant, un élément y est
+              probablement inutilisable.
+            </span>
+          </p>
+        )}
+
+        <div className="bg-white rounded-lg border border-gray-200 overflow-x-auto">
+          <table className="w-full text-sm min-w-[640px]">
+            <thead className="bg-gray-50 text-gray-500 text-left">
+              <tr>
+                <th className="px-4 py-3 font-medium">Appareil</th>
+                <th className="px-4 py-3 font-medium text-right">Visites</th>
+                <th className="px-4 py-3 font-medium text-right">Collection</th>
+                <th className="px-4 py-3 font-medium text-right">Fiche produit</th>
+                <th className="px-4 py-3 font-medium text-right">Mise au panier</th>
+                <th className="px-4 py-3 font-medium text-right">Taux</th>
+                <th className="px-4 py-3 font-medium text-right">Temps moyen</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-100">
+              {byDevice.map((d) => {
+                const t = taux(d)
+                const faible = comparables.length > 1 && d.visites >= 20 && t < meilleur / 2
+                return (
+                  <tr key={d.device}>
+                    <td className="px-4 py-3 font-medium text-ink capitalize">{d.device}</td>
+                    <td className="px-4 py-3 text-right">{d.visites}</td>
+                    <td className="px-4 py-3 text-right text-gray-600">{d.saw_collection}</td>
+                    <td className="px-4 py-3 text-right text-gray-600">{d.saw_product}</td>
+                    <td className="px-4 py-3 text-right text-gray-600">{d.clicked_buy}</td>
+                    <td className={`px-4 py-3 text-right font-semibold ${faible ? 'text-red-600' : 'text-ink'}`}>
+                      {t.toFixed(1)} %
+                    </td>
+                    <td className="px-4 py-3 text-right text-gray-600 whitespace-nowrap">
+                      {formatDuration(d.duree_moyenne_s * 1000)}
+                    </td>
+                  </tr>
+                )
+              })}
+              {byDevice.length === 0 && (
+                <tr><td colSpan={7} className="px-4 py-8 text-center text-gray-400">Aucune donnée sur la période.</td></tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+        {comparables.length <= 1 && byDevice.length > 0 && (
+          <p className="text-xs text-gray-400 mt-2">
+            La comparaison ne s’affiche qu’à partir de 20 visites par appareil : en dessous, l’écart
+            ne veut rien dire.
+          </p>
+        )}
+      </section>
+
+      {/* ── Conversion par produit ── */}
+      <section>
+        <h2 className="font-serif text-xl font-bold text-ink mb-1 flex items-center gap-2">
+          <Package size={18} className="text-brand-600" /> Quels produits donnent envie
+        </h2>
+        <p className="text-sm text-gray-500 mb-4">
+          Part des visiteurs qui cliquent sur Commander après avoir ouvert la fiche. C’est le
+          classement à regarder pour choisir quels produits pousser en publicité.
+        </p>
+        <div className="bg-white rounded-lg border border-gray-200 overflow-x-auto">
+          <table className="w-full text-sm min-w-[680px]">
+            <thead className="bg-gray-50 text-gray-500 text-left">
+              <tr>
+                <th className="px-4 py-3 font-medium">Produit</th>
+                <th className="px-4 py-3 font-medium text-right">Fiches vues</th>
+                <th className="px-4 py-3 font-medium text-right">Mises au panier</th>
+                <th className="px-4 py-3 font-medium text-right">Taux</th>
+                <th className="px-4 py-3 font-medium text-right">Valeur</th>
+                <th className="px-4 py-3 font-medium text-right">Scroll moyen</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-100">
+              {products.map((p) => (
+                <tr key={p.slug}>
+                  <td className="px-4 py-3 max-w-[280px]">
+                    <span className="text-gray-800 line-clamp-2">{p.name}</span>
+                  </td>
+                  <td className="px-4 py-3 text-right">{p.vues}</td>
+                  <td className="px-4 py-3 text-right font-semibold text-ink">{p.achats}</td>
+                  <td className={`px-4 py-3 text-right font-semibold ${p.taux >= 5 ? 'text-brand-700' : 'text-gray-600'}`}>
+                    {p.taux} %
+                  </td>
+                  <td className="px-4 py-3 text-right text-gray-600 whitespace-nowrap">
+                    {p.valeur_totale > 0 ? formatPrice(Number(p.valeur_totale)) : '—'}
+                  </td>
+                  <td className="px-4 py-3 text-right text-gray-600">{p.scroll_moyen} %</td>
+                </tr>
+              ))}
+              {products.length === 0 && (
+                <tr><td colSpan={6} className="px-4 py-8 text-center text-gray-400">Aucune fiche produit consultée sur la période.</td></tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+        <p className="text-xs text-gray-400 mt-2">
+          Une fiche très vue mais jamais mise au panier mérite un examen : photo, prix, ou une
+          information qui manque au moment de décider.
+        </p>
       </section>
 
       {/* ── Pages ── */}
