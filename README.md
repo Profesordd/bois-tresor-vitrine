@@ -16,8 +16,10 @@ site réel (bois-emeraude.com), avec paiement en ligne pas encore branché (dém
   mais **aucun paiement réel n'est traité** — "Passer commande" affiche un
   récapitulatif de démonstration. Un vrai moyen de paiement sera à brancher
   une fois le design validé.
-- **Avis clients / chiffres clés** : repris tels quels du site réel (note
-  4,9/5, 2 184 avis, 12 000+ stères livrés, témoignages) à la demande du client.
+- **Avis clients / chiffres clés** : repris du site réel à la demande du
+  client (note 4,9/5, 244 avis, 12 000+ stères livrés, témoignages). La note,
+  le nombre d'avis et les témoignages sont centralisés dans `lib/reviews.ts` :
+  c'est le seul endroit à modifier pour les mettre à jour.
 - **Contact** : formulaire fonctionnel, envoie un email via Resend (clé requise).
 - **Suivi de commande** : interroge la table `orders` de Supabase — tant
   qu'aucune vraie commande n'existe (pas de paiement branché), il renverra
