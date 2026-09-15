@@ -52,7 +52,9 @@ export default function CollectionView({ categorySlug }: Props) {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+      {/* Marge haute réduite de moitié sur téléphone : l'écart entre le hero
+          et la preuve sociale y était disproportionné. */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5 sm:py-10">
 
         {/* ── Visiteur belge : on lève le doute avant tout le reste ── */}
         <div className="mb-6 empty:mb-0">
@@ -60,7 +62,7 @@ export default function CollectionView({ categorySlug }: Props) {
         </div>
 
         {/* ── Preuve sociale, vue dès l'arrivée ── */}
-        <div className="mb-8">
+        <div className="mb-5 sm:mb-8">
           <SocialProof />
         </div>
 
@@ -77,11 +79,23 @@ export default function CollectionView({ categorySlug }: Props) {
           <UrgencyNote />
         </div>
 
-        {/* ── Filtres ── */}
-        <div className="flex flex-wrap gap-3 mt-10 mb-8">
+        {/* ── Filtres ──
+             Sur téléphone : une seule ligne qui défile latéralement. En
+             passant à la ligne, ces quatre libellés occupaient un quart de
+             l'écran — beaucoup pour une navigation secondaire, quand le
+             visiteur vient d'abord voir des palettes.
+             Les marges négatives laissent le défilement atteindre les bords
+             de l'écran, sinon la dernière pastille semble coupée net. ── */}
+        <div
+          className="flex gap-2 sm:gap-3 mt-5 mb-4 sm:mt-10 sm:mb-8
+                     overflow-x-auto sm:overflow-visible sm:flex-wrap
+                     -mx-4 px-4 sm:mx-0 sm:px-0
+                     [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+        >
           <Link
             href="/produits"
-            className={`px-5 py-3 rounded-full text-base font-semibold border-2 transition-colors ${
+            className={`flex-shrink-0 whitespace-nowrap rounded-full border-2 transition-colors
+              px-3.5 py-1.5 text-sm sm:px-5 sm:py-3 sm:text-base font-semibold ${
               !activeCategory
                 ? 'bg-brand-700 text-white border-brand-700'
                 : 'border-gray-200 text-gray-700 hover:border-brand-400 hover:text-brand-700'
@@ -93,13 +107,17 @@ export default function CollectionView({ categorySlug }: Props) {
             <Link
               key={c.slug}
               href={`/product-category/${c.slug}/`}
-              className={`px-5 py-3 rounded-full text-base font-semibold border-2 transition-colors ${
+              className={`flex-shrink-0 whitespace-nowrap rounded-full border-2 transition-colors
+                px-3.5 py-1.5 text-sm sm:px-5 sm:py-3 sm:text-base font-semibold ${
                 activeCategory?.slug === c.slug
                   ? 'bg-brand-700 text-white border-brand-700'
                   : 'border-gray-200 text-gray-700 hover:border-brand-400 hover:text-brand-700'
               }`}
             >
-              {c.name}
+              {/* Libellé abrégé sur téléphone : « Bois densifié & bûches
+                  compressées » tient mal sur une pastille. */}
+              <span className="sm:hidden">{c.shortName ?? c.name}</span>
+              <span className="hidden sm:inline">{c.name}</span>
             </Link>
           ))}
         </div>

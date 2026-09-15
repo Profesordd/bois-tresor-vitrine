@@ -13,8 +13,8 @@ import type { Product, Category, Spec } from '@/types/database'
 
 export const CATEGORIES: Category[] = [
   { id: 'cat-buches',    slug: 'bois-de-chauffage',    name: 'Bois de chauffage',   family: 'bois-de-chauffage', created_at: '' },
-  { id: 'cat-densifie',  slug: 'bois-densifie',        name: 'Bois densifié & bûches compressées', family: 'bois-densifie', created_at: '' },
-  { id: 'cat-granules',  slug: 'granules-et-pellets',  name: 'Granulés & pellets',  family: 'granules',          created_at: '' },
+  { id: 'cat-densifie',  slug: 'bois-densifie',        name: 'Bois densifié & bûches compressées', shortName: 'Bois densifié', family: 'bois-densifie', created_at: '' },
+  { id: 'cat-granules',  slug: 'granules-et-pellets',  name: 'Granulés & pellets',  shortName: 'Granulés', family: 'granules',          created_at: '' },
 ]
 
 function cat(id: string): Category {

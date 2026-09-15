@@ -30,8 +30,9 @@ export default function SocialProof({ variant = 'bar' }: Props) {
   }
 
   return (
-    <p className="flex items-center justify-center gap-2.5 text-center text-base sm:text-lg text-gray-800 border-y border-gray-200 py-4">
-      <Users size={20} className="text-brand-600 flex-shrink-0" />
+    <p className="flex items-center justify-center gap-2.5 text-center text-[15px] sm:text-lg text-gray-800 border-y border-gray-200 py-2.5 sm:py-4">
+      <Users size={18} className="text-brand-600 flex-shrink-0 sm:hidden" />
+      <Users size={20} className="text-brand-600 flex-shrink-0 hidden sm:block" />
       <span>{sentence}</span>
     </p>
   )

@@ -12,6 +12,8 @@ export interface Category {
   id: string
   slug: string
   name: string
+  /** Libellé abrégé, pour les pastilles de filtre sur téléphone. */
+  shortName?: string
   family: ProductFamily
   created_at: string
 }
