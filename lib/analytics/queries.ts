@@ -12,12 +12,15 @@ export interface Overview {
     etape_collection: number
     etape_produit: number
     etape_achat: number
+    /** Visites écartées : hors zone commerciale ou pays inconnu. */
+    hors_zone: number
   } | null
   pages: { path: string; vues: number; duree_moyenne_s: number; scroll_moyen: number; sorties: number }[]
   clics: { label: string; path: string; total: number }[]
   champs: { label: string; ouvertures: number; abandons: number }[]
   sources: { source: string; visites: number }[]
   appareils: { appareil: string; visites: number }[]
+  pays: { code: string; visites: number }[]
 }
 
 export interface SessionRow {
@@ -27,6 +30,7 @@ export interface SessionRow {
   exit_path: string | null
   source: string
   device: string | null
+  country: string | null
   pageviews: number
   duration_ms: number
   saw_collection: boolean

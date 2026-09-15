@@ -1,6 +1,7 @@
 import Link from 'next/link'
-import { Users, Clock, FileText, LogOut, TrendingDown, MousePointerClick, AlertTriangle, Inbox, Package } from 'lucide-react'
+import { Users, Clock, FileText, LogOut, TrendingDown, MousePointerClick, AlertTriangle, Inbox, Package, Globe } from 'lucide-react'
 import { formatPrice } from '@/lib/utils'
+import { NOM_PAYS } from '@/lib/analytics/geo'
 import {
   getOverview,
   getRecentSessions,
@@ -178,6 +179,23 @@ export default async function AdminDashboard({ searchParams }: Props) {
           hint={`${r.visites_une_page} visite${r.visites_une_page > 1 ? 's' : ''} sans clic`}
         />
       </div>
+
+      {/* ── Périmètre de mesure ── */}
+      <p className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-gray-500 -mt-4">
+        <Globe size={15} className="text-gray-400" />
+        Chiffres limités à la France, la Belgique, la Suisse, le Luxembourg et Monaco.
+        {r.hors_zone > 0 && (
+          <span className="text-gray-600">
+            <strong>{r.hors_zone}</strong> visite{r.hors_zone > 1 ? 's' : ''} hors zone écartée
+            {r.hors_zone > 1 ? 's' : ''}, robots exclus à la source.
+          </span>
+        )}
+        {overview.pays.length > 0 && (
+          <span className="text-gray-400">
+            ({overview.pays.map((p) => `${NOM_PAYS[p.code] ?? p.code} ${p.visites}`).join(' · ')})
+          </span>
+        )}
+      </p>
 
       {/* ── Entonnoir ── */}
       <section>
@@ -433,6 +451,7 @@ export default async function AdminDashboard({ searchParams }: Props) {
               <tr>
                 <th className="px-4 py-3 font-medium">Date</th>
                 <th className="px-4 py-3 font-medium">Provenance</th>
+                <th className="px-4 py-3 font-medium">Pays</th>
                 <th className="px-4 py-3 font-medium">Arrivée</th>
                 <th className="px-4 py-3 font-medium">Sortie</th>
                 <th className="px-4 py-3 font-medium text-right">Pages</th>
@@ -450,6 +469,7 @@ export default async function AdminDashboard({ searchParams }: Props) {
                     })}
                   </td>
                   <td className="px-4 py-3 text-gray-600">{s.source}</td>
+                  <td className="px-4 py-3 text-gray-600">{s.country ? (NOM_PAYS[s.country] ?? s.country) : "—"}</td>
                   <td className="px-4 py-3 text-gray-600 max-w-[170px] truncate">{s.entry_path}</td>
                   <td className="px-4 py-3 text-gray-600 max-w-[170px] truncate">{s.exit_path ?? '—'}</td>
                   <td className="px-4 py-3 text-right">{s.pageviews}</td>
@@ -473,7 +493,7 @@ export default async function AdminDashboard({ searchParams }: Props) {
                 </tr>
               ))}
               {sessions.length === 0 && (
-                <tr><td colSpan={8} className="px-4 py-8 text-center text-gray-400">Aucune visite sur la période.</td></tr>
+                <tr><td colSpan={9} className="px-4 py-8 text-center text-gray-400">Aucune visite sur la période.</td></tr>
               )}
             </tbody>
           </table>

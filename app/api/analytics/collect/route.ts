@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/server'
+import { estUnRobot } from '@/lib/analytics/geo'
 
 /**
  * Réception de la mesure d'audience.
@@ -28,6 +29,12 @@ function int(v: unknown, min: number, max: number): number | null {
 
 export async function POST(req: NextRequest) {
   try {
+    /* Robots écartés dès l'entrée : les stocker fausserait le taux de
+       conversion vers le bas et occuperait la base pour rien. */
+    if (estUnRobot(req.headers.get('user-agent'))) {
+      return new NextResponse(null, { status: 204 })
+    }
+
     const payload = await req.json()
     const sessionId: unknown = payload?.sessionId
 
@@ -52,6 +59,10 @@ export async function POST(req: NextRequest) {
     const supabase = createAdminClient()
     const ctx = payload?.context
 
+    /* Pays déduit de l'IP par Vercel. Seul le code à deux lettres est
+       conservé : l'adresse elle-même n'est jamais enregistrée. */
+    const country = (req.headers.get('x-vercel-ip-country') ?? '').toUpperCase().slice(0, 2) || null
+
     /* Première requête de la visite : on crée la session avec son contexte
        d'arrivée. Les suivantes ne font que la prolonger. */
     if (ctx && typeof ctx === 'object') {
@@ -64,6 +75,7 @@ export async function POST(req: NextRequest) {
           utm_medium: str(ctx.utmMedium, 120),
           utm_campaign: str(ctx.utmCampaign, 120),
           device: ['mobile', 'tablet', 'desktop'].includes(ctx.device) ? ctx.device : null,
+          country,
         },
         { onConflict: 'id', ignoreDuplicates: true }
       )
@@ -71,7 +83,7 @@ export async function POST(req: NextRequest) {
       /* Session déjà connue : filet de sécurité si la toute première
          requête s'est perdue (onglet fermé trop vite, réseau coupé). */
       await supabase.from('analytics_sessions').upsert(
-        { id: sessionId, entry_path: str(events[0].path, 300) ?? '/' },
+        { id: sessionId, entry_path: str(events[0].path, 300) ?? '/', country },
         { onConflict: 'id', ignoreDuplicates: true }
       )
     }
