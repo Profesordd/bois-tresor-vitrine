@@ -2,11 +2,11 @@
 
 import Link from 'next/link'
 import { useState } from 'react'
-import { Minus, Plus, ShoppingCart, Mail } from 'lucide-react'
+import { Minus, Plus, ShoppingCart, Mail, PackagePlus } from 'lucide-react'
 import { useCartStore } from '@/stores/cart'
 import type { Product } from '@/types/database'
 import { buildCheckoutUrl } from '@/lib/checkout'
-import { trackAddToCartThenRedirect } from '@/lib/analytics/meta'
+import { trackAddToCart, trackAddToCartThenRedirect } from '@/lib/analytics/meta'
 
 interface Props {
   product: Product
@@ -15,16 +15,19 @@ interface Props {
 /**
  * Le seul endroit du site où l'on peut commander.
  *
- * Un bouton unique et visible mène droit au paiement : le visiteur clique,
- * il paie. Rien n'évoque ici un panier, une sélection en cours ou d'autres
- * produits — cette notion perd un public peu à l'aise avec internet, qui se
- * demande où est passé son produit et s'il a déjà payé.
+ * Deux chemins, volontairement inégaux :
+ *   - « Commander maintenant », gros et plein, mène droit au paiement.
+ *     C'est le parcours de l'immense majorité : on clique, on paie.
+ *   - « Ajouter à ma commande », discret, sert au client rare qui veut
+ *     plusieurs produits. Le mettre au même niveau visuel obligerait tous
+ *     les autres à trancher entre deux boutons — exactement l'hésitation
+ *     qu'il faut éviter chez un public peu à l'aise avec internet.
  */
 export default function QuantitySelector({ product }: Props) {
   const [qty, setQty] = useState(1)
   const [redirecting, setRedirecting] = useState(false)
 
-  const { items, addItem } = useCartStore()
+  const { items, addItem, setOpen } = useCartStore()
   const isOutOfStock = product.stock === 0
 
   function dec() { setQty((q) => Math.max(1, q - 1)) }
@@ -34,8 +37,7 @@ export default function QuantitySelector({ product }: Props) {
   function handleBuy() {
     if (isOutOfStock) return
     /* Ce qui a déjà été retenu part avec : l'ignorer reviendrait à effacer
-       sans prévenir une commande que le client croit constituée. Rien ne
-       l'affiche sur cette page, mais le total du paiement doit être juste. */
+       sans prévenir une commande que le client croit constituée. */
     const autresProduits = items.filter((i) => i.product.id !== product.id)
     const url = buildCheckoutUrl([...autresProduits, { product, quantity: qty }])
     if (!url) return
@@ -44,6 +46,15 @@ export default function QuantitySelector({ product }: Props) {
     /* AddToCart part avant la redirection : sans ce signal, aucune audience
        « panier abandonné » ne peut être constituée côté Meta. */
     trackAddToCartThenRedirect(product, qty, url)
+  }
+
+  /** Chemin secondaire : le produit rejoint la commande, on reste sur le site. */
+  function handleAjouter() {
+    if (isOutOfStock) return
+    addItem(product, qty, { open: true })
+    /* Même signal publicitaire que l'achat direct : dans les deux cas, le
+       visiteur a mis un produit au panier. */
+    trackAddToCart(product, qty)
   }
 
   /* Pas d'identifiant de checkout : le produit n'est pas encore payable en
@@ -117,6 +128,19 @@ export default function QuantitySelector({ product }: Props) {
 
           <p className="text-center text-sm text-gray-500">
             Vous passez directement au paiement sécurisé.
+          </p>
+
+          {/* Chemin secondaire : bordure fine, fond blanc, texte plus petit.
+              Visible pour qui le cherche, effacé pour les autres. */}
+          <button
+            onClick={handleAjouter}
+            className="w-full py-3 rounded-lg border border-gray-200 bg-white text-[15px] font-medium text-gray-600 hover:border-brand-400 hover:text-brand-700 flex items-center justify-center gap-2 transition-colors"
+          >
+            <PackagePlus size={17} />
+            Ajouter à ma commande
+          </button>
+          <p className="text-center text-[13px] text-gray-400 -mt-2">
+            Pour commander plusieurs produits ensemble.
           </p>
         </>
       )}
