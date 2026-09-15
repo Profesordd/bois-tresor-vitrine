@@ -124,7 +124,7 @@ export default function SuiviCommandePage() {
     setError('')
     setLoading(true)
     try {
-      const res = await fetch('/api/orders/track', {
+      const res = await fetch('/api/orders/track/', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: form.email.trim(), orderCode: form.number.trim() }),

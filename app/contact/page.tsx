@@ -15,7 +15,7 @@ export default function ContactPage() {
     setLoading(true)
     setError('')
     try {
-      const res = await fetch('/api/emails/contact', {
+      const res = await fetch('/api/emails/contact/', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(form),
@@ -93,6 +93,7 @@ export default function ContactPage() {
                     <label className="block text-sm font-medium text-gray-700 mb-1.5">Nom *</label>
                     <input
                       required
+                      name="nom"
                       type="text"
                       value={form.name}
                       onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
@@ -104,6 +105,7 @@ export default function ContactPage() {
                     <label className="block text-sm font-medium text-gray-700 mb-1.5">E-mail *</label>
                     <input
                       required
+                      name="email"
                       type="email"
                       value={form.email}
                       onChange={e => setForm(f => ({ ...f, email: e.target.value }))}
@@ -116,6 +118,7 @@ export default function ContactPage() {
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1.5">Sujet</label>
                   <select
+                    name="sujet"
                     value={form.subject}
                     onChange={e => setForm(f => ({ ...f, subject: e.target.value }))}
                     className="w-full border border-gray-200 rounded-lg px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent bg-white"
@@ -132,6 +135,7 @@ export default function ContactPage() {
                   <label className="block text-sm font-medium text-gray-700 mb-1.5">Message *</label>
                   <textarea
                     required
+                    name="message"
                     rows={6}
                     value={form.message}
                     onChange={e => setForm(f => ({ ...f, message: e.target.value }))}
