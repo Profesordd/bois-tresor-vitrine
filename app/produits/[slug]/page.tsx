@@ -71,7 +71,14 @@ export default async function ProductPage({ params }: Props) {
             {product.name}
           </h1>
 
-          <p className="text-4xl font-bold text-ink mb-2">{formatPrice(product.price)}</p>
+          <div className="flex items-baseline gap-3 flex-wrap mb-2">
+            <span className="text-4xl font-bold text-ink">{formatPrice(product.price)}</span>
+            {product.original_price !== null && product.original_price > product.price && (
+              <span className="text-2xl text-gray-400 line-through">
+                {formatPrice(product.original_price)}
+              </span>
+            )}
+          </div>
           <p className="flex items-center gap-2 text-lg font-semibold text-brand-700 mb-7">
             <Truck size={20} />
             Livraison offerte dès 89 € d’achat

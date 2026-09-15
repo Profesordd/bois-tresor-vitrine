@@ -10,8 +10,9 @@ interface ProductCardProps {
 }
 
 export default function ProductCard({ product }: ProductCardProps) {
-  const { slug, name, price, stock, image, family } = product
+  const { slug, name, price, original_price, stock, image, family } = product
   const isOutOfStock = stock === 0
+  const hasPromo = original_price !== null && original_price > price
 
   return (
     <div className="group bg-white rounded-lg border-2 border-gray-100 hover:border-brand-300 hover:shadow-lg transition-all duration-300 overflow-hidden flex flex-col">
@@ -40,7 +41,12 @@ export default function ProductCard({ product }: ProductCardProps) {
           {family === 'granules' ? 'Granulés prêts à l’emploi' : 'Bois sec, prêt à brûler'}
         </p>
 
-        <p className="text-3xl font-bold text-ink mt-auto pt-1">{formatPrice(price)}</p>
+        <div className="mt-auto pt-1 flex items-baseline gap-2.5 flex-wrap">
+          <span className="text-3xl font-bold text-ink">{formatPrice(price)}</span>
+          {hasPromo && (
+            <span className="text-lg text-gray-400 line-through">{formatPrice(original_price!)}</span>
+          )}
+        </div>
 
         <p className="flex items-center gap-2 text-[15px] font-semibold text-brand-700">
           <Truck size={16} className="flex-shrink-0" />
