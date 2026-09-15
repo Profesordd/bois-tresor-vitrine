@@ -31,6 +31,20 @@ export function createAdminClient() {
   return createSupabaseClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.SUPABASE_SERVICE_ROLE_KEY!,
-    { auth: { persistSession: false } }
+    {
+      auth: { persistSession: false },
+      global: {
+        /**
+         * Lecture jamais mise en cache.
+         *
+         * Supabase envoie les `.select()` en GET, et Next.js met les GET en
+         * cache par défaut : une demande de contact marquée comme traitée
+         * réapparaissait indéfiniment, même après rechargement complet. Les
+         * `.rpc()` n'étaient pas concernés, étant envoyés en POST — d'où un
+         * tableau de bord à jour et une liste de messages figée.
+         */
+        fetch: (url, options = {}) => fetch(url, { ...options, cache: 'no-store' }),
+      },
+    }
   )
 }

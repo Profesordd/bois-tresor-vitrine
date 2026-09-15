@@ -15,7 +15,7 @@ export default function ContactPage() {
     setLoading(true)
     setError('')
     try {
-      const res = await fetch('/api/emails/contact/', {
+      const res = await fetch('/api/contact/', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(form),

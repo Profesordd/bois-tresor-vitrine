@@ -1,6 +1,18 @@
 import Link from 'next/link'
-import { Users, Clock, FileText, LogOut, TrendingDown, MousePointerClick, AlertTriangle } from 'lucide-react'
+import { Users, Clock, FileText, LogOut, TrendingDown, MousePointerClick, AlertTriangle, Inbox } from 'lucide-react'
 import { getOverview, getRecentSessions, formatDuration } from '@/lib/analytics/queries'
+import { createAdminClient } from '@/lib/supabase/server'
+import RefreshButton from '@/components/admin/RefreshButton'
+
+/** Nombre de demandes de contact encore sans réponse. */
+async function countPendingMessages(): Promise<number> {
+  const supabase = createAdminClient()
+  const { count, error } = await supabase
+    .from('contact_messages')
+    .select('id', { count: 'exact', head: true })
+    .eq('handled', false)
+  return error ? 0 : (count ?? 0)
+}
 
 export const dynamic = 'force-dynamic'
 export const metadata = { title: 'Tableau de bord' }
@@ -40,7 +52,11 @@ export default async function AdminDashboard({ searchParams }: Props) {
   const { jours } = await searchParams
   const days = PERIODS.includes(Number(jours)) ? Number(jours) : 7
 
-  const [overview, sessions] = await Promise.all([getOverview(days), getRecentSessions(days, 100)])
+  const [overview, sessions, pendingMessages] = await Promise.all([
+    getOverview(days),
+    getRecentSessions(days, 100),
+    countPendingMessages(),
+  ])
   const r = overview?.resume
 
   if (!overview || !r) {
@@ -92,14 +108,45 @@ export default async function AdminDashboard({ searchParams }: Props) {
               {d === 1 ? '24 h' : `${d} j`}
             </Link>
           ))}
-          <Link
-            href="/admin/deconnexion/"
-            className="ml-2 flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-800"
-          >
-            <LogOut size={15} /> Quitter
-          </Link>
+          <div className="ml-2 flex items-center gap-3">
+            <RefreshButton />
+            <Link
+              href="/admin/deconnexion/"
+              className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-800"
+            >
+              <LogOut size={15} /> Quitter
+            </Link>
+          </div>
         </div>
       </div>
+
+      {/* ── Demandes de contact : mis en tête, c'est ce qui appelle une
+             action immédiate, au contraire des statistiques. ── */}
+      <Link
+        href="/admin/messages/"
+        className={`flex items-center justify-between gap-4 rounded-lg border p-5 transition-colors ${
+          pendingMessages > 0
+            ? 'border-brand-300 bg-brand-50 hover:border-brand-500'
+            : 'border-gray-200 bg-white hover:border-brand-400'
+        }`}
+      >
+        <span className="flex items-center gap-3">
+          <Inbox size={22} className="text-brand-600 flex-shrink-0" />
+          <span>
+            <span className="block font-semibold text-ink">
+              {pendingMessages > 0
+                ? `${pendingMessages} demande${pendingMessages > 1 ? 's' : ''} de contact à traiter`
+                : 'Demandes de contact'}
+            </span>
+            <span className="block text-sm text-gray-500">
+              {pendingMessages > 0
+                ? 'Un client attend une réponse de votre part.'
+                : 'Aucune demande en attente.'}
+            </span>
+          </span>
+        </span>
+        <span className="text-brand-700 font-semibold text-sm whitespace-nowrap">Ouvrir →</span>
+      </Link>
 
       {/* ── Vue d'ensemble ── */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
