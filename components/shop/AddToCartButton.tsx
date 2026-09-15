@@ -41,7 +41,7 @@ export default function AddToCartButton({ product, quantity = 1, compact }: AddT
         href="/contact"
         className={cn(
           'w-full flex items-center justify-center gap-2 rounded-lg font-semibold border-2 border-brand-600 text-brand-700 hover:bg-brand-50 transition-colors',
-          compact ? 'py-2.5 text-sm' : 'py-4 text-lg'
+          compact ? 'py-2.5 text-sm' : 'py-3 text-[15px] sm:py-4 sm:text-lg'
         )}
       >
         <Mail size={compact ? 16 : 20} />
@@ -56,7 +56,7 @@ export default function AddToCartButton({ product, quantity = 1, compact }: AddT
         disabled
         className={cn(
           'w-full flex items-center justify-center gap-2 rounded-lg font-semibold cursor-not-allowed bg-gray-100 text-gray-400',
-          compact ? 'py-2.5 text-sm' : 'py-4 text-lg'
+          compact ? 'py-2.5 text-sm' : 'py-3 text-[15px] sm:py-4 sm:text-lg'
         )}
       >
         Rupture de stock
@@ -69,15 +69,20 @@ export default function AddToCartButton({ product, quantity = 1, compact }: AddT
       onClick={handleBuy}
       disabled={redirecting}
       className={cn(
-        'w-full flex items-center justify-center gap-2.5 rounded-lg font-bold transition-colors shadow-sm bg-brand-600 hover:bg-brand-700 disabled:opacity-70 text-white',
-        compact ? 'py-2.5 text-sm' : 'py-4 text-lg'
+        'w-full flex items-center justify-center gap-1.5 sm:gap-2.5 rounded-lg font-bold transition-colors shadow-sm bg-brand-600 hover:bg-brand-700 disabled:opacity-70 text-white',
+        compact ? 'py-2.5 text-sm' : 'py-3 text-[14px] sm:py-4 sm:text-lg'
       )}
     >
       {redirecting ? (
         'Redirection…'
       ) : (
         <>
-          <ShoppingCart size={compact ? 16 : 22} />
+          {/* Sous 360 px, l'icône est sacrifiée pour que le mot « Commander »
+              tienne en entier dans une carte de demi-largeur. */}
+          <ShoppingCart
+            size={compact ? 16 : 22}
+            className={compact ? '' : 'hidden min-[360px]:block sm:block'}
+          />
           Commander
         </>
       )}

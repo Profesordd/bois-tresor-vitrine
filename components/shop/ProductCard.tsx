@@ -29,27 +29,33 @@ export default function ProductCard({ product }: ProductCardProps) {
         )}
       </Link>
 
-      <div className="p-5 flex flex-col flex-1 gap-3">
+      {/* Deux cartes par ligne sur téléphone : tout le contenu se resserre
+          d'un cran en dessous de 640 px pour rester lisible sans déborder. */}
+      <div className="p-3 sm:p-5 flex flex-col flex-1 gap-2 sm:gap-3">
         <Link href={`/produits/${slug}`}>
-          <h3 className="text-lg font-bold text-ink hover:text-brand-700 transition-colors leading-snug">
+          <h3 className="text-[15px] sm:text-lg font-bold text-ink hover:text-brand-700 transition-colors leading-snug">
             {name}
           </h3>
         </Link>
 
-        <p className="flex items-center gap-2 text-[15px] text-gray-700">
-          <Flame size={16} className="text-brand-600 flex-shrink-0" />
+        <p className="flex items-center gap-1.5 sm:gap-2 text-[13px] sm:text-[15px] text-gray-700">
+          <Flame size={14} className="text-brand-600 flex-shrink-0 sm:hidden" />
+          <Flame size={16} className="text-brand-600 flex-shrink-0 hidden sm:block" />
           {family === 'granules' ? 'Granulés prêts à l’emploi' : 'Bois sec, prêt à brûler'}
         </p>
 
-        <div className="mt-auto pt-1 flex items-baseline gap-2.5 flex-wrap">
-          <span className="text-3xl font-bold text-ink">{formatPrice(price)}</span>
+        <div className="mt-auto pt-1 flex items-baseline gap-2 flex-wrap">
+          <span className="text-2xl sm:text-3xl font-bold text-ink">{formatPrice(price)}</span>
           {hasPromo && (
-            <span className="text-lg text-gray-400 line-through">{formatPrice(original_price!)}</span>
+            <span className="text-base sm:text-lg text-gray-400 line-through">
+              {formatPrice(original_price!)}
+            </span>
           )}
         </div>
 
-        <p className="flex items-center gap-2 text-[15px] font-semibold text-brand-700">
-          <Truck size={16} className="flex-shrink-0" />
+        <p className="flex items-center gap-1.5 sm:gap-2 text-[13px] sm:text-[15px] font-semibold text-brand-700">
+          <Truck size={14} className="flex-shrink-0 sm:hidden" />
+          <Truck size={16} className="flex-shrink-0 hidden sm:block" />
           Livraison offerte dès 89 €
         </p>
 

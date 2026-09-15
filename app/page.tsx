@@ -38,8 +38,10 @@ const STRENGTHS = [
 ]
 
 export default function HomePage() {
-  const boisChauffageHighlights = BOIS_CHAUFFAGE_PRODUCTS.slice(0, 8)
-  const granulesHighlights      = GRANULES_PRODUCTS.slice(0, 8)
+  /* 4 produits par famille : la page d'accueil donne un aperçu, le choix
+     complet se fait sur la page de collection. */
+  const boisChauffageHighlights = BOIS_CHAUFFAGE_PRODUCTS.slice(0, 4)
+  const granulesHighlights      = GRANULES_PRODUCTS.slice(0, 4)
 
   return (
     <>
@@ -115,7 +117,7 @@ export default function HomePage() {
             Voir tout →
           </Link>
         </div>
-        <ProductGrid products={boisChauffageHighlights} />
+        <ProductGrid products={boisChauffageHighlights} columns={4} />
       </section>
 
       {/* ── 3 POINTS FORTS ── */}
@@ -148,7 +150,7 @@ export default function HomePage() {
             Voir tout →
           </Link>
         </div>
-        <ProductGrid products={granulesHighlights} />
+        <ProductGrid products={granulesHighlights} columns={4} />
       </section>
 
       {/* ── URGENCE CRÉDIBLE ── */}
