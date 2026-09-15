@@ -72,30 +72,37 @@ export default function Header() {
               Suivi
             </Link>
 
-            <button
-              onClick={() => setOpen(true)}
-              className="relative flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-700 hover:text-brand-600 hover:bg-brand-50 rounded-lg transition-colors"
-              aria-label="Panier"
-            >
-              <ShoppingCart size={20} />
-              <span>Panier</span>
-              {mounted && totalItems > 0 && (
+            {/* Le panier n'apparaît qu'une fois un produit choisi. Affiché en
+                permanence, il fait chercher une étape qui n'existe pas dans le
+                parcours normal : on clique, on paie. */}
+            {mounted && totalItems > 0 && (
+              <button
+                onClick={() => setOpen(true)}
+                className="relative flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-700 hover:text-brand-600 hover:bg-brand-50 rounded-lg transition-colors"
+                aria-label={`Ma commande, ${totalItems} produit${totalItems > 1 ? 's' : ''}`}
+              >
+                <ShoppingCart size={20} />
+                <span>Ma commande</span>
                 <span className="absolute -top-1 -right-1 bg-brand-600 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
                   {totalItems > 99 ? '99+' : totalItems}
                 </span>
-              )}
-            </button>
+              </button>
+            )}
           </div>
 
           <div className="flex md:hidden items-center gap-2">
-            <button onClick={() => setOpen(true)} className="relative p-2 text-gray-700" aria-label="Panier">
-              <ShoppingCart size={22} />
-              {mounted && totalItems > 0 && (
+            {mounted && totalItems > 0 && (
+              <button
+                onClick={() => setOpen(true)}
+                className="relative p-2 text-gray-700"
+                aria-label={`Ma commande, ${totalItems} produit${totalItems > 1 ? 's' : ''}`}
+              >
+                <ShoppingCart size={22} />
                 <span className="absolute -top-1 -right-1 bg-brand-600 text-white text-xs font-bold rounded-full w-4 h-4 flex items-center justify-center">
                   {totalItems}
                 </span>
-              )}
-            </button>
+              </button>
+            )}
             <button className="p-2 text-gray-600 hover:text-gray-900" onClick={() => setMobileOpen(v => !v)} aria-label="Menu">
               {mobileOpen ? <X size={22} /> : <Menu size={22} />}
             </button>

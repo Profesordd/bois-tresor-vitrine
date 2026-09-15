@@ -1,23 +1,38 @@
 import Link from 'next/link'
-import { Truck, Flame } from 'lucide-react'
+import { Truck, Flame, ArrowRight } from 'lucide-react'
 import type { Product } from '@/types/database'
 import { formatPrice } from '@/lib/utils'
 import ProductVisual from '@/components/shop/ProductVisual'
-import AddToCartButton from '@/components/shop/AddToCartButton'
 
 interface ProductCardProps {
   product: Product
 }
 
+/**
+ * Carte produit de la page collection.
+ *
+ * Toute la carte est un lien vers la fiche : c'est le seul chemin possible
+ * depuis la collection. On n'achète plus directement d'ici.
+ *
+ * Les données montraient que la plupart des visiteurs commandaient depuis
+ * la carte, sautant ainsi toute la réassurance — bois sec, provenance,
+ * entreprise familiale, FAQ — qui est précisément ce qui décide un acheteur
+ * méfiant. Le parcours devient linéaire : collection, fiche, paiement.
+ *
+ * Le bouton est un <span> et non un lien : imbriquer un lien dans un lien
+ * produirait un HTML invalide et un comportement imprévisible au clic.
+ */
 export default function ProductCard({ product }: ProductCardProps) {
   const { slug, name, price, original_price, stock, image, family } = product
   const isOutOfStock = stock === 0
   const hasPromo = original_price !== null && original_price > price
 
   return (
-    <div className="group bg-white rounded-lg border-2 border-gray-100 hover:border-brand-300 hover:shadow-lg transition-all duration-300 overflow-hidden flex flex-col">
-
-      <Link href={`/produits/${slug}`} className="block relative aspect-[4/3] overflow-hidden flex-shrink-0 bg-gray-50">
+    <Link
+      href={`/produits/${slug}/`}
+      className="group bg-white rounded-lg border-2 border-gray-100 hover:border-brand-400 hover:shadow-lg transition-all duration-300 overflow-hidden flex flex-col focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+    >
+      <div className="relative aspect-[4/3] overflow-hidden flex-shrink-0 bg-gray-50">
         <ProductVisual image={image} name={name} className="group-hover:scale-105 transition-transform duration-500" />
 
         {isOutOfStock && (
@@ -27,16 +42,12 @@ export default function ProductCard({ product }: ProductCardProps) {
             </span>
           </div>
         )}
-      </Link>
+      </div>
 
-      {/* Deux cartes par ligne sur téléphone : tout le contenu se resserre
-          d'un cran en dessous de 640 px pour rester lisible sans déborder. */}
       <div className="p-3 sm:p-5 flex flex-col flex-1 gap-2 sm:gap-3">
-        <Link href={`/produits/${slug}`}>
-          <h3 className="text-[15px] sm:text-lg font-bold text-ink hover:text-brand-700 transition-colors leading-snug">
-            {name}
-          </h3>
-        </Link>
+        <h3 className="text-[15px] sm:text-lg font-bold text-ink group-hover:text-brand-700 transition-colors leading-snug">
+          {name}
+        </h3>
 
         <p className="flex items-center gap-1.5 sm:gap-2 text-[13px] sm:text-[15px] text-gray-700">
           <Flame size={14} className="text-brand-600 flex-shrink-0 sm:hidden" />
@@ -59,8 +70,17 @@ export default function ProductCard({ product }: ProductCardProps) {
           Livraison offerte dès 89 €
         </p>
 
-        <AddToCartButton product={product} />
+        {isOutOfStock ? (
+          <span className="w-full flex items-center justify-center gap-2 rounded-lg font-bold bg-gray-100 text-gray-400 py-3 text-[14px] sm:py-4 sm:text-lg">
+            Rupture de stock
+          </span>
+        ) : (
+          <span className="w-full flex items-center justify-center gap-1.5 sm:gap-2.5 rounded-lg font-bold transition-colors shadow-sm bg-brand-600 group-hover:bg-brand-700 text-white py-3 text-[14px] sm:py-4 sm:text-lg">
+            Commander
+            <ArrowRight size={18} className="hidden min-[360px]:block" />
+          </span>
+        )}
       </div>
-    </div>
+    </Link>
   )
 }

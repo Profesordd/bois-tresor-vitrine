@@ -29,7 +29,7 @@ export default function PanierPage() {
     return (
       <div className="max-w-2xl mx-auto px-4 py-24 text-center">
         <ShoppingBag size={64} className="mx-auto text-gray-200 mb-6" />
-        <h1 className="font-serif text-3xl font-bold text-ink mb-4">Votre panier est vide</h1>
+        <h1 className="font-serif text-3xl font-bold text-ink mb-4">Vous n’avez pas encore choisi de produit</h1>
         <p className="text-gray-500 mb-8">Découvrez notre bois de chauffage et nos granulés premium.</p>
         <Link
           href="/produits"
@@ -44,7 +44,7 @@ export default function PanierPage() {
 
   return (
     <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-      <h1 className="font-serif text-3xl font-bold text-ink mb-2">Panier</h1>
+      <h1 className="font-serif text-3xl font-bold text-ink mb-2">Ma commande</h1>
       <p className="text-gray-500 mb-8 text-sm">
         {count} article{count !== 1 ? 's' : ''}
       </p>
@@ -138,9 +138,9 @@ export default function PanierPage() {
               <div className="flex gap-3 bg-amber-50 border border-amber-200 rounded-lg p-4 mb-4">
                 <AlertTriangle size={20} className="text-amber-500 flex-shrink-0 mt-0.5" />
                 <p className="text-sm text-amber-800 leading-relaxed">
-                  {unavailable.length === 1 ? 'Un article de votre panier n’est' : 'Certains articles de votre panier ne sont'}{' '}
+                  {unavailable.length === 1 ? 'Un produit de votre commande n’est' : 'Certains produits de votre commande ne sont'}{' '}
                   pas encore commandable{unavailable.length > 1 ? 's' : ''} en ligne. Retirez-le
-                  {unavailable.length > 1 ? 's' : ''} du panier pour continuer, ou{' '}
+                  {unavailable.length > 1 ? "s" : ""} de la commande pour continuer, ou{" "}
                   <Link href="/contact" className="underline font-semibold">écrivez-nous</Link> pour
                   commander.
                 </p>

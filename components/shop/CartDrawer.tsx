@@ -31,11 +31,11 @@ export default function CartDrawer() {
       <aside
         className={`fixed right-0 top-0 h-full w-full max-w-md bg-white z-50 shadow-2xl flex flex-col
           transition-transform duration-300 ${isOpen ? 'translate-x-0' : 'translate-x-full'}`}
-        aria-label="Panier"
+        aria-label="Ma commande"
       >
         <div className="flex items-center justify-between p-4 border-b border-gray-100">
           <h2 className="font-serif text-xl font-semibold text-ink">
-            Mon panier {mounted && count > 0 && <span className="text-brand-600">({count})</span>}
+            Ma commande {mounted && count > 0 && <span className="text-brand-600">({count})</span>}
           </h2>
           <button onClick={() => setOpen(false)} className="text-gray-500 hover:text-gray-700" aria-label="Fermer">
             <X size={24} />
@@ -57,7 +57,7 @@ export default function CartDrawer() {
           {!mounted || items.length === 0 ? (
             <div className="text-center py-16 text-gray-300">
               <ShoppingBag size={48} className="mx-auto mb-4 opacity-40" />
-              <p className="font-medium text-gray-500">Votre panier est vide</p>
+              <p className="font-medium text-gray-500">Vous n’avez pas encore choisi de produit</p>
               <Link
                 href="/produits"
                 onClick={() => setOpen(false)}
@@ -128,7 +128,7 @@ export default function CartDrawer() {
               onClick={() => setOpen(false)}
               className="block w-full bg-brand-600 hover:bg-brand-700 text-white text-center py-4 rounded-lg font-bold text-base transition-colors shadow-md"
             >
-              Voir mon panier
+              Voir ma commande
             </Link>
 
             <div className="grid grid-cols-2 gap-1.5 pt-1">
