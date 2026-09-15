@@ -6,6 +6,7 @@ import { Minus, Plus, ShoppingCart, Mail } from 'lucide-react'
 import { useCartStore } from '@/stores/cart'
 import type { Product } from '@/types/database'
 import { buildCheckoutUrl } from '@/lib/checkout'
+import { trackAddToCartThenRedirect } from '@/lib/analytics/meta'
 
 interface Props {
   product: Product
@@ -28,7 +29,9 @@ export default function QuantitySelector({ product }: Props) {
     clearCart()
     addItem(product, qty)
     setRedirecting(true)
-    window.location.href = url
+    /* AddToCart part avant la redirection : sans ce signal, aucune audience
+       « panier abandonné » ne peut être constituée côté Meta. */
+    trackAddToCartThenRedirect(product, qty, url)
   }
 
   /* Pas d'identifiant de checkout : le produit n'est pas encore payable en

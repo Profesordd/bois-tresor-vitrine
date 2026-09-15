@@ -1,7 +1,5 @@
 import Script from 'next/script'
-
-/** Identifiant du pixel Meta, fourni par le client. */
-export const META_PIXEL_ID = '927345626636466'
+import { META_PIXEL_ID } from '@/lib/analytics/meta'
 
 /**
  * Pixel Meta (Facebook / Instagram) — mesure des campagnes publicitaires.

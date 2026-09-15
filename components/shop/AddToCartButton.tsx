@@ -7,6 +7,7 @@ import { useCartStore } from '@/stores/cart'
 import type { Product } from '@/types/database'
 import { cn } from '@/lib/utils'
 import { buildCheckoutUrl } from '@/lib/checkout'
+import { trackAddToCartThenRedirect } from '@/lib/analytics/meta'
 
 interface AddToCartButtonProps {
   product: Product
@@ -31,7 +32,9 @@ export default function AddToCartButton({ product, quantity = 1, compact }: AddT
     clearCart()
     addItem(product, quantity)
     setRedirecting(true)
-    window.location.href = url
+    /* AddToCart part avant la redirection : sans ce signal, aucune audience
+       « panier abandonné » ne peut être constituée côté Meta. */
+    trackAddToCartThenRedirect(product, quantity, url)
   }
 
   /* Pas d'identifiant de checkout = le produit ne peut pas être payé en ligne. */
