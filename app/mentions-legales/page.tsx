@@ -1,5 +1,6 @@
 import { ShieldCheck } from 'lucide-react'
 import Fill from '@/components/ui/Fill'
+import { SIRET } from '@/lib/site'
 
 export const metadata = { title: 'Mentions légales' }
 
@@ -32,7 +33,7 @@ export default function MentionsLegalesPage() {
             <li>Forme juridique : <Fill>à compléter</Fill></li>
             <li>Responsable : Jean-Paul MONMEJA</li>
             <li>Adresse de la société et siège social : 380 Route du Moulin, 13100 Aix-en-Provence</li>
-            <li>SIRET : 844 733 964 00010</li>
+            <li>SIRET : {SIRET}</li>
             <li>Numéro de TVA intracommunautaire : <Fill>à compléter</Fill></li>
             <li>E-mail : contact@bois-tresor.com</li>
           </ul>

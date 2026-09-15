@@ -1,5 +1,5 @@
 import { Home, PackageCheck, Lock, Mail } from 'lucide-react'
-import Fill from '@/components/ui/Fill'
+import { SIRET } from '@/lib/site'
 
 /**
  * Réassurance placée juste à côté du bouton d'achat : c'est le moment exact
@@ -11,7 +11,7 @@ export default function BuyReassurance() {
       <li className="flex gap-3 text-[15px] text-gray-800">
         <Home size={19} className="text-brand-600 flex-shrink-0 mt-0.5" />
         <span>
-          Entreprise familiale française — SIRET <Fill>à compléter</Fill>
+          Entreprise familiale française — SIRET {SIRET}
         </span>
       </li>
       <li className="flex gap-3 text-[15px] text-gray-800">
