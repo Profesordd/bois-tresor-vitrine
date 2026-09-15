@@ -1,15 +1,16 @@
 import Link from 'next/link'
 import Image from 'next/image'
-import { Star, Flame, Droplets, Truck } from 'lucide-react'
+import { Flame, Droplets, Truck } from 'lucide-react'
 import { BOIS_CHAUFFAGE_PRODUCTS, GRANULES_PRODUCTS } from '@/lib/products'
 import ProductGrid from '@/components/shop/ProductGrid'
-import NewsletterForm from '@/components/ui/NewsletterForm'
+import StarRating from '@/components/shop/StarRating'
+import Testimonials from '@/components/shop/Testimonials'
 import FamilyBlock from '@/components/ui/FamilyBlock'
 import UrgencyNote from '@/components/ui/UrgencyNote'
 
 /**
- * Chiffres clés et avis — repris tels quels du site en production du
- * client (bois-tresor.com), à la demande explicite du client.
+ * Chiffres clés repris tels quels du site en production du client
+ * (bois-tresor.com), à la demande explicite du client.
  */
 const KEY_FIGURES = [
   { value: '12 000+', label: 'stères livrés' },
@@ -34,15 +35,6 @@ const STRENGTHS = [
     title: 'Comment il arrive chez vous',
     desc: 'Palettisé, filmé et déposé au plus près de votre stockage. Livraison offerte dès 89 € d’achat.',
   },
-]
-
-const TESTIMONIALS = [
-  { initials: 'PL', name: 'Pierre L.',    text: 'Livré en 5 jours, bois très sec et propre. Brûle parfaitement dans ma cheminée. Je recommande Bois Tresor.' },
-  { initials: 'MD', name: 'Marie D.',     text: 'Les granulés sont de très bonne qualité, mon poêle fonctionne au top. Rapport qualité-prix imbattable.' },
-  { initials: 'JB', name: 'Jean-Marc B.', text: 'Commande reçue en 4 jours, palette bien emballée. Le bois est sec et calibré. Deuxième commande chez eux.' },
-  { initials: 'CR', name: 'Catherine R.', text: 'Bûches densifiées de qualité, faciles à stocker. Un peu plus cher qu’en grande surface mais la qualité est là.' },
-  { initials: 'FM', name: 'François M.',  text: '3ème hiver avec Bois Tresor. Toujours la même qualité, toujours ponctuel. Les allume-feux sont top aussi.' },
-  { initials: 'ST', name: 'Sophie T.',    text: 'Enfin un fournisseur sérieux avec du vrai bois français. Pas de surprises, tout est conforme à la description.' },
 ]
 
 export default function HomePage() {
@@ -89,12 +81,7 @@ export default function HomePage() {
             </Link>
           </div>
 
-          <div className="flex items-center justify-center gap-1.5 text-sm text-gray-200">
-            <div className="flex gap-0.5">
-              {[1, 2, 3, 4, 5].map(i => <Star key={i} size={14} className="fill-brand-400 text-brand-400" />)}
-            </div>
-            <span>Excellent 4,9/5 · 2 184 avis vérifiés</span>
-          </div>
+          <StarRating tone="dark" size={14} className="justify-center" />
         </div>
       </section>
 
@@ -189,30 +176,7 @@ export default function HomePage() {
       </section>
 
       {/* ── TÉMOIGNAGES ── */}
-      <section className="py-16 bg-brand-50">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-10">
-            <h2 className="font-serif text-3xl font-bold text-ink mb-2">Ils nous font confiance</h2>
-            <p className="text-brand-700 font-medium">Excellent 4,9/5 · 2 184 avis vérifiés</p>
-          </div>
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
-            {TESTIMONIALS.map((t) => (
-              <div key={t.name} className="bg-white rounded-lg p-6 shadow-sm">
-                <div className="flex gap-0.5 mb-3">
-                  {[1, 2, 3, 4, 5].map(i => <Star key={i} size={14} className="fill-brand-500 text-brand-500" />)}
-                </div>
-                <p className="text-sm text-gray-700 leading-relaxed mb-4">{t.text}</p>
-                <div className="flex items-center gap-2.5">
-                  <div className="w-8 h-8 rounded-full bg-brand-600 text-white text-xs font-bold flex items-center justify-center flex-shrink-0">
-                    {t.initials}
-                  </div>
-                  <span className="text-sm font-semibold text-ink">{t.name}</span>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
+      <Testimonials />
 
       {/* ── À PROPOS ── */}
       <section className="py-16">
@@ -223,20 +187,6 @@ export default function HomePage() {
             séchées à cœur et granulés certifiés EN+ A1, sélectionnés avec exigence et livrés
             partout en France.
           </p>
-        </div>
-      </section>
-
-      {/* ── NEWSLETTER ── */}
-      <section className="relative overflow-hidden py-20 bg-ink">
-
-        <div className="relative max-w-2xl mx-auto px-4 text-center">
-          <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4 leading-tight font-serif">
-            Restez informé pour l’hiver
-          </h2>
-          <p className="text-gray-300 text-base mb-10 max-w-lg mx-auto">
-            Conseils de stockage, disponibilités de saison et offres ponctuelles — pas de spam.
-          </p>
-          <NewsletterForm />
         </div>
       </section>
     </>

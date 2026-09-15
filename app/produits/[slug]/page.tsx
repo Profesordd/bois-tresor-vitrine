@@ -7,10 +7,11 @@ import ProductGallery from '@/components/shop/ProductGallery'
 import ProductDetails from '@/components/shop/ProductDetails'
 import QuantitySelector from '@/components/shop/QuantitySelector'
 import ProductGrid from '@/components/shop/ProductGrid'
-import VideoSlot from '@/components/shop/VideoSlot'
+import StarRating from '@/components/shop/StarRating'
+import Testimonials from '@/components/shop/Testimonials'
+import TeamPhoto from '@/components/shop/TeamPhoto'
 import ProductFaq from '@/components/shop/ProductFaq'
 import BuyReassurance from '@/components/ui/BuyReassurance'
-import FamilyBlock from '@/components/ui/FamilyBlock'
 import UrgencyNote from '@/components/ui/UrgencyNote'
 import SocialProof from '@/components/ui/SocialProof'
 
@@ -50,13 +51,12 @@ export default async function ProductPage({ params }: Props) {
 
       <div className="grid lg:grid-cols-2 gap-10 lg:gap-14">
 
-        {/* ── Colonne visuelle : photo réelle + vidéo + qui nous sommes ── */}
+        {/* ── Colonne visuelle : photo produit + photo de l'équipe ── */}
         <div className="space-y-5">
           <ProductGallery image={product.image} name={product.name} />
           {/* Sur mobile, ces blocs passent après le prix et le bouton. */}
           <div className="hidden lg:block space-y-5">
-            <VideoSlot />
-            <FamilyBlock variant="compact" />
+            <TeamPhoto />
           </div>
         </div>
 
@@ -67,9 +67,11 @@ export default async function ProductPage({ params }: Props) {
               {product.category.name}
             </p>
           )}
-          <h1 className="font-serif text-3xl sm:text-4xl font-bold text-ink mb-5 leading-tight">
+          <h1 className="font-serif text-3xl sm:text-4xl font-bold text-ink mb-3 leading-tight">
             {product.name}
           </h1>
+
+          <StarRating className="mb-5" size={17} />
 
           <div className="flex items-baseline gap-3 flex-wrap mb-2">
             <span className="text-4xl font-bold text-ink">{formatPrice(product.price)}</span>
@@ -110,14 +112,22 @@ export default async function ProductPage({ params }: Props) {
           </p>
 
           <div className="mt-6 lg:hidden space-y-5">
-            <VideoSlot />
-            <FamilyBlock variant="compact" />
+            <TeamPhoto />
           </div>
         </div>
       </div>
 
       <div className="mt-12">
         <ProductDetails specs={product.specs} />
+      </div>
+
+      {/* ── Avis clients : la preuve sociale doit être sur la fiche, pas
+             seulement sur l'accueil que le client ne voit jamais. ── */}
+      <div className="mt-12 rounded-lg bg-brand-50 p-6 sm:p-8">
+        <Testimonials
+          background={false}
+          title="Ce qu’en disent nos clients"
+        />
       </div>
 
       <div className="mt-10">

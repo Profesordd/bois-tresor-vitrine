@@ -1,20 +1,22 @@
 import { Users } from 'lucide-react'
-import Fill from '@/components/ui/Fill'
 
 interface Props {
   /** 'bar' : ligne pleine largeur (page collection). 'inline' : encart resserré (fiche produit). */
   variant?: 'bar' | 'inline'
 }
 
+/** Nombre de familles clientes, fourni par le client. */
+const FAMILIES = 743
+
 /**
  * Preuve sociale par le nombre. Volontairement statique et sobre :
  * un compteur animé serait lu comme un signal d'arnaque par le persona.
- * Le chiffre doit être VRAI, même modeste — il est laissé à compléter.
  */
 export default function SocialProof({ variant = 'bar' }: Props) {
   const sentence = (
     <>
-      Déjà <Fill>nombre à compléter</Fill> familles nous font confiance pour se chauffer cet hiver.
+      Déjà <strong className="font-bold text-ink">{FAMILIES} familles</strong> nous font confiance
+      pour se chauffer cet hiver.
     </>
   )
 
