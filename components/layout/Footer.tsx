@@ -83,7 +83,7 @@ export default function Footer() {
               ))}
             </div>
             <p className="text-xs text-gray-500 leading-relaxed">
-              3D-Secure · Site de démonstration — le paiement en ligne sera activé après validation par le client.
+              3D-Secure · Vos données bancaires ne transitent jamais par nos serveurs.
             </p>
           </div>
         </div>

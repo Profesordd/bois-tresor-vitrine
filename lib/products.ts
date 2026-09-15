@@ -30,9 +30,20 @@ const PELLET_IMAGES = ['/products/granules-1.jpg', '/products/granules-2.jpeg', 
    BOIS DE CHAUFFAGE — Mélange de bois durs
    (chêne, charme, hêtre, frêne)
    ───────────────────────────────────────────── */
-interface MelangeInput { length: string; stere: string; slug: string; price: number; badge?: string | null }
+interface MelangeInput {
+  length: string
+  stere: string
+  slug: string
+  /** Prix exact du site d'origine, au centime : il doit correspondre au total calculé par le checkout. */
+  price: number
+  /** Prix barré d'origine (donnée conservée, non affichée pour l'instant). */
+  originalPrice: number
+  variantId: string
+  checkoutMultiplier: number
+  badge?: string | null
+}
 
-function buildMelange({ length, stere, slug, price, badge = null }: MelangeInput): Product {
+function buildMelange({ length, stere, slug, price, originalPrice, variantId, checkoutMultiplier, badge = null }: MelangeInput): Product {
   const name = `Mélange de bois durs – ${length} – Palette de ${stere} stères`
   const specs: Spec[] = [
     { label: 'Bûche',           value: 'Fendue et en grande partie écorcée' },
@@ -60,11 +71,13 @@ function buildMelange({ length, stere, slug, price, badge = null }: MelangeInput
     ],
     description: `<p>Composé des meilleures essences de feuillus durs : chêne, charme, frêne et hêtre. Nous garantissons un rendement maximal de votre poêle à bois.</p><ul><li>Bûches fendues et en grande partie écorcées, longueur ${length} (±5 %)</li><li>100 % bois français, taux d’humidité ≤ 20 %</li><li>Palette de ${stere} stères, livraison soignée</li><li>Utilisation immédiate dès réception</li></ul>`,
     price,
-    original_price: null,
+    original_price: originalPrice,
     stock: 20,
     family: 'bois-de-chauffage',
     subtype: 'buche',
     image: WOOD_IMAGE,
+    variantId,
+    checkoutMultiplier,
     specs,
     category_id: cat('cat-buches').id,
     category: cat('cat-buches'),
@@ -75,22 +88,34 @@ function buildMelange({ length, stere, slug, price, badge = null }: MelangeInput
   }
 }
 
+/* Prix au centime près : ils correspondent exactement à
+   prix unitaire du processeur × multiplicateur. Les arrondir ferait
+   apparaître un écart entre le site et le total du checkout. */
 const MELANGES: Product[] = [
-  buildMelange({ length: '45cm', stere: '2,6', slug: 'melange-de-bois-durs-45cm-palette-de-26-steres', price: 89,  badge: 'bestseller' }),
-  buildMelange({ length: '50cm', stere: '2,5', slug: 'melange-de-bois-durs-50cm-palette-de-25-steres', price: 99 }),
-  buildMelange({ length: '40cm', stere: '2,7', slug: 'melange-de-bois-durs-40cm-palette-de-27-steres', price: 105 }),
-  buildMelange({ length: '1m',   stere: '2',   slug: 'melange-de-bois-durs-1m-palette-de-2-steres',    price: 109 }),
-  buildMelange({ length: '33cm', stere: '2,9', slug: 'melange-de-bois-durs-33cm-palette-de-29-steres', price: 115 }),
-  buildMelange({ length: '25cm', stere: '3,3', slug: 'melange-de-bois-durs-25cm-palette-de-33-steres', price: 120 }),
-  buildMelange({ length: '30cm', stere: '3',   slug: 'melange-de-bois-durs-30cm-palette-de-3-steres',  price: 129 }),
+  buildMelange({ length: '45cm', stere: '2,6', slug: 'melange-de-bois-durs-45cm-palette-de-26-steres', price: 89.91,  originalPrice: 149, variantId: '58459585479000', checkoutMultiplier: 9,  badge: 'bestseller' }),
+  buildMelange({ length: '50cm', stere: '2,5', slug: 'melange-de-bois-durs-50cm-palette-de-25-steres', price: 99.90,  originalPrice: 159, variantId: '58459585511768', checkoutMultiplier: 10 }),
+  buildMelange({ length: '40cm', stere: '2,7', slug: 'melange-de-bois-durs-40cm-palette-de-27-steres', price: 104.97, originalPrice: 165, variantId: '58459585544536', checkoutMultiplier: 3 }),
+  buildMelange({ length: '1m',   stere: '2',   slug: 'melange-de-bois-durs-1m-palette-de-2-steres',    price: 109.89, originalPrice: 140, variantId: '58459585610072', checkoutMultiplier: 11 }),
+  buildMelange({ length: '33cm', stere: '2,9', slug: 'melange-de-bois-durs-33cm-palette-de-29-steres', price: 119.88, originalPrice: 159, variantId: '58459585642840', checkoutMultiplier: 12 }),
+  buildMelange({ length: '25cm', stere: '3,3', slug: 'melange-de-bois-durs-25cm-palette-de-33-steres', price: 119.97, originalPrice: 185, variantId: '58459585675608', checkoutMultiplier: 3 }),
+  buildMelange({ length: '30cm', stere: '3',   slug: 'melange-de-bois-durs-30cm-palette-de-3-steres',  price: 129.87, originalPrice: 169, variantId: '58459585708376', checkoutMultiplier: 13 }),
 ]
 
 /* ─────────────────────────────────────────────
    BOIS DE CHAUFFAGE — 100 % Hêtre
    ───────────────────────────────────────────── */
-interface HetreInput { stere: string; volumeNote: string; poids: string; slug: string; price: number }
+interface HetreInput {
+  stere: string
+  volumeNote: string
+  poids: string
+  slug: string
+  price: number
+  originalPrice: number
+  variantId: string
+  checkoutMultiplier: number
+}
 
-function buildHetre({ stere, volumeNote, poids, slug, price }: HetreInput): Product {
+function buildHetre({ stere, volumeNote, poids, slug, price, originalPrice, variantId, checkoutMultiplier }: HetreInput): Product {
   const name = `Bois de chauffage 30cm – Palette ${stere} stère${stere === '1,7' ? '' : 's'} – 100% Hêtre`
   const specs: Spec[] = [
     { label: 'Essence',            value: '100 % hêtre' },
@@ -117,11 +142,13 @@ function buildHetre({ stere, volumeNote, poids, slug, price }: HetreInput): Prod
     ],
     description: `<p>Bois de chauffage 100 % hêtre en bûches de 30 cm, séché au four et prêt à brûler immédiatement. Palette de ${volumeNote} livrée filmée.</p>`,
     price,
-    original_price: null,
+    original_price: originalPrice,
     stock: 15,
     family: 'bois-de-chauffage',
     subtype: 'buche',
     image: WOOD_IMAGE,
+    variantId,
+    checkoutMultiplier,
     specs,
     category_id: cat('cat-buches').id,
     category: cat('cat-buches'),
@@ -133,8 +160,8 @@ function buildHetre({ stere, volumeNote, poids, slug, price }: HetreInput): Prod
 }
 
 const HETRES: Product[] = [
-  buildHetre({ stere: '1,7', volumeNote: '1,7 stère (1 RM)', poids: '600 kg',  slug: 'bois-de-chauffage-30cm-palette-17-stere-100-hetre', price: 149 }),
-  buildHetre({ stere: '3',   volumeNote: '3 stères (env. 3 SRM)', poids: '800 kg', slug: 'bois-de-chauffage-30cm-palette-3-steres-100-hetre', price: 189 }),
+  buildHetre({ stere: '1,7', volumeNote: '1,7 stère (1 RM)', poids: '600 kg',  slug: 'bois-de-chauffage-30cm-palette-17-stere-100-hetre', price: 149.85, originalPrice: 189, variantId: '58459585741144', checkoutMultiplier: 15 }),
+  buildHetre({ stere: '3',   volumeNote: '3 stères (env. 3 SRM)', poids: '800 kg', slug: 'bois-de-chauffage-30cm-palette-3-steres-100-hetre', price: 189.81, originalPrice: 249, variantId: '58459585839448', checkoutMultiplier: 19 }),
 ]
 
 /* ─────────────────────────────────────────────
@@ -186,6 +213,10 @@ function buildGranule({ name, slug, price, bags, bagKg = 15, cert = null, comp =
     family: 'granules',
     subtype: 'granule',
     image: PELLET_IMAGES[index % PELLET_IMAGES.length],
+    /* Aucun identifiant de variante fourni pour les granulés : ils ne sont
+       pas encore commandables en ligne. */
+    variantId: null,
+    checkoutMultiplier: null,
     specs,
     category_id: cat('cat-granules').id,
     category: cat('cat-granules'),

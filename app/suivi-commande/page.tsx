@@ -197,7 +197,8 @@ export default function SuiviCommandePage() {
                 }
               </button>
               <p className="text-xs text-brand-400 text-center">
-                Ce site est une démonstration : le suivi ne renverra de résultat qu’une fois des commandes réelles enregistrées.
+                Vous ne retrouvez pas votre commande ici ? Écrivez-nous à contact@bois-tresor.com
+                avec votre numéro de commande, nous vous répondons sous 24 h ouvrées.
               </p>
             </form>
           </div>

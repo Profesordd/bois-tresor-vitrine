@@ -1,7 +1,8 @@
 'use client'
 
+import Link from 'next/link'
 import { useState } from 'react'
-import { Minus, Plus, ShoppingCart, Check } from 'lucide-react'
+import { Minus, Plus, ShoppingCart, Check, Mail } from 'lucide-react'
 import { useCartStore } from '@/stores/cart'
 import type { Product } from '@/types/database'
 
@@ -23,6 +24,26 @@ export default function QuantitySelector({ product }: Props) {
     addItem(product, qty)
     setAdded(true)
     setTimeout(() => setAdded(false), 2500)
+  }
+
+  /* Pas d'identifiant de checkout : le produit n'est pas encore payable en
+     ligne, on oriente vers le contact au lieu d'un panier sans issue. */
+  if (!product.variantId) {
+    return (
+      <div className="space-y-3">
+        <Link
+          href="/contact"
+          className="w-full py-5 rounded-lg font-bold text-xl flex items-center justify-center gap-3 border-2 border-brand-600 text-brand-700 hover:bg-brand-50 transition-colors"
+        >
+          <Mail size={24} />
+          Nous consulter pour commander
+        </Link>
+        <p className="text-center text-[15px] text-gray-600">
+          Ce produit n’est pas encore commandable en ligne. Écrivez-nous, nous vous répondons
+          sous 24 h ouvrées.
+        </p>
+      </div>
+    )
   }
 
   return (

@@ -30,6 +30,17 @@ export interface Product {
   image: string
   /** Points clés courts, un sujet par ligne, dans l'ordre de priorité du persona. */
   keyPoints: string[]
+  /**
+   * Identifiant de variante du checkout. `null` = produit pas encore
+   * commandable en ligne (identifiant non fourni).
+   */
+  variantId: string | null
+  /**
+   * Multiplicateur de quantité imposé par le processeur de paiement :
+   * la quantité envoyée au checkout vaut quantité choisie × ce nombre.
+   * Ne jamais envoyer la quantité brute.
+   */
+  checkoutMultiplier: number | null
   specs: Spec[]
   category_id: string | null
   badge: string | null

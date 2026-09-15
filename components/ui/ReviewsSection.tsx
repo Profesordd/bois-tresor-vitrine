@@ -16,7 +16,7 @@ export default function ReviewsSection() {
         <p className="text-brand-600 leading-relaxed">
           Cet espace accueillera les avis clients vérifiés dès l’ouverture de la boutique —
           via un connecteur Trustpilot légitime ou les avis internes recueillis après livraison.
-          Aucun avis fictif n’est affiché sur ce site de démonstration.
+          Aucun avis fictif n’est affiché ici.
         </p>
       </div>
     </section>

@@ -2,47 +2,28 @@
 
 import Link from 'next/link'
 import { useState } from 'react'
-import { Trash2, ShoppingBag, Truck, ArrowRight, CheckCircle2 } from 'lucide-react'
+import { Trash2, ShoppingBag, Truck, ArrowRight, Lock, AlertTriangle } from 'lucide-react'
 import { useCartStore } from '@/stores/cart'
 import { formatPrice } from '@/lib/utils'
 import { FREE_SHIPPING_THRESHOLD } from '@/lib/site'
+import { buildCheckoutUrl, getUnavailableItems } from '@/lib/checkout'
 import ProductVisual from '@/components/shop/ProductVisual'
 import Fill from '@/components/ui/Fill'
 
 export default function PanierPage() {
-  const { items, removeItem, updateQuantity, getTotalPrice, getTotalItems, clearCart } = useCartStore()
-  const [confirmed, setConfirmed] = useState<{ orderNumber: string; total: number } | null>(null)
+  const { items, removeItem, updateQuantity, getTotalPrice, getTotalItems } = useCartStore()
+  const [redirecting, setRedirecting] = useState(false)
 
   const total = getTotalPrice()
   const count = getTotalItems()
+  const unavailable = getUnavailableItems(items)
+  const canCheckout = unavailable.length === 0 && items.length > 0
 
-  function handleConfirm() {
-    const orderNumber = 'BA' + Math.random().toString(36).slice(2, 8).toUpperCase()
-    setConfirmed({ orderNumber, total })
-    clearCart()
-  }
-
-  if (confirmed) {
-    return (
-      <div className="max-w-2xl mx-auto px-4 py-24 text-center">
-        <CheckCircle2 size={64} className="mx-auto text-brand-600 mb-6" />
-        <h1 className="font-serif text-3xl font-bold text-ink mb-4">Récapitulatif de commande</h1>
-        <p className="text-gray-600 mb-2">
-          Commande de démonstration <strong>#{confirmed.orderNumber}</strong> — total {formatPrice(confirmed.total)}.
-        </p>
-        <p className="text-sm text-gray-500 bg-brand-50 border border-brand-100 rounded-lg p-4 mt-6 mb-8">
-          Ceci est une démonstration visuelle : aucun paiement n’a été effectué et aucune commande réelle n’a été enregistrée.
-          Le paiement en ligne sera activé après validation du site.
-        </p>
-        <Link
-          href="/produits"
-          className="inline-flex items-center gap-2 bg-brand-600 hover:bg-brand-700 text-white px-8 py-3 rounded-lg font-semibold transition-colors"
-        >
-          Retour au catalogue
-          <ArrowRight size={18} />
-        </Link>
-      </div>
-    )
+  function handleCheckout() {
+    const url = buildCheckoutUrl(items)
+    if (!url) return
+    setRedirecting(true)
+    window.location.href = url
   }
 
   if (items.length === 0) {
@@ -151,15 +132,30 @@ export default function PanierPage() {
                 {total >= FREE_SHIPPING_THRESHOLD ? 'TTC, livraison incluse' : 'TTC, hors frais de livraison'}
               </p>
             </div>
+            {unavailable.length > 0 && (
+              <div className="flex gap-3 bg-amber-50 border border-amber-200 rounded-lg p-4 mb-4">
+                <AlertTriangle size={20} className="text-amber-500 flex-shrink-0 mt-0.5" />
+                <p className="text-sm text-amber-800 leading-relaxed">
+                  {unavailable.length === 1 ? 'Un article de votre panier n’est' : 'Certains articles de votre panier ne sont'}{' '}
+                  pas encore commandable{unavailable.length > 1 ? 's' : ''} en ligne. Retirez-le
+                  {unavailable.length > 1 ? 's' : ''} du panier pour continuer, ou{' '}
+                  <Link href="/contact" className="underline font-semibold">écrivez-nous</Link> pour
+                  commander.
+                </p>
+              </div>
+            )}
+
             <button
-              onClick={handleConfirm}
-              className="flex items-center justify-center gap-2 w-full bg-brand-600 hover:bg-brand-700 text-white py-3.5 rounded-lg font-semibold transition-colors"
+              onClick={handleCheckout}
+              disabled={!canCheckout || redirecting}
+              className="flex items-center justify-center gap-2 w-full bg-brand-600 hover:bg-brand-700 disabled:bg-gray-200 disabled:text-gray-400 disabled:cursor-not-allowed text-white py-4 rounded-lg font-bold text-lg transition-colors"
             >
-              Passer commande
-              <ArrowRight size={18} />
+              {redirecting ? 'Redirection…' : 'Passer commande'}
+              {!redirecting && <ArrowRight size={20} />}
             </button>
-            <p className="text-xs text-gray-400 text-center mt-3">
-              Démonstration — aucun paiement réel ne sera demandé.
+            <p className="flex items-center justify-center gap-1.5 text-xs text-gray-500 text-center mt-3">
+              <Lock size={13} />
+              Paiement sécurisé 3D-Secure — CB, Visa, Mastercard
             </p>
           </div>
         </div>

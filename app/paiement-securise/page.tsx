@@ -4,7 +4,7 @@ export default function PaiementSecurisePage() {
   return (
     <div className="max-w-3xl mx-auto px-4 sm:px-6 py-16">
       <h1 className="text-3xl font-bold text-ink mb-2 font-serif">Paiement sécurisé</h1>
-      <p className="text-gray-400 text-sm mb-10">Site de démonstration — le paiement en ligne n’est pas encore activé.</p>
+      <p className="text-gray-500 mb-10">Votre règlement se fait en ligne, sur un formulaire bancaire chiffré.</p>
 
       <div className="prose prose-gray max-w-none text-gray-700 space-y-8">
         <section>
