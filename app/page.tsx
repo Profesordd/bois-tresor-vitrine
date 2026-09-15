@@ -70,13 +70,13 @@ export default function HomePage() {
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center mb-10">
             <Link
-              href="/produits?categorie=bois-de-chauffage"
+              href="/product-category/bois-de-chauffage/"
               className="inline-block bg-brand-500 hover:bg-brand-400 text-white px-8 py-4 rounded-lg text-base font-semibold transition-colors shadow-lg"
             >
               Découvrir la collection
             </Link>
             <Link
-              href="/produits?categorie=granules-et-pellets"
+              href="/product-category/granules-et-pellets/"
               className="inline-block bg-white hover:bg-gray-100 text-brand-800 border-2 border-white px-8 py-4 rounded-lg text-base font-semibold transition-colors"
             >
               Granulés & pellets
@@ -113,7 +113,7 @@ export default function HomePage() {
             <h2 className="font-serif text-3xl font-bold text-ink">Bois de chauffage</h2>
             <p className="text-gray-500 mt-1">Mélange de feuillus durs et 100 % hêtre</p>
           </div>
-          <Link href="/produits?categorie=bois-de-chauffage" className="text-brand-600 hover:text-brand-700 font-medium text-sm hidden sm:block whitespace-nowrap">
+          <Link href="/product-category/bois-de-chauffage/" className="text-brand-600 hover:text-brand-700 font-medium text-sm hidden sm:block whitespace-nowrap">
             Voir tout →
           </Link>
         </div>
@@ -146,7 +146,7 @@ export default function HomePage() {
             <h2 className="font-serif text-3xl font-bold text-ink">Granulés & pellets</h2>
             <p className="text-gray-500 mt-1">Certifiés EN+ A1 ou DINplus selon les marques</p>
           </div>
-          <Link href="/produits?categorie=granules-et-pellets" className="text-brand-600 hover:text-brand-700 font-medium text-sm hidden sm:block whitespace-nowrap">
+          <Link href="/product-category/granules-et-pellets/" className="text-brand-600 hover:text-brand-700 font-medium text-sm hidden sm:block whitespace-nowrap">
             Voir tout →
           </Link>
         </div>
@@ -167,10 +167,10 @@ export default function HomePage() {
             Palettes à partir de 89,00 € — livraison offerte dès 89 € d’achat, paiement 100 % sécurisé, expédition sous 48 h.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link href="/produits?categorie=bois-de-chauffage" className="inline-block bg-brand-500 hover:bg-brand-400 text-white px-7 py-3 rounded-lg font-semibold transition-colors">
+            <Link href="/product-category/bois-de-chauffage/" className="inline-block bg-brand-500 hover:bg-brand-400 text-white px-7 py-3 rounded-lg font-semibold transition-colors">
               Bois de chauffage →
             </Link>
-            <Link href="/produits?categorie=granules-et-pellets" className="inline-block bg-white/10 hover:bg-white/20 border border-white/30 text-white px-7 py-3 rounded-lg font-semibold transition-colors">
+            <Link href="/product-category/granules-et-pellets/" className="inline-block bg-white/10 hover:bg-white/20 border border-white/30 text-white px-7 py-3 rounded-lg font-semibold transition-colors">
               Granulés & Pellets →
             </Link>
           </div>

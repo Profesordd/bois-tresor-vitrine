@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import './globals.css'
 import SiteShell from '@/components/layout/SiteShell'
+import MetaPixel from '@/components/analytics/MetaPixel'
 
 export const metadata: Metadata = {
   title: {
@@ -21,6 +22,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
     <html lang="fr">
       <head></head>
       <body className="antialiased font-sans text-ink bg-white">
+        <MetaPixel />
         <SiteShell>{children}</SiteShell>
       </body>
     </html>
