@@ -113,14 +113,22 @@ alter table products     enable row level security;
 alter table orders       enable row level security;
 alter table order_items  enable row level security;
 
+-- Catalogue : lecture publique assumée, ce sont les infos déjà affichées
+-- sur le site. Aucune écriture possible depuis le navigateur.
 create policy "Lecture publique categories" on categories for select using (true);
 create policy "Lecture publique products"   on products   for select using (true);
 
--- Le site actuel ne crée pas encore de commandes réelles (pas de paiement
--- branché) — ces policies servent uniquement le futur flux de commande.
-create policy "Insert public orders" on orders for insert with check (true);
-create policy "Select public orders" on orders for select using (true);
-create policy "Update orders"        on orders for update using (true);
-
-create policy "Insert public order_items" on order_items for insert with check (true);
-create policy "Select public order_items" on order_items for select using (true);
+-- ---------------------------------------------------------------------
+-- COMMANDES : AUCUNE policy publique, volontairement.
+--
+-- RLS activé sans policy = tout accès anonyme est refusé. Les tables
+-- contiennent des données personnelles (nom, email, adresse de livraison) ;
+-- la clé anon étant publique dans le navigateur, la moindre policy
+-- « using (true) » exposerait le fichier client complet à n'importe qui.
+--
+-- Le site continue de fonctionner : le suivi de commande
+-- (app/api/orders/track) utilise la clé service_role côté serveur, qui
+-- contourne le RLS, et vérifie lui-même numéro de commande + email.
+-- Tout futur flux de commande devra passer par une route serveur, jamais
+-- par un insert direct depuis le navigateur.
+-- ---------------------------------------------------------------------
