@@ -4,7 +4,7 @@ export default function LivraisonPage() {
   return (
     <div className="max-w-3xl mx-auto px-4 sm:px-6 py-16">
       <h1 className="text-3xl font-bold text-ink mb-2 font-serif">Livraison</h1>
-      <p className="text-gray-500 mb-10">Bois de chauffage et granulés livrés partout en France métropolitaine, directement chez vous.</p>
+      <p className="text-gray-500 mb-10">Bois de chauffage et granulés livrés en France métropolitaine et en Belgique, directement chez vous.</p>
 
       <div className="prose prose-gray max-w-none text-gray-700 space-y-8">
         <section>
@@ -22,7 +22,7 @@ export default function LivraisonPage() {
         <section>
           <h2 className="text-xl font-bold text-ink">Frais de livraison</h2>
           <p>
-            La livraison est offerte dès 89 € d’achat, partout en France métropolitaine. En dessous
+            La livraison est offerte dès 89 € d’achat, en France métropolitaine comme en Belgique. En dessous
             de ce montant, les frais de livraison sont affichés dans votre panier avant toute
             validation : vous ne découvrez jamais de frais au moment de payer.
           </p>

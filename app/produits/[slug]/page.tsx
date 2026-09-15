@@ -8,6 +8,7 @@ import ProductDetails from '@/components/shop/ProductDetails'
 import QuantitySelector from '@/components/shop/QuantitySelector'
 import ProductGrid from '@/components/shop/ProductGrid'
 import ViewContentTracker from '@/components/analytics/ViewContentTracker'
+import LivraisonBelgique from '@/components/ui/LivraisonBelgique'
 import StarRating from '@/components/shop/StarRating'
 import Testimonials from '@/components/shop/Testimonials'
 import TeamPhoto from '@/components/shop/TeamPhoto'
@@ -84,10 +85,16 @@ export default async function ProductPage({ params }: Props) {
               </span>
             )}
           </div>
-          <p className="flex items-center gap-2 text-lg font-semibold text-brand-700 mb-7">
+          <p className="flex items-center gap-2 text-lg font-semibold text-brand-700 mb-3">
             <Truck size={20} />
             Livraison offerte dès 89 € d’achat
           </p>
+
+          {/* Visible uniquement depuis la Belgique, juste sous le prix :
+              c'est là que le doute « suis-je concerné ? » se pose. */}
+          <div className="mb-7 empty:mb-0">
+            <LivraisonBelgique />
+          </div>
 
           {/* ── L'essentiel, un sujet par ligne ── */}
           <ul className="space-y-3.5 mb-8">

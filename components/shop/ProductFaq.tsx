@@ -9,8 +9,8 @@ const FAQ: { q: string; a: string }[] = [
     a: 'Choisissez votre quantité, ajoutez au panier, puis validez. Vous réglez en ligne et recevez immédiatement un e-mail de confirmation avec votre numéro de commande.',
   },
   {
-    q: 'Livrez-vous partout en France ?',
-    a: 'Oui, partout en France métropolitaine. La palette est déposée au plus près de votre lieu de stockage par un camion équipé d’un hayon.',
+    q: 'Livrez-vous partout en France et en Belgique ?',
+    a: 'Oui, partout en France métropolitaine et en Belgique. La palette est déposée au plus près de votre lieu de stockage par un camion équipé d’un hayon.',
   },
   {
     q: 'La livraison est-elle payante ?',

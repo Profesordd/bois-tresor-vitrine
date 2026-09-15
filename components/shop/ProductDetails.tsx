@@ -5,7 +5,7 @@ interface Props {
 }
 
 const DELIVERY = [
-  'Livraison offerte dès 89 € d’achat, partout en France métropolitaine.',
+  'Livraison offerte dès 89 € d’achat, en France métropolitaine et en Belgique.',
   'Préparation sous 48 h ouvrées, livraison en 3 à 7 jours ouvrés selon votre région.',
   'Livraison par camion avec hayon : la palette est déposée au plus près de votre lieu de stockage.',
   'Vous recevez un e-mail dès l’expédition, avec le suivi de votre commande.',
