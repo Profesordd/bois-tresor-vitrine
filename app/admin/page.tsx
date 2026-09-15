@@ -298,47 +298,50 @@ export default async function AdminDashboard({ searchParams }: Props) {
           <Package size={18} className="text-brand-600" /> Quels produits donnent envie
         </h2>
         <p className="text-sm text-gray-500 mb-4">
-          Part des visiteurs qui cliquent sur Commander après avoir ouvert la fiche. C’est le
-          classement à regarder pour choisir quels produits pousser en publicité.
+          Le classement à regarder pour choisir quels produits pousser en publicité.
         </p>
         <div className="bg-white rounded-lg border border-gray-200 overflow-x-auto">
-          <table className="w-full text-sm min-w-[680px]">
+          <table className="w-full text-sm min-w-[760px]">
             <thead className="bg-gray-50 text-gray-500 text-left">
               <tr>
                 <th className="px-4 py-3 font-medium">Produit</th>
                 <th className="px-4 py-3 font-medium text-right">Fiches vues</th>
                 <th className="px-4 py-3 font-medium text-right">Mises au panier</th>
-                <th className="px-4 py-3 font-medium text-right">Taux</th>
+                <th className="px-4 py-3 font-medium text-right">Depuis la fiche</th>
+                <th className="px-4 py-3 font-medium text-right">Depuis une carte</th>
+                <th className="px-4 py-3 font-medium text-right">Taux fiche</th>
                 <th className="px-4 py-3 font-medium text-right">Valeur</th>
-                <th className="px-4 py-3 font-medium text-right">Scroll moyen</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
               {products.map((p) => (
                 <tr key={p.slug}>
-                  <td className="px-4 py-3 max-w-[280px]">
+                  <td className="px-4 py-3 max-w-[260px]">
                     <span className="text-gray-800 line-clamp-2">{p.name}</span>
                   </td>
                   <td className="px-4 py-3 text-right">{p.vues}</td>
                   <td className="px-4 py-3 text-right font-semibold text-ink">{p.achats}</td>
+                  <td className="px-4 py-3 text-right text-gray-600">{p.achats_fiche}</td>
+                  <td className="px-4 py-3 text-right text-gray-600">{p.achats_carte}</td>
                   <td className={`px-4 py-3 text-right font-semibold ${p.taux >= 5 ? 'text-brand-700' : 'text-gray-600'}`}>
-                    {p.taux} %
+                    {p.vues > 0 ? `${p.taux} %` : '—'}
                   </td>
                   <td className="px-4 py-3 text-right text-gray-600 whitespace-nowrap">
                     {p.valeur_totale > 0 ? formatPrice(Number(p.valeur_totale)) : '—'}
                   </td>
-                  <td className="px-4 py-3 text-right text-gray-600">{p.scroll_moyen} %</td>
                 </tr>
               ))}
               {products.length === 0 && (
-                <tr><td colSpan={6} className="px-4 py-8 text-center text-gray-400">Aucune fiche produit consultée sur la période.</td></tr>
+                <tr><td colSpan={7} className="px-4 py-8 text-center text-gray-400">Aucune fiche produit consultée sur la période.</td></tr>
               )}
             </tbody>
           </table>
         </div>
         <p className="text-xs text-gray-400 mt-2">
-          Une fiche très vue mais jamais mise au panier mérite un examen : photo, prix, ou une
-          information qui manque au moment de décider.
+          Le taux ne compare que ce qui est comparable : parmi les visiteurs ayant ouvert la fiche,
+          la part qui a ensuite mis au panier. Les achats faits directement depuis une carte de
+          collection, sans ouvrir la fiche, sont comptés dans leur propre colonne — ils ne peuvent
+          pas entrer dans ce taux.
         </p>
       </section>
 

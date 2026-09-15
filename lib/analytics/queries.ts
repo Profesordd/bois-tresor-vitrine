@@ -62,8 +62,15 @@ export interface DeviceFunnel {
 export interface ProductPerformance {
   slug: string
   name: string
+  /** Visiteurs ayant ouvert la fiche. */
   vues: number
+  /** Visiteurs ayant mis au panier, toutes origines confondues. */
   achats: number
+  /** ... après avoir ouvert la fiche. */
+  achats_fiche: number
+  /** ... directement depuis une carte de collection. */
+  achats_carte: number
+  /** achats_fiche rapporté aux vues : les deux seuls chiffres comparables. */
   taux: number
   valeur_totale: number
   scroll_moyen: number
