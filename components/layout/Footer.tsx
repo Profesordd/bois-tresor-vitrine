@@ -2,6 +2,7 @@ import Link from 'next/link'
 
 const shopLinks = [
   { label: 'Bois de chauffage',  href: '/produits?categorie=bois-de-chauffage' },
+  { label: 'Bois densifié & bûches compressées', href: '/produits?categorie=bois-densifie' },
   { label: 'Granulés & pellets', href: '/produits?categorie=granules-et-pellets' },
 ]
 

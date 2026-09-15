@@ -13,6 +13,7 @@ import type { Product, Category, Spec } from '@/types/database'
 
 export const CATEGORIES: Category[] = [
   { id: 'cat-buches',    slug: 'bois-de-chauffage',    name: 'Bois de chauffage',   family: 'bois-de-chauffage', created_at: '' },
+  { id: 'cat-densifie',  slug: 'bois-densifie',        name: 'Bois densifié & bûches compressées', family: 'bois-densifie', created_at: '' },
   { id: 'cat-granules',  slug: 'granules-et-pellets',  name: 'Granulés & pellets',  family: 'granules',          created_at: '' },
 ]
 
@@ -24,7 +25,6 @@ let _n = 0
 function nextId() { _n += 1; return `be-${String(_n).padStart(3, '0')}` }
 
 const WOOD_IMAGE = '/products/buche-feuillus.jpg'
-const PELLET_IMAGES = ['/products/granules-1.jpg', '/products/granules-2.jpeg', '/products/granules-3.webp', '/products/granules-4.jpeg']
 
 /* ─────────────────────────────────────────────
    BOIS DE CHAUFFAGE — Mélange de bois durs
@@ -164,59 +164,126 @@ const HETRES: Product[] = [
   buildHetre({ stere: '3',   volumeNote: '3 stères (env. 3 SRM)', poids: '800 kg', slug: 'bois-de-chauffage-30cm-palette-3-steres-100-hetre', price: 189.81, originalPrice: 249, variantId: '58459585839448', checkoutMultiplier: 19 }),
 ]
 
+
 /* ─────────────────────────────────────────────
-   GRANULÉS & PELLETS
+   BOIS DENSIFIÉ & BÛCHES COMPRESSÉES
+   Catalogue réel bois-tresor.com : intitulés, prix et photos du site,
+   identifiants de variante et multiplicateurs du checkout.
+   ───────────────────────────────────────────── */
+interface DensifieInput {
+  name: string
+  slug: string
+  price: number
+  image: string
+  poids: string
+  composition: string
+  subtype: 'bois-densifie' | 'buche-compressee'
+  variantId: string
+  checkoutMultiplier: number
+}
+
+function buildDensifie(d: DensifieInput): Product {
+  const isDensifie = d.subtype === 'bois-densifie'
+  const specs: Spec[] = [
+    { label: 'Type',            value: isDensifie ? 'Bois densifié' : 'Bûches compressées' },
+    { label: 'Composition',     value: d.composition },
+    { label: 'Poids',           value: d.poids },
+    { label: 'Taux d’humidité', value: '≤ 10 %' },
+    { label: 'Conditionnement', value: 'Palette filmée' },
+    { label: 'Utilisation',     value: 'Immédiate — poêle, insert ou cheminée' },
+  ]
+  return {
+    id: nextId(),
+    slug: d.slug,
+    name: d.name,
+    tagline: `${d.composition} — ${d.poids}`,
+    keyPoints: [
+      'Bois très sec, prêt à brûler : moins de 10 % d’humidité. Il ne fume pas.',
+      `Composition : ${d.composition}.`,
+      isDensifie
+        ? 'Compressé à haute pression, sans liant chimique : plus de chaleur et moins de cendres qu’une bûche classique.'
+        : 'Combustion longue durée, idéale pour tenir la nuit.',
+      `${d.poids}, livré sur palette filmée.`,
+      'Livraison offerte dès 89 € d’achat, partout en France métropolitaine.',
+      'Paiement sécurisé en ligne. E-mail de confirmation avec votre numéro de commande.',
+    ],
+    description: `<p>${d.name}. ${d.composition}, ${d.poids}, livré sur palette filmée et prêt à brûler.</p>`,
+    price: d.price,
+    original_price: null,
+    stock: 20,
+    family: 'bois-densifie',
+    subtype: d.subtype,
+    image: d.image,
+    variantId: d.variantId,
+    checkoutMultiplier: d.checkoutMultiplier,
+    specs,
+    category_id: cat('cat-densifie').id,
+    category: cat('cat-densifie'),
+    badge: null,
+    rating: null,
+    review_count: 0,
+    created_at: '',
+  }
+}
+
+const DENSIFIES: Product[] = ([
+  { name: 'Bois densifié – feuillus – 1/2 palette de 538 kg', slug: 'bois-densifie-feuillus-1-2-palette-de-538-kg', price: 149.95, image: '/products/densifie-538.webp',      poids: '1/2 palette de 538 kg', composition: '100 % feuillus', subtype: 'bois-densifie',    variantId: '58436085645656', checkoutMultiplier: 5 },
+  { name: 'Bois densifié – résineux – palette de 960 kg',     slug: 'bois-densifie-resineux-palette-de-960-kg',     price: 199.95, image: '/products/densifie-resineux.webp', poids: 'Palette de 960 kg',     composition: '100 % résineux', subtype: 'bois-densifie',    variantId: '58436085678424', checkoutMultiplier: 5 },
+  { name: 'Bois densifié – feuillus – palette 1 tonne',       slug: 'bois-densifie-feuillus-palette-1-tonne',       price: 199.95, image: '/products/densifie-1t.webp',      poids: 'Palette de 1 tonne',    composition: '100 % feuillus', subtype: 'bois-densifie',    variantId: '58436085711192', checkoutMultiplier: 5 },
+  { name: 'Bûches compressées 100% feuillus – palette de 1040kg', slug: 'buches-compressees-100-feuillus-palette-de-1040kg', price: 299.90, image: '/products/compressees-1040.webp', poids: 'Palette de 1040 kg', composition: '100 % feuillus', subtype: 'buche-compressee', variantId: '58436085875032', checkoutMultiplier: 10 },
+  { name: 'Bûches de bois compressé tecsabuch crépito (palette de 1t)', slug: 'buches-de-bois-compresse-tecsabuch-crepito-palette-de-1t', price: 269.91, image: '/products/tecsabuch.webp', poids: 'Palette de 1 tonne', composition: 'Bûches compressées Tecsabuch Crépito', subtype: 'buche-compressee', variantId: '58436085940568', checkoutMultiplier: 9 },
+] as DensifieInput[]).map(buildDensifie)
+
+/* ─────────────────────────────────────────────
+   GRANULÉS & PELLETS — catalogue réel bois-tresor.com
    ───────────────────────────────────────────── */
 interface GranuleInput {
   name: string
   slug: string
   price: number
+  image: string
   bags: number
   bagKg?: number
   cert?: string | null
   comp?: string | null
+  variantId: string
+  checkoutMultiplier: number
 }
 
-function buildGranule({ name, slug, price, bags, bagKg = 15, cert = null, comp = null }: GranuleInput, index: number): Product {
-  const totalWeight = bags * bagKg
+function buildGranule(g: GranuleInput): Product {
+  const bagKg = g.bagKg ?? 15
+  const totalWeight = g.bags * bagKg
   const specs: Spec[] = [
-    { label: 'Conditionnement', value: `${bags} sacs de ${bagKg} kg` },
+    { label: 'Conditionnement', value: `${g.bags} sacs de ${bagKg} kg` },
     { label: 'Poids palette',   value: `${totalWeight} kg` },
   ]
-  if (comp) specs.push({ label: 'Composition', value: comp })
-  if (cert) specs.push({ label: 'Certification', value: cert })
-
-  const bits: string[] = []
-  bits.push(`Palette de ${bags} sacs de ${bagKg} kg (${totalWeight} kg au total)`)
-  if (comp) bits.push(comp.toLowerCase())
-  if (cert) bits.push(`certifié ${cert}`)
+  if (g.comp) specs.push({ label: 'Composition', value: g.comp })
+  if (g.cert) specs.push({ label: 'Certification', value: g.cert })
 
   const keyPoints = [
     'Granulés secs, prêts à l’emploi dans votre poêle ou votre chaudière.',
-    comp ? `Composition : ${comp}.` : null,
-    cert ? `Certification ${cert}.` : null,
-    `${bags} sacs de ${bagKg} kg, soit ${totalWeight} kg. Palette filmée.`,
+    g.comp ? `Composition : ${g.comp}.` : null,
+    g.cert ? `Certification ${g.cert}.` : null,
+    `${g.bags} sacs de ${bagKg} kg, soit ${totalWeight} kg. Palette filmée.`,
     'Livraison offerte dès 89 € d’achat, partout en France métropolitaine.',
     'Paiement sécurisé en ligne. E-mail de confirmation avec votre numéro de commande.',
   ].filter((p): p is string => p !== null)
 
   return {
     id: nextId(),
-    slug,
-    name,
-    tagline: cert ?? (comp ?? `Palette de ${totalWeight} kg`),
+    slug: g.slug,
+    name: g.name,
+    tagline: g.cert ?? g.comp ?? `Palette de ${totalWeight} kg`,
     keyPoints,
-    description: `<p>${name}. ${bits.join(', ')}. Livraison soignée, palette filmée, expédition sous 48 h.</p>`,
-    price,
+    description: `<p>${g.name}. Palette de ${g.bags} sacs de ${bagKg} kg, soit ${totalWeight} kg au total, livrée filmée.</p>`,
+    price: g.price,
     original_price: null,
     stock: 25,
     family: 'granules',
     subtype: 'granule',
-    image: PELLET_IMAGES[index % PELLET_IMAGES.length],
-    /* Aucun identifiant de variante fourni pour les granulés : ils ne sont
-       pas encore commandables en ligne. */
-    variantId: null,
-    checkoutMultiplier: null,
+    image: g.image,
+    variantId: g.variantId,
+    checkoutMultiplier: g.checkoutMultiplier,
     specs,
     category_id: cat('cat-granules').id,
     category: cat('cat-granules'),
@@ -227,58 +294,32 @@ function buildGranule({ name, slug, price, bags, bagKg = 15, cert = null, comp =
   }
 }
 
-const GRANULE_DEFS: GranuleInput[] = [
-  { name: 'Granulés bois BADGER — 1/2 Palette de 36 sacs de 15 kg',                       slug: 'granules-bois-badger-demi-palette-36-sacs',            price: 200.00, bags: 36 },
-  { name: 'Pellet Moulin Bois Energie — 65 sacs de 15 kg',                                 slug: 'pellet-moulin-bois-energie-65-sacs',                   price: 204.00, bags: 65 },
-  { name: 'Pellet HELIOS — Palette de 65 sacs de 15 kg — 100% résineux',                   slug: 'pellet-helios-palette-65-sacs-resineux',               price: 205.00, bags: 65, comp: '100 % résineux' },
-  { name: 'Pellets Green Energy DINplus — 65 Sacs de 15 KG',                               slug: 'pellets-green-energy-dinplus-65-sacs',                 price: 205.00, bags: 65, cert: 'DINplus' },
-  { name: 'Granulés Holz Westerwalder — 1/2 Palette 36 sacs de 15 kg',                      slug: 'granules-holz-westerwalder-demi-palette-36-sacs',      price: 208.00, bags: 36 },
-  { name: 'Granulés Forest Pellets — 1/2 Palette de 36 sacs de 15 kg',                      slug: 'granules-forest-pellets-demi-palette-36-sacs',         price: 210.00, bags: 36 },
-  { name: 'Pellet Starforest 100% résineux — 70 sacs de 15 kg',                             slug: 'pellet-starforest-100-resineux-70-sacs',               price: 210.99, bags: 70, comp: '100 % résineux' },
-  { name: 'Granulés de bois Limouzi — 66 sacs de 15 Kg',                                    slug: 'granules-bois-limouzi-66-sacs',                        price: 230.00, bags: 66 },
-  { name: 'Pellets Pellini EN+ A1 — Palette de 66 sacs de 10 kg',                           slug: 'pellets-pellini-enplus-a1-66-sacs-10kg',               price: 244.40, bags: 66, bagKg: 10, cert: 'EN+ A1' },
-  { name: 'Granulés de bois Dragon EN+ A1 — 65 sacs x 15kg',                                slug: 'granules-bois-dragon-enplus-a1-65-sacs',               price: 255.00, bags: 65, cert: 'EN+ A1' },
-  { name: 'Pellet Badger — Palette de 65 sacs de 15 kg',                                    slug: 'pellet-badger-palette-65-sacs',                        price: 255.00, bags: 65 },
-  { name: 'Pellets HS Timber — Palette de 66 sacs de 15 kg — 100% résineux',                slug: 'pellets-hs-timber-palette-66-sacs-resineux',           price: 256.74, bags: 66, comp: '100 % résineux' },
-  { name: 'Pellet Excellent Pellets — Palette de 65 sacs de 15 kg',                         slug: 'pellet-excellent-pellets-palette-65-sacs',             price: 265.00, bags: 65 },
-  { name: 'Pellet Confort — Palette de 70 sacs de 15 kg — 100% résineux',                   slug: 'pellet-confort-palette-70-sacs-resineux',              price: 275.00, bags: 70, comp: '100 % résineux' },
-  { name: 'Pellet Van Roje — Palette de 65 sacs de 15 kg',                                  slug: 'pellet-van-roje-palette-65-sacs',                      price: 276.00, bags: 65 },
-  { name: 'Granulés de bois Naturkraft — Palette de 66 sacs',                               slug: 'granules-bois-naturkraft-palette-66-sacs',             price: 285.00, bags: 66 },
-  { name: 'Pellet Total Premium — Palette de 66 sacs de 15 kg',                             slug: 'pellet-total-premium-palette-66-sacs',                 price: 285.00, bags: 66 },
-  { name: 'Granulés de bois Forest Pellets — Palette de 65 sacs de 15 kg',                  slug: 'granules-bois-forest-pellets-palette-65-sacs',         price: 288.00, bags: 65 },
-  { name: 'Granulés de bois Holz Westerwalder — Palette 66 sacs de 15 kg',                  slug: 'granules-bois-holz-westerwalder-palette-66-sacs',      price: 290.00, bags: 66 },
-  { name: 'Pellet ANVIL — Palette de 70 sacs de 15Kg — EN Plus A1',                         slug: 'pellet-anvil-palette-70-sacs-enplus-a1',               price: 300.00, bags: 70, cert: 'EN Plus A1' },
-  { name: 'Granulés OLIMP Din+, EN+A1 — Palette de 15 sacs de 15kg',                        slug: 'granules-olimp-dinplus-enplus-a1-15-sacs',             price: 300.00, bags: 15, cert: 'Din+ / EN+ A1' },
-  { name: 'Granulés GOLD 100% résineux — Palette de 65 sacs de 15 kg',                      slug: 'granules-gold-100-resineux-palette-65-sacs',           price: 302.00, bags: 65, comp: '100 % résineux' },
-  { name: 'Granulés de bois BADGER — Palette de 65 sacs de 15 kg',                          slug: 'granules-bois-badger-palette-65-sacs',                 price: 302.00, bags: 65 },
-  { name: 'Pellet LAVA 100% résineux — Palette de 65 sacs de 15 kg',                        slug: 'pellet-lava-100-resineux-palette-65-sacs',             price: 305.00, bags: 65, comp: '100 % résineux' },
-  { name: 'Pellets Pellini EN+ A1 — Palette de 66 sacs de 15 kg',                           slug: 'pellets-pellini-enplus-a1-66-sacs-15kg',               price: 309.00, bags: 66, cert: 'EN+ A1' },
-  { name: 'Pellet MAGIC POLAR — Palette de 70 sacs de 15kg — EN Plus A1',                   slug: 'pellet-magic-polar-palette-70-sacs-enplus-a1',         price: 310.00, bags: 70, cert: 'EN Plus A1' },
-  { name: 'Pellet Rochefort — Palette de 65 sacs de 15kg — 100% résineux',                  slug: 'pellet-rochefort-palette-65-sacs-resineux',            price: 310.00, bags: 65, comp: '100 % résineux' },
-  { name: 'Granulés de bois Crépito — Palette 72 sacs de 15 kg',                            slug: 'granules-bois-crepito-palette-72-sacs',                price: 310.00, bags: 72 },
-  { name: 'Pellets Arapellet (En+ A1, Din+) — Palette de 77 sacs de 15 Kg',                 slug: 'pellets-arapellet-enplus-a1-dinplus-77-sacs',          price: 315.00, bags: 77, cert: 'EN+ A1 / Din+' },
-  { name: 'Granulés German Flames 6mm EN+ A1 — Palette 990kg',                              slug: 'granules-german-flames-6mm-enplus-a1-990kg',           price: 315.00, bags: 66, cert: 'EN+ A1' },
-  { name: 'Pellet Valboval — Palette de 65 sacs de 15 kg',                                  slug: 'pellet-valboval-palette-65-sacs',                      price: 316.00, bags: 65 },
-  { name: 'Pellet Le petit scieur français — 65 sacs de 15 kg — 100% résineux',             slug: 'pellet-petit-scieur-francais-65-sacs-resineux',        price: 325.00, bags: 65, comp: '100 % résineux' },
-  { name: 'Pellet SunPower — Palette de 70 sacs de 15 kg',                                  slug: 'pellet-sunpower-palette-70-sacs',                      price: 328.99, bags: 70 },
-  { name: 'Granulés de bois Piveteau HP+ — 72 Sacs de 15kg',                                slug: 'granules-bois-piveteau-hp-plus-72-sacs',               price: 340.00, bags: 72 },
-  { name: 'Granulés PIKS — Palette de 66 sacs (990kg) certifié Din Plus',                   slug: 'granules-piks-palette-66-sacs-990kg-dinplus',          price: 352.00, bags: 66, cert: 'Din Plus' },
-  { name: 'Pellets Alpes Energie Bois — Palette de 70 sacs de 15 Kg',                       slug: 'pellets-alpes-energie-bois-palette-70-sacs',           price: 355.00, bags: 70 },
-  { name: 'Pellet Moulin Bois Energie — Palette de 65 sacs de 15 kg',                       slug: 'pellet-moulin-bois-energie-palette-65-sacs-premium',   price: 355.00, bags: 65 },
-  { name: 'Pellets Natural Energie — Palette de 70 sacs de 15 kg',                          slug: 'pellets-natural-energie-palette-70-sacs',              price: 377.00, bags: 70 },
-  { name: 'Granulés HEIZFUXX bleu EN+ A1 — Palette 65 sacs x 15kg',                         slug: 'granules-heizfuxx-bleu-enplus-a1-65-sacs',             price: 379.00, bags: 65, cert: 'EN+ A1' },
-  { name: 'Granulés de bois Woodstock — 78 sacs de 15 kg',                                  slug: 'granules-bois-woodstock-78-sacs',                      price: 380.00, bags: 78 },
-  { name: 'Granulés HEIZFUXX gris EN+ A2 — Palette 65 sacs x 15kg',                         slug: 'granules-heizfuxx-gris-enplus-a2-65-sacs',             price: 387.00, bags: 65, cert: 'EN+ A2' },
-  { name: 'Pellet Starforest — Palette de 70 sacs de 15 kg',                                slug: 'pellet-starforest-palette-70-sacs',                    price: 405.00, bags: 70 },
-  { name: 'Granulés HEIZFUXX rouge EN+ A1 — Palette 65 sacs x 15kg',                        slug: 'granules-heizfuxx-rouge-enplus-a1-65-sacs',            price: 475.00, bags: 65, cert: 'EN+ A1' },
-  { name: 'Pellet Ardenforest 100% résineux — 70 sacs de 15 kg',                            slug: 'pellet-ardenforest-100-resineux-70-sacs',              price: 480.00, bags: 70, comp: '100 % résineux' },
-]
+const GRANULES: Product[] = ([
+  { name: 'Granulés de Bois Belges Badger Pellets – Palette 975kg (65 sacs)',              slug: 'granules-de-bois-belges-badger-pellets-palette-975kg-65-sacs',              price: 279.93, image: '/products/badger-belges.webp',     bags: 65, variantId: '58436085973336', checkoutMultiplier: 7 },
+  { name: 'Granulés de Bois d’Auvergne Moulin Bois Energie – Palette 975kg (65 sacs)',     slug: 'granules-de-bois-dauvergne-moulin-bois-energie-palette-975kg-65-sacs',     price: 329.89, image: '/products/moulin-auvergne.webp',   bags: 65, variantId: '58436086137176', checkoutMultiplier: 11 },
+  { name: 'Granulés de Bois Excellent Pellets Premium – Palette 975kg (65 sacs)',          slug: 'granules-de-bois-excellent-pellets-premium-palette-975kg-65-sacs',          price: 299.90, image: '/products/excellent-pellets.webp', bags: 65, variantId: '58436086268248', checkoutMultiplier: 10 },
+  { name: 'Granulés de Bois Français Crépito® Premium – Palette 1080kg (72 sacs)',         slug: 'granules-de-bois-francais-crepito-premium-palette-1080kg-72-sacs',         price: 384.89, image: '/products/crepito-premium.png',    bags: 72, cert: 'DIN+ / EN+ A1', variantId: '58436086301016', checkoutMultiplier: 11 },
+  { name: 'Granulés de Bois Français Natural Energie – Palette 1050kg (70 sacs)',          slug: 'granules-de-bois-francais-natural-energie-palette-1050kg-70-sacs',          price: 269.94, image: '/products/natural-energie.webp',   bags: 70, variantId: '58436086399320', checkoutMultiplier: 6 },
+  { name: 'Granulés de Bois Français Piveteau HP+ – Palette 1080kg (72 sacs)',             slug: 'granules-de-bois-francais-piveteau-hp-palette-1080kg-72-sacs',             price: 329.89, image: '/products/piveteau-hp.png',        bags: 72, variantId: '58436086497624', checkoutMultiplier: 11 },
+  { name: 'Granulés de Bois Français SunPower (Triple Certification) – Palette 1050kg',    slug: 'granules-de-bois-francais-sunpower-triple-certification-palette-1050kg',    price: 349.90, image: '/products/sunpower.webp',          bags: 70, cert: 'Triple certification', variantId: '58436086563160', checkoutMultiplier: 10 },
+  { name: 'Granulés de Bois Français Valboval DESTOCKAGE – Palette 975kg (65 sacs)',       slug: 'granules-de-bois-francais-valboval-destockage-palette-975kg-65-sacs',       price: 199.95, image: '/products/valboval.webp',          bags: 65, variantId: '58436086759768', checkoutMultiplier: 5 },
+  { name: 'Granulés de Bois Français Woodstock® Premium – Palette 1170kg (78 sacs)',       slug: 'granules-de-bois-francais-woodstock-premium-palette-1170kg-78-sacs',       price: 299.90, image: '/products/woodstock-1170.png',     bags: 78, variantId: '58436086890840', checkoutMultiplier: 10 },
+  { name: 'Granulés de Bois Français Woodstock® Premium – Palette 990kg (66 sacs)',        slug: 'granules-de-bois-francais-woodstock-premium-palette-990kg-66-sacs',        price: 244.93, image: '/products/woodstock-990.jpg',      bags: 66, variantId: '58436086956376', checkoutMultiplier: 7 },
+  { name: 'Granulés de Bois HELIOS Haute Performance – Palette 975kg (65 sacs)',           slug: 'granules-de-bois-helios-haute-performance-palette-975kg-65-sacs',           price: 389.87, image: '/products/helios-hp.webp',         bags: 65, variantId: '58436086989144', checkoutMultiplier: 13 },
+  { name: 'Granulés de Bois Naturels Badger Pellets – Palette 990kg (66 sacs)',            slug: 'granules-de-bois-naturels-badger-pellets-palette-990kg-66-sacs',            price: 279.93, image: '/products/badger-naturels.webp',   bags: 66, variantId: '58436087087448', checkoutMultiplier: 7 },
+  { name: 'Granulés de Bois Premium Allemands Van Roje – Palette 975kg (65 sacs)',         slug: 'granules-de-bois-premium-allemands-van-roje-palette-975kg-65-sacs',         price: 244.93, image: '/products/van-roje.webp',          bags: 65, variantId: '58436087120216', checkoutMultiplier: 7 },
+  { name: 'Granulés de Bois Premium TotalEnergies – Palette 990kg (66 sacs)',              slug: 'granules-de-bois-premium-totalenergies-palette-990kg-66-sacs',              price: 269.91, image: '/products/totalenergies.png',      bags: 66, variantId: '58436087185752', checkoutMultiplier: 9 },
+  { name: 'Granulés de Bois Premium TotalEnergies (DIN+/EN+ A1) – Palette 990kg',          slug: 'granules-de-bois-premium-totalenergies-din-en-a1-palette-990kg',            price: 399.90, image: '/products/totalenergies-din.webp', bags: 66, cert: 'DIN+ / EN+ A1', variantId: '58436087284056', checkoutMultiplier: 10 },
+  { name: 'Granulés de Bois Starforest Premium (DINplus) – Palette 1050kg (70 sacs)',      slug: 'granules-de-bois-starforest-premium-dinplus-palette-1050kg-70-sacs',        price: 449.90, image: '/products/starforest.webp',        bags: 70, cert: 'DINplus', variantId: '58436087316824', checkoutMultiplier: 10 },
+  { name: 'Granulés de bois woodstock qualité premium – palette de 78 sacs de 15 kg',      slug: 'granules-de-bois-woodstock-qualite-premium-palette-de-78-sacs-de-15-kg',    price: 244.93, image: '/products/woodstock-78.webp',      bags: 78, variantId: '58436087382360', checkoutMultiplier: 7 },
+  { name: 'Palette de pellets mm royal (royal pellets) – 78 sacs plastique',               slug: 'palette-de-pellets-mm-royal-royal-pellets-78-sacs-plastique',               price: 299.90, image: '/products/mm-royal.webp',          bags: 78, variantId: '58436087447896', checkoutMultiplier: 10 },
+  { name: 'Pellets de bois helios – palette de 65 sacs de 15 kg',                          slug: 'pellets-de-bois-helios-palette-de-65-sacs-de-15-kg',                        price: 224.95, image: '/products/helios-65.webp',         bags: 65, variantId: '58436087611736', checkoutMultiplier: 5 },
+] as GranuleInput[]).map(buildGranule)
 
-const GRANULES: Product[] = GRANULE_DEFS.map((def, i) => buildGranule(def, i))
-
-export const PRODUCTS: Product[] = [...MELANGES, ...HETRES, ...GRANULES]
+export const PRODUCTS: Product[] = [...MELANGES, ...HETRES, ...DENSIFIES, ...GRANULES]
 
 export const BOIS_CHAUFFAGE_PRODUCTS = PRODUCTS.filter(p => p.family === 'bois-de-chauffage')
+export const DENSIFIE_PRODUCTS        = PRODUCTS.filter(p => p.family === 'bois-densifie')
 export const GRANULES_PRODUCTS       = PRODUCTS.filter(p => p.family === 'granules')
 
 export function getProductBySlug(slug: string): Product | undefined {

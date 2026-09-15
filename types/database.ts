@@ -1,7 +1,7 @@
 export type OrderStatus = 'pending' | 'paid' | 'processing' | 'shipped' | 'delivered' | 'cancelled' | 'refunded'
 
-export type ProductFamily = 'bois-de-chauffage' | 'granules'
-export type ProductSubtype = 'buche' | 'granule'
+export type ProductFamily = 'bois-de-chauffage' | 'bois-densifie' | 'granules'
+export type ProductSubtype = 'buche' | 'bois-densifie' | 'buche-compressee' | 'granule'
 
 export interface Spec {
   label: string

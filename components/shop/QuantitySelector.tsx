@@ -2,28 +2,33 @@
 
 import Link from 'next/link'
 import { useState } from 'react'
-import { Minus, Plus, ShoppingCart, Check, Mail } from 'lucide-react'
+import { Minus, Plus, ShoppingCart, Mail } from 'lucide-react'
 import { useCartStore } from '@/stores/cart'
 import type { Product } from '@/types/database'
+import { buildCheckoutUrl } from '@/lib/checkout'
 
 interface Props {
   product: Product
 }
 
 export default function QuantitySelector({ product }: Props) {
-  const [qty, setQty]     = useState(1)
-  const [added, setAdded] = useState(false)
-  const { addItem }       = useCartStore()
-  const isOutOfStock      = product.stock === 0
+  const [qty, setQty]               = useState(1)
+  const [redirecting, setRedirecting] = useState(false)
+  const { clearCart, addItem }      = useCartStore()
+  const isOutOfStock                = product.stock === 0
 
   function dec() { setQty(q => Math.max(1, q - 1)) }
   function inc() { setQty(q => q + 1) }
 
-  function handleAdd() {
+  /** Achat direct : le clic mène au paiement, sans étape de panier. */
+  function handleBuy() {
     if (isOutOfStock) return
+    const url = buildCheckoutUrl([{ product, quantity: qty }])
+    if (!url) return
+    clearCart()
     addItem(product, qty)
-    setAdded(true)
-    setTimeout(() => setAdded(false), 2500)
+    setRedirecting(true)
+    window.location.href = url
   }
 
   /* Pas d'identifiant de checkout : le produit n'est pas encore payable en
@@ -78,15 +83,12 @@ export default function QuantitySelector({ product }: Props) {
         </button>
       ) : (
         <button
-          onClick={handleAdd}
-          className={`w-full py-5 rounded-lg font-bold text-xl flex items-center justify-center gap-3 transition-all duration-200 shadow-md
-            ${added
-              ? 'bg-brand-800 text-white'
-              : 'bg-brand-600 hover:bg-brand-700 text-white hover:shadow-lg'
-            }`}
+          onClick={handleBuy}
+          disabled={redirecting}
+          className="w-full py-5 rounded-lg font-bold text-xl flex items-center justify-center gap-3 transition-all duration-200 shadow-md bg-brand-600 hover:bg-brand-700 hover:shadow-lg disabled:opacity-70 text-white"
         >
-          {added ? (
-            <><Check size={26} strokeWidth={2.5} />Ajouté au panier</>
+          {redirecting ? (
+            'Redirection vers le paiement…'
           ) : (
             <><ShoppingCart size={26} />Commander maintenant</>
           )}

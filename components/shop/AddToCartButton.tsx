@@ -1,11 +1,12 @@
 'use client'
 
 import Link from 'next/link'
-import { ShoppingCart, Check, Mail } from 'lucide-react'
+import { ShoppingCart, Mail } from 'lucide-react'
 import { useState } from 'react'
 import { useCartStore } from '@/stores/cart'
 import type { Product } from '@/types/database'
 import { cn } from '@/lib/utils'
+import { buildCheckoutUrl } from '@/lib/checkout'
 
 interface AddToCartButtonProps {
   product: Product
@@ -14,19 +15,26 @@ interface AddToCartButtonProps {
 }
 
 export default function AddToCartButton({ product, quantity = 1, compact }: AddToCartButtonProps) {
-  const { addItem } = useCartStore()
-  const [added, setAdded] = useState(false)
+  const { clearCart, addItem } = useCartStore()
+  const [redirecting, setRedirecting] = useState(false)
   const isOutOfStock = product.stock === 0
 
-  function handleAdd() {
+  /**
+   * Achat direct : un clic mène au paiement, sans étape intermédiaire.
+   * Le panier est synchronisé avec ce seul article pour qu'un retour arrière
+   * affiche exactement ce que le client s'apprêtait à payer.
+   */
+  function handleBuy() {
     if (isOutOfStock) return
+    const url = buildCheckoutUrl([{ product, quantity }])
+    if (!url) return
+    clearCart()
     addItem(product, quantity)
-    setAdded(true)
-    setTimeout(() => setAdded(false), 2000)
+    setRedirecting(true)
+    window.location.href = url
   }
 
-  /* Pas d'identifiant de checkout = le produit ne peut pas être payé en ligne.
-     On oriente vers le contact plutôt que de laisser le client buter au panier. */
+  /* Pas d'identifiant de checkout = le produit ne peut pas être payé en ligne. */
   if (!product.variantId) {
     return (
       <Link
@@ -58,24 +66,19 @@ export default function AddToCartButton({ product, quantity = 1, compact }: AddT
 
   return (
     <button
-      onClick={handleAdd}
+      onClick={handleBuy}
+      disabled={redirecting}
       className={cn(
-        'w-full flex items-center justify-center gap-2.5 rounded-lg font-bold transition-colors shadow-sm',
-        compact ? 'py-2.5 text-sm' : 'py-4 text-lg',
-        added
-          ? 'bg-brand-800 text-white'
-          : 'bg-brand-600 hover:bg-brand-700 text-white'
+        'w-full flex items-center justify-center gap-2.5 rounded-lg font-bold transition-colors shadow-sm bg-brand-600 hover:bg-brand-700 disabled:opacity-70 text-white',
+        compact ? 'py-2.5 text-sm' : 'py-4 text-lg'
       )}
     >
-      {added ? (
-        <>
-          <Check size={compact ? 16 : 22} />
-          Ajouté au panier
-        </>
+      {redirecting ? (
+        'Redirection…'
       ) : (
         <>
           <ShoppingCart size={compact ? 16 : 22} />
-          {compact ? 'Ajouter' : 'Ajouter au panier'}
+          Commander
         </>
       )}
     </button>
