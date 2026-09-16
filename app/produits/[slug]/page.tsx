@@ -8,7 +8,7 @@ import ProductDetails from '@/components/shop/ProductDetails'
 import QuantitySelector from '@/components/shop/QuantitySelector'
 import ProductGrid from '@/components/shop/ProductGrid'
 import ViewContentTracker from '@/components/analytics/ViewContentTracker'
-import LivraisonBelgique from '@/components/ui/LivraisonBelgique'
+import LivraisonPays from '@/components/ui/LivraisonPays'
 import StarRating from '@/components/shop/StarRating'
 import Testimonials from '@/components/shop/Testimonials'
 import TeamPhoto from '@/components/shop/TeamPhoto'
@@ -90,10 +90,10 @@ export default async function ProductPage({ params }: Props) {
             Livraison offerte dès 89 € d’achat
           </p>
 
-          {/* Visible uniquement depuis la Belgique, juste sous le prix :
+          {/* Visible depuis la Belgique ou la Suisse, juste sous le prix :
               c'est là que le doute « suis-je concerné ? » se pose. */}
           <div className="mb-7 empty:mb-0">
-            <LivraisonBelgique />
+            <LivraisonPays />
           </div>
 
           {/* ── L'essentiel, un sujet par ligne ── */}

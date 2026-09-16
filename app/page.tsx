@@ -7,7 +7,7 @@ import StarRating from '@/components/shop/StarRating'
 import Testimonials from '@/components/shop/Testimonials'
 import FamilyBlock from '@/components/ui/FamilyBlock'
 import UrgencyNote from '@/components/ui/UrgencyNote'
-import LivraisonBelgique from '@/components/ui/LivraisonBelgique'
+import LivraisonPays from '@/components/ui/LivraisonPays'
 
 /**
  * Chiffres clés repris tels quels du site en production du client
@@ -88,9 +88,9 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ── Visiteur belge : message leve-doute, placé haut ── */}
+      {/* ── Visiteur belge ou suisse : message lève-doute, placé haut ── */}
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 empty:pt-0">
-        <LivraisonBelgique />
+        <LivraisonPays />
       </div>
 
       {/* ── CHIFFRES CLÉS ── */}

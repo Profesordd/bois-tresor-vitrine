@@ -66,7 +66,7 @@ function buildMelange({ length, stere, slug, price, originalPrice, variantId, ch
       '100 % feuillus durs français : chêne, charme, hêtre et frêne.',
       `Bûches de ${length}, fendues et en grande partie écorcées.`,
       `Palette de ${stere} stères, livrée filmée.`,
-      'Livraison offerte dès 89 € d’achat, en France métropolitaine et en Belgique.',
+      'Livraison offerte dès 89 € d’achat, en France métropolitaine, en Belgique et en Suisse.',
       'Paiement sécurisé en ligne. E-mail de confirmation avec votre numéro de commande.',
     ],
     description: `<p>Composé des meilleures essences de feuillus durs : chêne, charme, frêne et hêtre. Nous garantissons un rendement maximal de votre poêle à bois.</p><ul><li>Bûches fendues et en grande partie écorcées, longueur ${length} (±5 %)</li><li>100 % bois français, taux d’humidité ≤ 20 %</li><li>Palette de ${stere} stères, livraison soignée</li><li>Utilisation immédiate dès réception</li></ul>`,
@@ -137,7 +137,7 @@ function buildHetre({ stere, volumeNote, poids, slug, price, originalPrice, vari
       '100 % hêtre, issu de forêts gérées durablement.',
       'Bûches de 30 cm, séchées au four.',
       `Palette de ${volumeNote}, ${poids} environ, livrée filmée.`,
-      'Livraison offerte dès 89 € d’achat, en France métropolitaine et en Belgique.',
+      'Livraison offerte dès 89 € d’achat, en France métropolitaine, en Belgique et en Suisse.',
       'Paiement sécurisé en ligne. E-mail de confirmation avec votre numéro de commande.',
     ],
     description: `<p>Bois de chauffage 100 % hêtre en bûches de 30 cm, séché au four et prêt à brûler immédiatement. Palette de ${volumeNote} livrée filmée.</p>`,
@@ -204,7 +204,7 @@ function buildDensifie(d: DensifieInput): Product {
         ? 'Compressé à haute pression, sans liant chimique : plus de chaleur et moins de cendres qu’une bûche classique.'
         : 'Combustion longue durée, idéale pour tenir la nuit.',
       `${d.poids}, livré sur palette filmée.`,
-      'Livraison offerte dès 89 € d’achat, en France métropolitaine et en Belgique.',
+      'Livraison offerte dès 89 € d’achat, en France métropolitaine, en Belgique et en Suisse.',
       'Paiement sécurisé en ligne. E-mail de confirmation avec votre numéro de commande.',
     ],
     description: `<p>${d.name}. ${d.composition}, ${d.poids}, livré sur palette filmée et prêt à brûler.</p>`,
@@ -265,7 +265,7 @@ function buildGranule(g: GranuleInput): Product {
     g.comp ? `Composition : ${g.comp}.` : null,
     g.cert ? `Certification ${g.cert}.` : null,
     `${g.bags} sacs de ${bagKg} kg, soit ${totalWeight} kg. Palette filmée.`,
-    'Livraison offerte dès 89 € d’achat, en France métropolitaine et en Belgique.',
+    'Livraison offerte dès 89 € d’achat, en France métropolitaine, en Belgique et en Suisse.',
     'Paiement sécurisé en ligne. E-mail de confirmation avec votre numéro de commande.',
   ].filter((p): p is string => p !== null)
 
