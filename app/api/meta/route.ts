@@ -1,6 +1,52 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { envoyerCapi, capiConfigure, type EvenementCapi } from '@/lib/analytics/capi'
 import { estUnRobot } from '@/lib/analytics/geo'
+import { ADMIN_COOKIE, verifyToken } from '@/lib/admin/session'
+
+/**
+ * Diagnostic, réservé à l'administrateur.
+ *
+ * La route POST répond 204 quoi qu'il arrive, pour ne jamais gêner un
+ * visiteur — ce qui rend aussi toute panne invisible. Ce point d'entrée
+ * permet de vérifier depuis l'extérieur si le jeton est bien présent sur le
+ * serveur et ce que Meta répond réellement.
+ */
+export async function GET(req: NextRequest) {
+  const ok = await verifyToken(
+    req.cookies.get(ADMIN_COOKIE)?.value,
+    process.env.ADMIN_SESSION_SECRET ?? ''
+  )
+  if (!ok) return NextResponse.json({ error: 'Non autorisé' }, { status: 401 })
+
+  const configure = capiConfigure()
+  if (!configure) {
+    return NextResponse.json({
+      configure: false,
+      message: 'META_CONVERSIONS_TOKEN absent de ce déploiement.',
+    })
+  }
+
+  const eventId = crypto.randomUUID()
+  const res = await envoyerCapi([
+    {
+      nom: 'PageView',
+      eventId,
+      url: 'https://www.bois-tresor.com/',
+      utilisateur: {
+        ip: req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ?? null,
+        userAgent: req.headers.get('user-agent'),
+      },
+    },
+  ])
+
+  return NextResponse.json({
+    configure: true,
+    codeDeTest: process.env.META_TEST_EVENT_CODE ?? '(aucun — les événements comptent pour de vrai)',
+    version: process.env.META_GRAPH_VERSION ?? 'v23.0',
+    eventId,
+    reponseMeta: { status: res.status, ok: res.ok, corps: res.corps },
+  })
+}
 
 /**
  * Relais vers l'API Conversions de Meta.
