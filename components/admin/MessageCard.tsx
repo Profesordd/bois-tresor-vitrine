@@ -156,9 +156,10 @@ export default function MessageCard({ m }: { m: ContactMessage }) {
 
       {confirmeSpam && (
         <p className="mt-3 text-xs text-gray-500 leading-snug bg-gray-50 rounded-lg p-3">
-          Le message sera supprimé et cette adresse ne pourra plus vous écrire. Elle continuera de
-          voir une confirmation d’envoi normale — sans quoi elle réessaierait depuis une autre
-          adresse. Vous pourrez la débloquer depuis la liste en bas de page.
+          Le message sera supprimé et cette adresse ne pourra plus jamais vous écrire. Elle
+          continuera de voir une confirmation d’envoi normale — sans quoi elle réessaierait depuis
+          une autre adresse. <strong className="text-gray-700">Cette action est définitive :
+          le blocage ne peut pas être annulé.</strong>
         </p>
       )}
     </article>

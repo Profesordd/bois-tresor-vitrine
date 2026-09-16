@@ -36,10 +36,9 @@ export async function PATCH(req: NextRequest) {
 /**
  * Marquer comme indésirable : le message est supprimé et l'adresse bloquée.
  *
- * Un extrait est conservé dans la liste de blocage. Sans cette trace, une
- * erreur de clic couperait définitivement un vrai client — silencieusement,
- * puisqu'il continuerait de voir la confirmation d'envoi — sans que
- * personne ne puisse comprendre plus tard ce qui s'est passé.
+ * Le blocage est définitif : il n'existe aucune route de déblocage. Seule
+ * l'adresse est conservée, sans le nom ni le message — une fois la décision
+ * prise et le message effacé, les garder n'aurait plus d'objet.
  */
 export async function POST(req: NextRequest) {
   if (!(await autorise(req))) return NextResponse.json({ error: 'Non autorisé' }, { status: 401 })
@@ -51,38 +50,21 @@ export async function POST(req: NextRequest) {
 
   const { data: msg } = await supabase
     .from('contact_messages')
-    .select('name, email, message')
+    .select('email')
     .eq('id', id)
     .maybeSingle()
 
   if (!msg) return NextResponse.json({ error: 'Demande introuvable' }, { status: 404 })
 
+  /* L'adresse est mise en minuscules : changer la casse ne doit rien
+     contourner. */
   await supabase.from('contact_blocklist').upsert(
-    {
-      email: String(msg.email).toLowerCase(),
-      nom: msg.name,
-      extrait: String(msg.message).slice(0, 300),
-      blocked_at: new Date().toISOString(),
-    },
+    { email: String(msg.email).toLowerCase(), blocked_at: new Date().toISOString() },
     { onConflict: 'email' }
   )
 
   const { error } = await supabase.from('contact_messages').delete().eq('id', id)
   if (error) return NextResponse.json({ error: 'Suppression impossible' }, { status: 502 })
 
-  return NextResponse.json({ ok: true, email: msg.email })
-}
-
-/** Débloquer une adresse : ses prochains messages seront de nouveau reçus. */
-export async function DELETE(req: NextRequest) {
-  if (!(await autorise(req))) return NextResponse.json({ error: 'Non autorisé' }, { status: 401 })
-
-  const { email } = await req.json().catch(() => ({}))
-  if (typeof email !== 'string') return NextResponse.json({ error: 'Requête invalide' }, { status: 400 })
-
-  const supabase = createAdminClient()
-  const { error } = await supabase.from('contact_blocklist').delete().eq('email', email.toLowerCase())
-
-  if (error) return NextResponse.json({ error: 'Déblocage impossible' }, { status: 502 })
   return NextResponse.json({ ok: true })
 }

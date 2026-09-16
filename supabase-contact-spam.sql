@@ -6,20 +6,21 @@
 -- enregistrés du tout — l'expéditeur, lui, voit la même confirmation que
 -- d'habitude : un blocage annoncé invite simplement à changer d'adresse.
 --
--- Un extrait du message est conservé pour que le gérant puisse revoir, des
--- semaines plus tard, pourquoi cette adresse a été bloquée — et la
--- débloquer s'il s'est trompé. Sans cette trace, une erreur de clic
--- couperait définitivement un vrai client, sans que personne ne le sache.
+-- Le blocage est définitif, par choix : aucune interface ni route ne permet
+-- de débloquer. Seule l'adresse est conservée, en minuscules pour qu'un
+-- changement de casse ne contourne rien. Ni le nom ni le message ne sont
+-- gardés : le message est effacé, et les conserver n'aurait plus d'objet.
 -- =============================================
 
 create table if not exists contact_blocklist (
-  -- Adresse normalisée en minuscules, pour que la casse ne contourne rien.
-  email        text        primary key,
-  blocked_at   timestamptz not null default now(),
-  extrait      text,
-  nom          text
+  email      text        primary key,
+  blocked_at timestamptz not null default now()
 );
 
 create index if not exists contact_blocklist_date_idx on contact_blocklist (blocked_at desc);
 
 alter table contact_blocklist enable row level security;
+
+-- Colonnes d'une version précédente, devenues sans objet.
+alter table contact_blocklist drop column if exists extrait;
+alter table contact_blocklist drop column if exists nom;

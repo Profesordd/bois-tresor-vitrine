@@ -1,8 +1,7 @@
 import Link from 'next/link'
-import { ArrowLeft, Inbox, Ban } from 'lucide-react'
+import { ArrowLeft, Inbox } from 'lucide-react'
 import { createAdminClient } from '@/lib/supabase/server'
 import MessageCard, { type ContactMessage } from '@/components/admin/MessageCard'
-import BlocklistItem, { type AdresseBloquee } from '@/components/admin/BlocklistItem'
 import RefreshButton from '@/components/admin/RefreshButton'
 
 export const dynamic = 'force-dynamic'
@@ -20,17 +19,6 @@ async function getMessages(filter: Filter): Promise<ContactMessage[]> {
   return data as ContactMessage[]
 }
 
-async function getBloquees(): Promise<AdresseBloquee[]> {
-  const supabase = createAdminClient()
-  const { data, error } = await supabase
-    .from('contact_blocklist')
-    .select('*')
-    .order('blocked_at', { ascending: false })
-    .limit(200)
-  if (error || !data) return []
-  return data as AdresseBloquee[]
-}
-
 const TABS: { key: Filter; label: string }[] = [
   { key: 'nouveaux', label: 'À traiter' },
   { key: 'traites', label: 'Traités' },
@@ -45,7 +33,7 @@ export default async function AdminMessagesPage({ searchParams }: Props) {
   const { filtre } = await searchParams
   const filter: Filter = TABS.some((t) => t.key === filtre) ? (filtre as Filter) : 'nouveaux'
 
-  const [messages, bloquees] = await Promise.all([getMessages(filter), getBloquees()])
+  const messages = await getMessages(filter)
 
   return (
     <div className="max-w-3xl mx-auto px-4 sm:px-6 py-10">
@@ -97,25 +85,6 @@ export default async function AdminMessagesPage({ searchParams }: Props) {
         )}
       </div>
 
-      {/* ── Adresses bloquées ──
-             Indispensable : sans cette liste, une adresse bloquée par erreur
-             le resterait pour toujours, et l'expéditeur — qui voit toujours
-             une confirmation d'envoi — n'aurait aucun moyen de le signaler. ── */}
-      {bloquees.length > 0 && (
-        <section className="mt-12">
-          <h2 className="flex items-center gap-2 font-serif text-xl font-bold text-ink mb-1">
-            <Ban size={18} className="text-gray-400" />
-            Adresses bloquées ({bloquees.length})
-          </h2>
-          <p className="text-sm text-gray-500 mb-4">
-            Ces adresses ne peuvent plus vous écrire. Elles voient toujours une confirmation
-            d’envoi normale, et ignorent donc qu’elles sont bloquées.
-          </p>
-          <div className="bg-white rounded-lg border border-gray-200 divide-y divide-gray-100">
-            {bloquees.map((a) => <BlocklistItem key={a.email} a={a} />)}
-          </div>
-        </section>
-      )}
     </div>
   )
 }
