@@ -1,12 +1,13 @@
 import Script from 'next/script'
 import { META_PIXEL_ID } from '@/lib/analytics/meta'
+import MetaPageView from '@/components/analytics/MetaPageView'
 
 /**
  * Pixel Meta (Facebook / Instagram) — mesure des campagnes publicitaires.
  *
- * Chargé en « afterInteractive » : le script part une fois la page affichée,
- * pour ne pas retarder le premier rendu. Le <noscript> couvre les visiteurs
- * sans JavaScript, comme dans le code fourni par Meta.
+ * Le script se contente d'initialiser le pixel. Le PageView n'est plus
+ * déclenché ici : il part depuis MetaPageView, avec un identifiant partagé
+ * avec l'envoi serveur, sans lequel Meta compterait l'événement deux fois.
  */
 export default function MetaPixel() {
   return (
@@ -20,9 +21,11 @@ n.queue=[];t=b.createElement(e);t.async=!0;
 t.src=v;s=b.getElementsByTagName(e)[0];
 s.parentNode.insertBefore(t,s)}(window, document,'script',
 'https://connect.facebook.net/en_US/fbevents.js');
-fbq('init', '${META_PIXEL_ID}');
-fbq('track', 'PageView');`}
+fbq('init', '${META_PIXEL_ID}');`}
       </Script>
+
+      <MetaPageView />
+
       {/* Le contenu du <noscript> est injecté en HTML brut, et non en JSX :
           rendu par React, l'image serait chargée même avec JavaScript actif,
           et chaque visite compterait deux fois dans Meta. */}
