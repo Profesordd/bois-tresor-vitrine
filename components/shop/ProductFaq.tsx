@@ -32,6 +32,10 @@ const FAQ: { q: string; a: string }[] = [
     q: 'Et si j’ai un problème ?',
     a: 'Écrivez-nous à contact@bois-tresor.com : nous répondons sous 24 h ouvrées. En cas de produit non conforme ou non livré, vous êtes livré ou remboursé.',
   },
+  {
+    q: 'Comment se passe la livraison ? Faut-il un accès particulier ?',
+    a: 'Pas d’inquiétude : votre commande est livrée par palette directement chez vous, et nous sommes équipés pour ça. Grâce à notre chariot élévateur, nous livrons même les endroits difficiles d’accès. Vous pourrez simplement nous préciser les détails de votre accès après votre commande, pour que tout se passe au mieux le jour de la livraison. Dans la grande majorité des cas, il n’y a aucun souci.',
+  },
 ]
 
 function Row({ q, a }: { q: string; a: string }) {
