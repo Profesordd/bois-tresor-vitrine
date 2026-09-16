@@ -34,7 +34,12 @@ yarn-error.log*
 .vercel
 
 # claude code project settings (may reference other projects' local config)
-.claude
+# On exclut le contenu et non le dossier : git ne redescend jamais dans un
+# dossier exclu, et l'exception ci-dessous resterait sans effet.
+.claude/*
+# Exception : la documentation du projet doit voyager avec le dépôt, c'est
+# elle qui explique les règles non évidentes à qui reprend le code.
+!.claude/skills/
 
 # typescript
 *.tsbuildinfo
