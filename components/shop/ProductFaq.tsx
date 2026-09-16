@@ -6,15 +6,15 @@ import { ChevronDown } from 'lucide-react'
 const FAQ: { q: string; a: string }[] = [
   {
     q: 'Comment passer commande ?',
-    a: 'Choisissez votre quantité, ajoutez au panier, puis validez. Vous réglez en ligne et recevez immédiatement un e-mail de confirmation avec votre numéro de commande.',
+    a: 'Choisissez votre quantité et cliquez sur Commander maintenant : vous passez directement au paiement sécurisé. Vous recevez immédiatement un e-mail de confirmation avec votre numéro de commande.',
   },
   {
     q: 'Livrez-vous partout en France, en Belgique et en Suisse ?',
-    a: 'Oui, partout en France métropolitaine, en Belgique et en Suisse. La palette est déposée au plus près de votre lieu de stockage par un camion équipé d’un hayon.',
+    a: 'Oui, partout en France métropolitaine, en Belgique et en Suisse. La palette est déposée au plus près de votre lieu de stockage, grâce à un camion équipé d’un hayon et d’un chariot élévateur adapté au bois.',
   },
   {
     q: 'La livraison est-elle payante ?',
-    a: 'La livraison est offerte dès 89 € d’achat. En dessous, les frais sont affichés dans votre panier avant validation : vous ne découvrez jamais de frais au dernier moment.',
+    a: 'La livraison est offerte dès 89 € d’achat. En dessous, les frais éventuels vous sont indiqués avant tout paiement : vous ne découvrez jamais de frais au dernier moment.',
   },
   {
     q: 'Comment se passe le paiement ?',
@@ -34,7 +34,7 @@ const FAQ: { q: string; a: string }[] = [
   },
   {
     q: 'Comment se passe la livraison ? Faut-il un accès particulier ?',
-    a: 'Pas d’inquiétude : votre commande est livrée par palette directement chez vous, et nous sommes équipés pour ça. Grâce à notre chariot élévateur, nous livrons même les endroits difficiles d’accès. Vous pourrez simplement nous préciser les détails de votre accès après votre commande, pour que tout se passe au mieux le jour de la livraison. Dans la grande majorité des cas, il n’y a aucun souci.',
+    a: 'Pas d’inquiétude : votre commande est livrée par palette directement chez vous. Nos camions sont équipés d’un hayon et d’un chariot élévateur adapté au bois : nous pouvons livrer même les endroits difficiles d’accès. Vous pourrez nous préciser les détails de votre accès après votre commande, pour que tout se passe au mieux le jour de la livraison. Dans la grande majorité des cas, il n’y a aucun souci.',
   },
 ]
 

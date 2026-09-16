@@ -9,7 +9,7 @@ export default function LivraisonPage() {
       <div className="prose prose-gray max-w-none text-gray-700 space-y-8">
         <section>
           <h2 className="text-xl font-bold text-ink">Mode de livraison</h2>
-          <p>Le bois est acheminé par transporteur spécialisé, sur palette filmée ou en vrac selon le produit. Le déchargement est effectué par un camion équipé d’un hayon, au plus près de votre lieu de stockage.</p>
+          <p>Le bois est acheminé sur palette filmée ou en vrac selon le produit. Nos camions sont équipés d’un hayon et d’un chariot élévateur adapté au bois : la palette est déposée au plus près de votre lieu de stockage, y compris lorsque l’accès est difficile.</p>
         </section>
         <section>
           <h2 className="text-xl font-bold text-ink">Délais</h2>
@@ -17,14 +17,14 @@ export default function LivraisonPage() {
         </section>
         <section>
           <h2 className="text-xl font-bold text-ink">À la réception</h2>
-          <p>Assurez-vous que l’accès pour le véhicule de livraison est dégagé. Vérifiez la quantité et l’état de la marchandise à l’arrivée. Stockez le bois à l’abri de la pluie, surélevé et dans un endroit ventilé pour préserver sa qualité.</p>
+          <p>Indiquez-nous les particularités de votre accès après votre commande : chemin étroit, pente, portail. Nous nous organisons en conséquence. Vérifiez la quantité et l’état de la marchandise à l’arrivée, puis stockez le bois à l’abri de la pluie, surélevé et dans un endroit ventilé pour préserver sa qualité.</p>
         </section>
         <section>
           <h2 className="text-xl font-bold text-ink">Frais de livraison</h2>
           <p>
-            La livraison est offerte dès 89 € d’achat, en France métropolitaine comme en Belgique et en Suisse. En dessous
-            de ce montant, les frais de livraison sont affichés dans votre panier avant toute
-            validation : vous ne découvrez jamais de frais au moment de payer.
+            La livraison est offerte dès 89 € d’achat, en France métropolitaine comme en Belgique
+            et en Suisse. En dessous de ce montant, les frais éventuels vous sont indiqués avant
+            tout paiement : vous ne découvrez jamais de frais au dernier moment.
           </p>
         </section>
       </div>
