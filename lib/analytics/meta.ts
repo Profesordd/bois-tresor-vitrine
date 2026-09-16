@@ -1,7 +1,7 @@
 import type { Product } from '@/types/database'
 
 /** Identifiant du pixel Meta, fourni par le client. */
-export const META_PIXEL_ID = '927345626636466'
+export const META_PIXEL_ID = '1637953797922220'
 
 declare global {
   interface Window {
