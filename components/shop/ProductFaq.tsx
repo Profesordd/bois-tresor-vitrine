@@ -10,7 +10,7 @@ const FAQ: { q: string; a: string }[] = [
   },
   {
     q: 'Livrez-vous partout en France, en Belgique et en Suisse ?',
-    a: 'Oui, partout en France métropolitaine, en Belgique et en Suisse. La palette est déposée au plus près de votre lieu de stockage, grâce à un camion équipé d’un hayon et d’un chariot élévateur adapté au bois.',
+    a: 'Oui, partout en France métropolitaine, en Belgique et en Suisse. La palette est déposée au plus près de votre lieu de stockage par un transporteur spécialisé, dont le camion est équipé d’un hayon et d’un chariot élévateur adapté au bois.',
   },
   {
     q: 'La livraison est-elle payante ?',
@@ -34,7 +34,7 @@ const FAQ: { q: string; a: string }[] = [
   },
   {
     q: 'Comment se passe la livraison ? Faut-il un accès particulier ?',
-    a: 'Pas d’inquiétude : votre commande est livrée par palette directement chez vous. Nos camions sont équipés d’un hayon et d’un chariot élévateur adapté au bois : nous pouvons livrer même les endroits difficiles d’accès. Vous pourrez nous préciser les détails de votre accès après votre commande, pour que tout se passe au mieux le jour de la livraison. Dans la grande majorité des cas, il n’y a aucun souci.',
+    a: 'Pas d’inquiétude : votre commande est livrée par palette directement chez vous. Le transporteur spécialisé intervient avec un camion équipé d’un hayon et d’un chariot élévateur adapté au bois : nous pouvons livrer même les endroits difficiles d’accès. Vous pourrez nous préciser les détails de votre accès après votre commande, pour que tout se passe au mieux le jour de la livraison. Dans la grande majorité des cas, il n’y a aucun souci.',
   },
 ]
 

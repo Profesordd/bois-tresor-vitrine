@@ -9,7 +9,7 @@ export default function LivraisonPage() {
       <div className="prose prose-gray max-w-none text-gray-700 space-y-8">
         <section>
           <h2 className="text-xl font-bold text-ink">Mode de livraison</h2>
-          <p>Le bois est acheminé sur palette filmée ou en vrac selon le produit. Nos camions sont équipés d’un hayon et d’un chariot élévateur adapté au bois : la palette est déposée au plus près de votre lieu de stockage, y compris lorsque l’accès est difficile.</p>
+          <p>Le bois est acheminé par transporteur spécialisé, sur palette filmée ou en vrac selon le produit. Son camion est équipé d’un hayon et d’un chariot élévateur adapté au bois : la palette est déposée au plus près de votre lieu de stockage, y compris lorsque l’accès est difficile.</p>
         </section>
         <section>
           <h2 className="text-xl font-bold text-ink">Délais</h2>

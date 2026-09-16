@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
-import { Mail, Check, Undo2, Copy, CheckCheck } from 'lucide-react'
+import { Mail, Check, Undo2, Copy, CheckCheck, Ban } from 'lucide-react'
 
 export interface ContactMessage {
   id: string
@@ -24,6 +24,21 @@ export default function MessageCard({ m }: { m: ContactMessage }) {
   const router = useRouter()
   const [pending, startTransition] = useTransition()
   const [copied, setCopied] = useState(false)
+  const [confirmeSpam, setConfirmeSpam] = useState(false)
+
+  /**
+   * Marquer comme indésirable supprime le message et bloque l'adresse.
+   * L'action demande confirmation : elle est définitive pour ce message, et
+   * l'expéditeur ne saura jamais qu'il a été bloqué.
+   */
+  async function signalerSpam() {
+    await fetch('/api/admin/messages/', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id: m.id }),
+    })
+    startTransition(() => router.refresh())
+  }
 
   async function toggle() {
     await fetch('/api/admin/messages/', {
@@ -110,7 +125,42 @@ export default function MessageCard({ m }: { m: ContactMessage }) {
             traité le {new Date(m.handled_at).toLocaleDateString('fr-FR')}
           </span>
         )}
+
+        {!confirmeSpam ? (
+          <button
+            onClick={() => setConfirmeSpam(true)}
+            className="ml-auto inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm text-gray-400 hover:text-red-600 hover:bg-red-50 transition-colors"
+            title="Supprimer et bloquer cette adresse"
+          >
+            <Ban size={15} /> Indésirable
+          </button>
+        ) : (
+          <span className="ml-auto flex items-center gap-2 text-sm">
+            <span className="text-gray-600">Bloquer {m.email} ?</span>
+            <button
+              onClick={signalerSpam}
+              disabled={pending}
+              className="px-3 py-1.5 rounded-lg bg-red-600 hover:bg-red-700 text-white font-semibold disabled:opacity-60 transition-colors"
+            >
+              Oui, bloquer
+            </button>
+            <button
+              onClick={() => setConfirmeSpam(false)}
+              className="px-3 py-1.5 rounded-lg border border-gray-200 text-gray-600 hover:border-gray-300 transition-colors"
+            >
+              Annuler
+            </button>
+          </span>
+        )}
       </div>
+
+      {confirmeSpam && (
+        <p className="mt-3 text-xs text-gray-500 leading-snug bg-gray-50 rounded-lg p-3">
+          Le message sera supprimé et cette adresse ne pourra plus vous écrire. Elle continuera de
+          voir une confirmation d’envoi normale — sans quoi elle réessaierait depuis une autre
+          adresse. Vous pourrez la débloquer depuis la liste en bas de page.
+        </p>
+      )}
     </article>
   )
 }

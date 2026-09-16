@@ -7,7 +7,7 @@ interface Props {
 const DELIVERY = [
   'Livraison offerte dès 89 € d’achat, en France métropolitaine, en Belgique et en Suisse.',
   'Préparation sous 48 h ouvrées, livraison en 3 à 7 jours ouvrés selon votre région.',
-  'Camion équipé d’un hayon et d’un chariot élévateur adapté au bois : la palette est déposée au plus près de votre lieu de stockage, même en accès difficile.',
+  'Transporteur spécialisé, camion équipé d’un hayon et d’un chariot élévateur adapté au bois : la palette est déposée au plus près de votre lieu de stockage, même en accès difficile.',
   'Vous recevez un e-mail dès l’expédition, avec le suivi de votre commande.',
 ]
 

@@ -45,6 +45,18 @@ export async function POST(req: NextRequest) {
     }
 
     const supabase = createAdminClient()
+
+    /* Adresse bloquée : rien n'est enregistré, et l'expéditeur voit la même
+       confirmation que d'habitude. Lui annoncer le blocage l'inviterait
+       simplement à recommencer depuis une autre adresse. */
+    const { data: bloque } = await supabase
+      .from('contact_blocklist')
+      .select('email')
+      .eq('email', email.toLowerCase())
+      .maybeSingle()
+
+    if (bloque) return NextResponse.json({ ok: true })
+
     const { error } = await supabase.from('contact_messages').insert({
       name,
       email,
