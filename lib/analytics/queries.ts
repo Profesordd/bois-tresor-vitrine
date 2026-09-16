@@ -1,9 +1,41 @@
 import { createAdminClient } from '@/lib/supabase/server'
 
+/** Fuseau de référence : les journées s'entendent en heure française. */
+export const FUSEAU = 'Europe/Paris'
+
+/** Date du jour à Paris, au format AAAA-MM-JJ. */
+export function aujourdhui(): string {
+  return new Date().toLocaleDateString('en-CA', { timeZone: FUSEAU })
+}
+
+/** Décale une date de N jours, sans passer par l'heure locale du serveur. */
+export function decalerJours(date: string, jours: number): string {
+  const [a, m, j] = date.split('-').map(Number)
+  const d = new Date(Date.UTC(a, m - 1, j))
+  d.setUTCDate(d.getUTCDate() + jours)
+  return d.toISOString().slice(0, 10)
+}
+
+/** « 15 septembre 2026 » */
+export function formatDate(date: string): string {
+  const [a, m, j] = date.split('-').map(Number)
+  return new Date(Date.UTC(a, m - 1, j)).toLocaleDateString('fr-FR', {
+    day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC',
+  })
+}
+
+const RE_DATE = /^\d{4}-\d{2}-\d{2}$/
+export function dateValide(v: unknown): v is string {
+  return typeof v === 'string' && RE_DATE.test(v) && !Number.isNaN(Date.parse(v))
+}
+
 /** Agrégats calculés par la base — voir supabase-analytics-views.sql. */
 
 export interface Overview {
-  periode_jours: number
+  du: string
+  au: string
+  /** Une ligne par journée française, pour suivre l'évolution. */
+  jours: { jour: string; visites: number; achats: number }[]
   resume: {
     visites: number
     duree_moyenne_s: number
@@ -76,31 +108,32 @@ export interface ProductPerformance {
   scroll_moyen: number
 }
 
-export async function getFunnelByDevice(days: number): Promise<DeviceFunnel[]> {
+export async function getFunnelByDevice(du: string, au: string): Promise<DeviceFunnel[]> {
   const supabase = createAdminClient()
-  const { data, error } = await supabase.rpc('analytics_funnel_by_device', { p_days: days })
+  const { data, error } = await supabase.rpc('analytics_funnel_by_device_dates', { p_from: du, p_to: au })
   if (error || !data) return []
   return data as DeviceFunnel[]
 }
 
-export async function getProductPerformance(days: number): Promise<ProductPerformance[]> {
+export async function getProductPerformance(du: string, au: string): Promise<ProductPerformance[]> {
   const supabase = createAdminClient()
-  const { data, error } = await supabase.rpc('analytics_product_performance', { p_days: days })
+  const { data, error } = await supabase.rpc('analytics_product_performance_dates', { p_from: du, p_to: au })
   if (error || !data) return []
   return data as ProductPerformance[]
 }
 
-export async function getOverview(days: number): Promise<Overview | null> {
+export async function getOverview(du: string, au: string): Promise<Overview | null> {
   const supabase = createAdminClient()
-  const { data, error } = await supabase.rpc('analytics_overview', { p_days: days })
+  const { data, error } = await supabase.rpc('analytics_overview_dates', { p_from: du, p_to: au })
   if (error) return null
   return data as Overview
 }
 
-export async function getRecentSessions(days: number, limit = 100): Promise<SessionRow[]> {
+export async function getRecentSessions(du: string, au: string, limit = 200): Promise<SessionRow[]> {
   const supabase = createAdminClient()
-  const { data, error } = await supabase.rpc('analytics_recent_sessions', {
-    p_days: days,
+  const { data, error } = await supabase.rpc('analytics_recent_sessions_dates', {
+    p_from: du,
+    p_to: au,
     p_limit: limit,
   })
   if (error || !data) return []

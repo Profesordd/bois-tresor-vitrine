@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { Users, Clock, FileText, LogOut, TrendingDown, MousePointerClick, AlertTriangle, Inbox, Package, Globe } from 'lucide-react'
+import { Users, Clock, FileText, LogOut, TrendingDown, MousePointerClick, AlertTriangle, Inbox, Package, Globe, Download } from 'lucide-react'
 import { formatPrice } from '@/lib/utils'
 import { NOM_PAYS } from '@/lib/analytics/geo'
 import {
@@ -8,9 +8,14 @@ import {
   getFunnelByDevice,
   getProductPerformance,
   formatDuration,
+  aujourdhui,
+  decalerJours,
+  formatDate,
+  dateValide,
 } from '@/lib/analytics/queries'
 import { createAdminClient } from '@/lib/supabase/server'
 import RefreshButton from '@/components/admin/RefreshButton'
+import PeriodePicker from '@/components/admin/PeriodePicker'
 
 /** Nombre de demandes de contact encore sans réponse. */
 async function countPendingMessages(): Promise<number> {
@@ -25,7 +30,14 @@ async function countPendingMessages(): Promise<number> {
 export const dynamic = 'force-dynamic'
 export const metadata = { title: 'Tableau de bord' }
 
-const PERIODS = [1, 7, 30, 90]
+const JEUX_EXPORT = [
+  { cle: 'visites',   label: 'Visites' },
+  { cle: 'parcours',  label: 'Parcours détaillé' },
+  { cle: 'produits',  label: 'Produits' },
+  { cle: 'appareils', label: 'Appareils' },
+  { cle: 'pages',     label: 'Pages' },
+  { cle: 'contacts',  label: 'Demandes de contact' },
+]
 
 function Card({ icon: Icon, label, value, hint }: {
   icon: typeof Users; label: string; value: string; hint?: string
@@ -53,19 +65,32 @@ function Bar({ value, max }: { value: number; max: number }) {
 }
 
 interface Props {
-  searchParams: Promise<{ jours?: string }>
+  searchParams: Promise<{ du?: string; au?: string }>
 }
 
 export default async function AdminDashboard({ searchParams }: Props) {
-  const { jours } = await searchParams
-  const days = PERIODS.includes(Number(jours)) ? Number(jours) : 7
+  const params = await searchParams
+
+  /* Les journées s'entendent en heure française : « le 15 septembre » va de
+     minuit à minuit à Paris, et non en temps universel. */
+  const today = aujourdhui()
+  const du = dateValide(params.du) ? params.du : decalerJours(today, -6)
+  const au = dateValide(params.au) ? params.au : today
+
+  const raccourcis = [
+    { label: "Aujourd'hui", du: today, au: today },
+    { label: 'Hier', du: decalerJours(today, -1), au: decalerJours(today, -1) },
+    { label: '7 jours', du: decalerJours(today, -6), au: today },
+    { label: '30 jours', du: decalerJours(today, -29), au: today },
+    { label: '90 jours', du: decalerJours(today, -89), au: today },
+  ]
 
   const [overview, sessions, pendingMessages, byDevice, products] = await Promise.all([
-    getOverview(days),
-    getRecentSessions(days, 100),
+    getOverview(du, au),
+    getRecentSessions(du, au, 200),
     countPendingMessages(),
-    getFunnelByDevice(days),
-    getProductPerformance(days),
+    getFunnelByDevice(du, au),
+    getProductPerformance(du, au),
   ])
   const r = overview?.resume
 
@@ -108,36 +133,91 @@ export default async function AdminDashboard({ searchParams }: Props) {
   return (
     <div className="max-w-6xl mx-auto px-4 sm:px-6 py-10 space-y-10">
 
-      <div className="flex flex-wrap items-center justify-between gap-4">
+      <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
           <h1 className="font-serif text-2xl sm:text-3xl font-bold text-ink">Tableau de bord</h1>
-          <p className="text-gray-500 text-sm mt-1">Comportement des visiteurs sur le site</p>
+          <p className="text-gray-500 text-sm mt-1">
+            {du === au
+              ? `Journée du ${formatDate(du)}`
+              : `Du ${formatDate(du)} au ${formatDate(au)}`}
+            <span className="text-gray-400"> · heure française</span>
+          </p>
         </div>
-        <div className="flex items-center gap-2">
-          {PERIODS.map((d) => (
-            <Link
-              key={d}
-              href={`/admin/?jours=${d}`}
-              className={`px-3 py-1.5 rounded-lg text-sm font-medium border transition-colors ${
-                d === days
-                  ? 'bg-brand-600 text-white border-brand-600'
-                  : 'border-gray-200 text-gray-600 hover:border-brand-400'
-              }`}
-            >
-              {d === 1 ? '24 h' : `${d} j`}
-            </Link>
-          ))}
-          <div className="ml-2 flex items-center gap-3">
-            <RefreshButton />
-            <Link
-              href="/admin/deconnexion/"
-              className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-800"
-            >
-              <LogOut size={15} /> Quitter
-            </Link>
-          </div>
+        <div className="flex items-center gap-3">
+          <RefreshButton />
+          <Link
+            href="/admin/deconnexion/"
+            className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-800"
+          >
+            <LogOut size={15} /> Quitter
+          </Link>
         </div>
       </div>
+
+      <PeriodePicker du={du} au={au} max={today} raccourcis={raccourcis} />
+
+      {/* ── Récupérer les données ── */}
+      <section className="rounded-lg border border-gray-200 bg-white p-5">
+        <h2 className="flex items-center gap-2 font-semibold text-ink mb-1">
+          <Download size={17} className="text-brand-600" />
+          Récupérer les données de cette période
+        </h2>
+        <p className="text-sm text-gray-500 mb-4">
+          Fichiers .csv, à ouvrir dans Excel. Ils ne contiennent que la France, la Belgique, la
+          Suisse, le Luxembourg et Monaco — les robots et le trafic hors zone en sont absents.
+        </p>
+        <div className="flex flex-wrap gap-2">
+          {JEUX_EXPORT.map((j) => (
+            <a
+              key={j.cle}
+              href={`/api/admin/export/?jeu=${j.cle}&du=${du}&au=${au}`}
+              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg border border-gray-200 text-sm font-medium text-gray-700 hover:border-brand-400 hover:text-brand-700 transition-colors"
+            >
+              <Download size={14} />
+              {j.label}
+            </a>
+          ))}
+        </div>
+      </section>
+
+      {/* ── Évolution jour par jour ── */}
+      {overview.jours.length > 1 && (
+        <section>
+          <h2 className="font-serif text-xl font-bold text-ink mb-4">Jour par jour</h2>
+          <div className="bg-white rounded-lg border border-gray-200 overflow-x-auto">
+            <table className="w-full text-sm min-w-[420px]">
+              <thead className="bg-gray-50 text-gray-500 text-left">
+                <tr>
+                  <th className="px-4 py-3 font-medium">Journée</th>
+                  <th className="px-4 py-3 font-medium text-right">Visites</th>
+                  <th className="px-4 py-3 font-medium text-right">Mises au panier</th>
+                  <th className="px-4 py-3 font-medium text-right">Taux</th>
+                  <th className="px-4 py-3" />
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-100">
+                {overview.jours.map((j) => {
+                  const jour = String(j.jour).slice(0, 10)
+                  const t = j.visites > 0 ? Math.round((j.achats * 1000) / j.visites) / 10 : 0
+                  return (
+                    <tr key={jour} className="hover:bg-gray-50">
+                      <td className="px-4 py-3 text-gray-800">{formatDate(jour)}</td>
+                      <td className="px-4 py-3 text-right font-semibold text-ink">{j.visites}</td>
+                      <td className="px-4 py-3 text-right text-gray-600">{j.achats}</td>
+                      <td className="px-4 py-3 text-right text-gray-600">{t} %</td>
+                      <td className="px-4 py-3 text-right">
+                        <Link href={`/admin/?du=${jour}&au=${jour}`} className="text-brand-700 hover:underline whitespace-nowrap">
+                          Voir ce jour →
+                        </Link>
+                      </td>
+                    </tr>
+                  )
+                })}
+              </tbody>
+            </table>
+          </div>
+        </section>
+      )}
 
       {/* ── Demandes de contact : mis en tête, c'est ce qui appelle une
              action immédiate, au contraire des statistiques. ── */}

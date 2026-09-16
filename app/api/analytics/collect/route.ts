@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/server'
-import { estUnRobot } from '@/lib/analytics/geo'
+import { estUnRobot, estDansLaZone } from '@/lib/analytics/geo'
 
 /**
  * Réception de la mesure d'audience.
@@ -35,6 +35,19 @@ export async function POST(req: NextRequest) {
       return new NextResponse(null, { status: 204 })
     }
 
+    /* Pays déduit de l'IP par Vercel. Seul le code à deux lettres est
+       conservé : l'adresse elle-même n'est jamais enregistrée. */
+    const country = (req.headers.get('x-vercel-ip-country') ?? '').toUpperCase().slice(0, 2) || null
+
+    /* Hors zone de livraison : rien n'est écrit du tout.
+       Ces visiteurs — souvent des robots que l'identifiant du navigateur ne
+       trahit pas — n'achèteront jamais. Les stocker pour les masquer ensuite
+       laissait traîner dans la base des données que le client retrouvait
+       dans ses exports. Le filtrage se fait donc ici, une bonne fois. */
+    if (!estDansLaZone(country)) {
+      return new NextResponse(null, { status: 204 })
+    }
+
     const payload = await req.json()
     const sessionId: unknown = payload?.sessionId
 
@@ -58,10 +71,6 @@ export async function POST(req: NextRequest) {
 
     const supabase = createAdminClient()
     const ctx = payload?.context
-
-    /* Pays déduit de l'IP par Vercel. Seul le code à deux lettres est
-       conservé : l'adresse elle-même n'est jamais enregistrée. */
-    const country = (req.headers.get('x-vercel-ip-country') ?? '').toUpperCase().slice(0, 2) || null
 
     /* Première requête de la visite : on crée la session avec son contexte
        d'arrivée. Les suivantes ne font que la prolonger. */

@@ -1,6 +1,9 @@
 /**
  * Export de toutes les données du tableau de bord vers un dossier local.
  *
+ * L'export est désormais accessible directement depuis /admin, période au
+ * choix. Ce script reste utile pour une extraction massive hors navigateur.
+ *
  *   node scripts/export-donnees.mjs            -> 90 derniers jours
  *   node scripts/export-donnees.mjs 365        -> une année
  *
@@ -111,6 +114,7 @@ const visites = (
       s.id                                           as "Identifiant visite"
     from analytics_sessions s
     where s.started_at >= ${depuis}
+      and s.country = any(analytics_zone())
     order by s.started_at desc`)
 ).rows
 ecrireCsv(dossier, '1-visites.csv', visites)
@@ -140,6 +144,7 @@ const parcours = (
     from analytics_events e
     join analytics_sessions s on s.id = e.session_id
     where e.occurred_at >= ${depuis}
+      and s.country = any(analytics_zone())
     order by e.session_id, e.occurred_at, e.id`)
 ).rows
 ecrireCsv(dossier, '2-parcours-detaille.csv', parcours)
