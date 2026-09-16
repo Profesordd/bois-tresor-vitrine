@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { Users, Clock, FileText, LogOut, TrendingDown, MousePointerClick, AlertTriangle, Inbox, Package, Globe, Download } from 'lucide-react'
+import { Users, Clock, FileText, LogOut, TrendingDown, MousePointerClick, AlertTriangle, Inbox, Package, Globe, Download, FileDown } from 'lucide-react'
 import { formatPrice } from '@/lib/utils'
 import { NOM_PAYS } from '@/lib/analytics/geo'
 import {
@@ -163,9 +163,29 @@ export default async function AdminDashboard({ searchParams }: Props) {
           Récupérer les données de cette période
         </h2>
         <p className="text-sm text-gray-500 mb-4">
-          Fichiers .csv, à ouvrir dans Excel. Ils ne contiennent que la France, la Belgique, la
-          Suisse, le Luxembourg et Monaco — les robots et le trafic hors zone en sont absents.
+          Ces fichiers ne contiennent que la France, la Belgique, la Suisse, le Luxembourg et
+          Monaco — les robots et le trafic hors zone en sont absents.
         </p>
+
+        {/* Document unique, mis en avant : c'est l'usage principal. */}
+        <a
+          href={`/api/admin/export/?jeu=rapport&du=${du}&au=${au}`}
+          className="flex items-center justify-between gap-4 rounded-lg border-2 border-brand-300 bg-brand-50 p-4 hover:border-brand-500 transition-colors mb-4"
+        >
+          <span className="flex items-center gap-3">
+            <FileDown size={22} className="text-brand-600 flex-shrink-0" />
+            <span>
+              <span className="block font-semibold text-ink">Rapport complet — un seul fichier</span>
+              <span className="block text-sm text-gray-600">
+                Visites, parcours, produits, appareils et pages réunis, avec le contexte du site.
+                Conçu pour être donné tel quel à une IA d’analyse.
+              </span>
+            </span>
+          </span>
+          <span className="text-brand-700 font-semibold text-sm whitespace-nowrap">Télécharger →</span>
+        </a>
+
+        <p className="text-xs text-gray-400 mb-2">Ou par jeu de données, au format Excel :</p>
         <div className="flex flex-wrap gap-2">
           {JEUX_EXPORT.map((j) => (
             <a

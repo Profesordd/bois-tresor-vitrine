@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/server'
 import { ADMIN_COOKIE, verifyToken } from '@/lib/admin/session'
 import { dateValide } from '@/lib/analytics/queries'
+import { construireRapport } from '@/lib/analytics/rapport'
 
 /**
  * Export CSV depuis le tableau de bord.
@@ -15,7 +16,7 @@ import { dateValide } from '@/lib/analytics/queries'
  * Le middleware ne protège que les pages : l'autorisation est vérifiée ici.
  */
 
-const JEUX = ['visites', 'parcours', 'produits', 'appareils', 'pages', 'contacts'] as const
+const JEUX = ['rapport', 'visites', 'parcours', 'produits', 'appareils', 'pages', 'contacts'] as const
 type Jeu = (typeof JEUX)[number]
 
 /** Excel francophone attend le point-virgule ; le BOM préserve les accents. */
@@ -48,6 +49,21 @@ export async function GET(req: NextRequest) {
   if (!JEUX.includes(jeu)) return NextResponse.json({ error: 'Jeu inconnu' }, { status: 400 })
   if (!dateValide(du) || !dateValide(au)) {
     return NextResponse.json({ error: 'Dates invalides' }, { status: 400 })
+  }
+
+  /* Rapport complet : un seul document, tous les jeux réunis, destiné à
+     être soumis à une IA. Les demandes de contact en sont exclues — noms
+     et adresses e-mail n'ont rien à faire dans un fichier transmis à un
+     tiers, et n'apportent rien à l'analyse du parcours. */
+  if (jeu === 'rapport') {
+    const md = await construireRapport(du, au)
+    return new NextResponse(md, {
+      headers: {
+        'Content-Type': 'text/markdown; charset=utf-8',
+        'Content-Disposition': `attachment; filename="bois-tresor_rapport_${du}_au_${au}.md"`,
+        'Cache-Control': 'no-store',
+      },
+    })
   }
 
   const supabase = createAdminClient()
