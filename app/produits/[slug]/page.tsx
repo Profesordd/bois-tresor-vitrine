@@ -1,7 +1,8 @@
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
-import { ChevronRight, Check, Truck, Lock, Award, Tag } from 'lucide-react'
+import { ChevronRight, Check, Truck, Lock, Award, Tag, PackageCheck } from 'lucide-react'
 import { getProductBySlug, getRelatedProducts, PRODUCTS } from '@/lib/products'
+import { chargerProduit, getRuptures } from '@/lib/stock'
 import { formatPrice } from '@/lib/utils'
 import ProductGallery from '@/components/shop/ProductGallery'
 import ProductDetails from '@/components/shop/ProductDetails'
@@ -37,10 +38,13 @@ export async function generateMetadata({ params }: Props) {
 
 export default async function ProductPage({ params }: Props) {
   const { slug } = await params
-  const product = getProductBySlug(slug)
+  const product = await chargerProduit(slug)
   if (!product) notFound()
 
-  const related = getRelatedProducts(product)
+  const ruptures = await getRuptures()
+  const related = getRelatedProducts(product).map((p) =>
+    ruptures.has(p.slug) ? { ...p, stock: 0 } : p
+  )
   const hasPromo = product.original_price !== null && product.original_price > product.price
   const isDestockage = product.badge === 'destockage' && hasPromo
   const remise = hasPromo ? Math.round((1 - product.price / product.original_price!) * 100) : 0
@@ -86,6 +90,17 @@ export default async function ProductPage({ params }: Props) {
               <span className="inline-flex items-center gap-1.5 rounded-md bg-red-700 text-white text-[13px] font-semibold px-2.5 py-1">
                 <Tag size={15} />
                 Déstockage −{remise} %
+              </span>
+            )}
+            {product.stock === 1 && (
+              <span className="inline-flex items-center gap-1.5 rounded-md bg-amber-500 text-ink text-[13px] font-semibold px-2.5 py-1">
+                <PackageCheck size={15} />
+                Dernier exemplaire en stock
+              </span>
+            )}
+            {product.stock === 0 && (
+              <span className="inline-flex items-center gap-1.5 rounded-md bg-gray-200 text-gray-700 text-[13px] font-semibold px-2.5 py-1">
+                Rupture de stock
               </span>
             )}
           </div>

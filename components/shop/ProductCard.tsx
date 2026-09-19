@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { Truck, Flame, ArrowRight, Award, Tag } from 'lucide-react'
+import { Truck, Flame, ArrowRight, Award, Tag, PackageCheck } from 'lucide-react'
 import type { Product } from '@/types/database'
 import { formatPrice } from '@/lib/utils'
 import ProductVisual from '@/components/shop/ProductVisual'
@@ -27,6 +27,7 @@ export default function ProductCard({ product }: ProductCardProps) {
   const isOutOfStock = stock === 0
   const hasPromo = original_price !== null && original_price > price
   const isBestSeller = badge === 'bestseller'
+  const dernierExemplaire = stock === 1
   const isDestockage = badge === 'destockage' && hasPromo
   const remise = hasPromo ? Math.round((1 - price / original_price!) * 100) : 0
 
@@ -56,6 +57,14 @@ export default function ProductCard({ product }: ProductCardProps) {
             <Tag size={13} className="sm:hidden" />
             <Tag size={15} className="hidden sm:block" />
             Déstockage −{remise} %
+          </span>
+        )}
+
+        {dernierExemplaire && (
+          <span className="absolute top-2 right-2 sm:top-3 sm:right-3 inline-flex items-center gap-1 sm:gap-1.5 rounded-md bg-amber-500 text-ink text-[11px] sm:text-[13px] font-semibold px-2 py-1 sm:px-2.5 sm:py-1.5 shadow-sm">
+            <PackageCheck size={13} className="sm:hidden" />
+            <PackageCheck size={15} className="hidden sm:block" />
+            Dernier exemplaire
           </span>
         )}
 

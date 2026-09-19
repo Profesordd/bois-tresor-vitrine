@@ -159,7 +159,7 @@ export default function QuantitySelector({ product }: Props) {
       >
         <AlertCircle size={18} className="flex-shrink-0 mt-0.5" />
         <span>
-          {messageLimite(max)}
+          {messageLimite(product)}
           {depassement && ' — vous ne pouvez pas en commander davantage.'}
         </span>
       </p>

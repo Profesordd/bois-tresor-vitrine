@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { Flame, Droplets, Truck } from 'lucide-react'
-import { BOIS_CHAUFFAGE_PRODUCTS, GRANULES_PRODUCTS } from '@/lib/products'
+import { chargerProduits } from '@/lib/stock'
 import ProductGrid from '@/components/shop/ProductGrid'
 import StarRating from '@/components/shop/StarRating'
 import Testimonials from '@/components/shop/Testimonials'
@@ -38,11 +38,12 @@ const STRENGTHS = [
   },
 ]
 
-export default function HomePage() {
+export default async function HomePage() {
+  const catalogue = await chargerProduits()
   /* 4 produits par famille : la page d'accueil donne un aperçu, le choix
      complet se fait sur la page de collection. */
-  const boisChauffageHighlights = BOIS_CHAUFFAGE_PRODUCTS.slice(0, 4)
-  const granulesHighlights      = GRANULES_PRODUCTS.slice(0, 4)
+  const boisChauffageHighlights = catalogue.filter((p) => p.family === 'bois-de-chauffage').slice(0, 4)
+  const granulesHighlights      = catalogue.filter((p) => p.family === 'granules').slice(0, 4)
 
   return (
     <>

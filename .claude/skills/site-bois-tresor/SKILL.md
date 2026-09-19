@@ -83,6 +83,20 @@ avertissement rouge quand le client tente de dépasser, le tiroir et la page
 commande affichent le même message une fois le maximum atteint. Le message
 vient toujours de `messageLimite()`, jamais recopié à la main.
 
+**Stock réel** (`lib/stock.ts`, table `stock_epuise`, `supabase-stock.sql`) :
+le catalogue en dur porte un stock indicatif ; la table liste les produits
+épuisés, appliqués par `chargerProduits()` / `chargerProduit()` avant tout
+rendu (accueil, collections, fiche). La lecture passe par le cache de
+données Next (60 s, étiquette `stock`) pour garder les pages statiques ;
+toute écriture appelle `invaliderStock()` (`revalidateTag`). Deux sources :
+le bouton « Marquer en rupture / Remettre en vente » de l'admin
+(`/api/admin/stock/`) et le webhook Shopify `orders/paid`
+(`/api/stock/webhook/`, signature HMAC vérifiée, `SHOPIFY_WEBHOOK_SECRET`).
+**Stock catalogue = 1 signifie « dernier exemplaire »** : pastille ambre,
+message « Dernier exemplaire en stock — 1 max par commande », et le webhook
+le passe en rupture dès qu'une commande payée le contient. Les autres
+produits ne sont pas suivis par le webhook. Premier cas : Limouzi.
+
 **Prix au stère** : `Product.pricePerStere` (calculé dans `lib/products.ts`,
 `null` hors bûches) s'affiche sous le prix, sur les cartes et la fiche. C'est
 l'unité que connaît le client ; il rend les palettes comparables. Il rend
@@ -365,6 +379,7 @@ NEXT_PUBLIC_SUPABASE_URL        projet Supabase
 NEXT_PUBLIC_SUPABASE_ANON_KEY   clé publique (part dans le navigateur)
 SUPABASE_SERVICE_ROLE_KEY       clé secrète — accès total à la base
 SUPABASE_DB_PASSWORD            connexion psql directe (pas utilisée par le site)
+SHOPIFY_WEBHOOK_SECRET          signature du webhook orders/paid (vide = webhook 503)
 NEXT_PUBLIC_SITE_URL            https://www.bois-tresor.com
 ADMIN_PASSWORD                  accès au tableau de bord
 ADMIN_SESSION_SECRET            signature des sessions admin

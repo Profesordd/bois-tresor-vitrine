@@ -1,6 +1,7 @@
 import { notFound } from 'next/navigation'
 import { CATEGORIES } from '@/lib/products'
 import CollectionView from '@/components/shop/CollectionView'
+import { chargerProduits } from '@/lib/stock'
 
 /**
  * URL historique du site WooCommerce : /product-category/<slug>/
@@ -37,5 +38,5 @@ export default async function ProductCategoryPage({ params }: Props) {
   const category = CATEGORIES.find((c) => c.slug === slug)
   if (!category) notFound()
 
-  return <CollectionView categorySlug={category.slug} />
+  return <CollectionView categorySlug={category.slug} allProducts={await chargerProduits()} />
 }

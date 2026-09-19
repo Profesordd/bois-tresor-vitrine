@@ -127,7 +127,7 @@ export default function CartDrawer() {
                   </div>
                   {quantity >= maxParCommande(product) && (
                     <p className="text-[12px] text-amber-800 mt-1.5 leading-snug">
-                      {messageLimite(maxParCommande(product))}
+                      {messageLimite(product)}
                     </p>
                   )}
                 </div>

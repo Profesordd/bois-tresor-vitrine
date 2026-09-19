@@ -348,6 +348,10 @@ const LIMOUZI_BASE = buildGranule({
 const LIMOUZI: Product = {
   ...LIMOUZI_BASE,
   variantId: '58513507058008',
+  /* Une seule palette à vendre. Stock 1 = « dernier exemplaire » : limite
+     à 1 par commande, et le webhook Shopify le passe en rupture dès qu'une
+     commande payée le contient. */
+  stock: 1,
   original_price: 879,
   richDescription: true,
   badge: 'destockage',

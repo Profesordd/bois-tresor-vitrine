@@ -93,7 +93,7 @@ export default function PanierPage() {
                 </div>
                 {quantity >= maxParCommande(product) && (
                   <p className="text-[13px] text-amber-800 mt-2 leading-snug">
-                    {messageLimite(maxParCommande(product))}
+                    {messageLimite(product)}
                   </p>
                 )}
               </div>

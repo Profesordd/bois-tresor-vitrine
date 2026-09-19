@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { Users, Clock, FileText, LogOut, TrendingDown, MousePointerClick, AlertTriangle, Inbox, Package, Globe, Download, FileDown } from 'lucide-react'
+import { Users, Clock, FileText, LogOut, TrendingDown, MousePointerClick, AlertTriangle, Inbox, Package, Globe, Download, FileDown, PackageX } from 'lucide-react'
 import { formatPrice } from '@/lib/utils'
 import { NOM_PAYS } from '@/lib/analytics/geo'
 import {
@@ -16,6 +16,9 @@ import {
 import { createAdminClient } from '@/lib/supabase/server'
 import RefreshButton from '@/components/admin/RefreshButton'
 import PeriodePicker from '@/components/admin/PeriodePicker'
+import StockToggle from '@/components/admin/StockToggle'
+import { PRODUCTS } from '@/lib/products'
+import { estDernierExemplaire } from '@/lib/stock'
 
 /** Nombre de demandes de contact encore sans réponse. */
 async function countPendingMessages(): Promise<number> {
@@ -25,6 +28,14 @@ async function countPendingMessages(): Promise<number> {
     .select('id', { count: 'exact', head: true })
     .eq('handled', false)
   return error ? 0 : (count ?? 0)
+}
+
+/** Produits épuisés, lus sans cache : l'admin doit voir l'état exact. */
+async function getRupturesAdmin(): Promise<Map<string, string>> {
+  const supabase = createAdminClient()
+  const { data, error } = await supabase.from('stock_epuise').select('slug, source')
+  if (error) return new Map()
+  return new Map((data ?? []).map((r) => [r.slug as string, r.source as string]))
 }
 
 export const dynamic = 'force-dynamic'
@@ -85,13 +96,19 @@ export default async function AdminDashboard({ searchParams }: Props) {
     { label: '90 jours', du: decalerJours(today, -89), au: today },
   ]
 
-  const [overview, sessions, pendingMessages, byDevice, products] = await Promise.all([
+  const [overview, sessions, pendingMessages, byDevice, products, ruptures] = await Promise.all([
     getOverview(du, au),
     getRecentSessions(du, au, 200),
     countPendingMessages(),
     getFunnelByDevice(du, au),
     getProductPerformance(du, au),
+    getRupturesAdmin(),
   ])
+
+  /* Stock : en tête, ce qui demande l'œil — produits à l'unité et
+     ruptures en cours ; le reste du catalogue replié. */
+  const stockSurveille = PRODUCTS.filter((p) => estDernierExemplaire(p) || ruptures.has(p.slug))
+  const stockAutres    = PRODUCTS.filter((p) => !stockSurveille.includes(p))
   const r = overview?.resume
 
   if (!overview || !r) {
@@ -266,6 +283,53 @@ export default async function AdminDashboard({ searchParams }: Props) {
         </span>
         <span className="text-brand-700 font-semibold text-sm whitespace-nowrap">Ouvrir →</span>
       </Link>
+
+      {/* ── Stock ── */}
+      <section className="rounded-lg border border-gray-200 bg-white p-5">
+        <div className="flex items-center gap-2 mb-1">
+          <PackageX size={18} className="text-brand-600" />
+          <h2 className="font-semibold text-ink">Stock</h2>
+        </div>
+        <p className="text-sm text-gray-500 mb-4">
+          Un produit marqué en rupture disparaît de la vente immédiatement, sans mise en ligne.
+          Les produits vendus à l’unité passent en rupture tout seuls dès qu’une commande payée les contient.
+        </p>
+
+        {stockSurveille.length > 0 && (
+          <ul className="divide-y divide-gray-100 mb-3">
+            {stockSurveille.map((p) => {
+              const epuise = ruptures.has(p.slug)
+              return (
+                <li key={p.slug} className="flex items-center justify-between gap-4 py-3">
+                  <div className="min-w-0">
+                    <p className="text-sm font-medium text-ink truncate">{p.name}</p>
+                    <p className="text-xs text-gray-500">
+                      {epuise
+                        ? `Rupture de stock${ruptures.get(p.slug) === 'shopify' ? ' — vendu (commande Shopify)' : ' — marqué à la main'}`
+                        : estDernierExemplaire(p) ? 'Dernier exemplaire en stock, 1 max par commande' : 'En vente'}
+                    </p>
+                  </div>
+                  <StockToggle slug={p.slug} epuise={epuise} />
+                </li>
+              )
+            })}
+          </ul>
+        )}
+
+        <details className="group">
+          <summary className="cursor-pointer text-sm font-medium text-brand-700 hover:text-brand-800 select-none">
+            Tous les autres produits ({stockAutres.length})
+          </summary>
+          <ul className="divide-y divide-gray-100 mt-2">
+            {stockAutres.map((p) => (
+              <li key={p.slug} className="flex items-center justify-between gap-4 py-2.5">
+                <p className="text-sm text-gray-700 truncate min-w-0">{p.name}</p>
+                <StockToggle slug={p.slug} epuise={false} />
+              </li>
+            ))}
+          </ul>
+        </details>
+      </section>
 
       {/* ── Vue d'ensemble ── */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">

@@ -1,5 +1,6 @@
 import Link from 'next/link'
-import { PRODUCTS, CATEGORIES } from '@/lib/products'
+import { CATEGORIES } from '@/lib/products'
+import type { Product } from '@/types/database'
 import ProductGrid from '@/components/shop/ProductGrid'
 import FamilyBlock from '@/components/ui/FamilyBlock'
 import UrgencyNote from '@/components/ui/UrgencyNote'
@@ -9,6 +10,8 @@ import LivraisonPays from '@/components/ui/LivraisonPays'
 interface Props {
   /** Slug de catégorie actif, ou undefined pour « tout voir ». */
   categorySlug?: string
+  /** Catalogue complet, stock réel appliqué (voir lib/stock.ts). */
+  allProducts: Product[]
 }
 
 /**
@@ -19,11 +22,11 @@ interface Props {
  * Les deux servent le même rendu, pour qu'une campagne ne tombe jamais
  * sur une page différente de celle que voient les visiteurs du site.
  */
-export default function CollectionView({ categorySlug }: Props) {
+export default function CollectionView({ categorySlug, allProducts }: Props) {
   const activeCategory = CATEGORIES.find((c) => c.slug === categorySlug)
   const products = activeCategory
-    ? PRODUCTS.filter((p) => p.category_id === activeCategory.id)
-    : PRODUCTS
+    ? allProducts.filter((p) => p.category_id === activeCategory.id)
+    : allProducts
 
   return (
     <div>
@@ -129,7 +132,7 @@ export default function CollectionView({ categorySlug }: Props) {
              d'aligner 53 produits d'affilée : le persona a besoin de repères. */
           <div className="space-y-14">
             {CATEGORIES.map((c) => {
-              const list = PRODUCTS.filter((p) => p.category_id === c.id)
+              const list = allProducts.filter((p) => p.category_id === c.id)
               if (list.length === 0) return null
               return (
                 <section key={c.id}>

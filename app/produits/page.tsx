@@ -1,4 +1,5 @@
 import CollectionView from '@/components/shop/CollectionView'
+import { chargerProduits } from '@/lib/stock'
 
 export const metadata = {
   title: 'Bois de chauffage sec & granulés — livraison offerte',
@@ -12,5 +13,5 @@ interface Props {
 
 export default async function ProduitsPage({ searchParams }: Props) {
   const { categorie } = await searchParams
-  return <CollectionView categorySlug={categorie} />
+  return <CollectionView categorySlug={categorie} allProducts={await chargerProduits()} />
 }
