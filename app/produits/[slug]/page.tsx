@@ -5,6 +5,7 @@ import { getProductBySlug, getRelatedProducts, PRODUCTS } from '@/lib/products'
 import { formatPrice } from '@/lib/utils'
 import ProductGallery from '@/components/shop/ProductGallery'
 import ProductDetails from '@/components/shop/ProductDetails'
+import ProductDescription from '@/components/shop/ProductDescription'
 import QuantitySelector from '@/components/shop/QuantitySelector'
 import ProductGrid from '@/components/shop/ProductGrid'
 import ViewContentTracker from '@/components/analytics/ViewContentTracker'
@@ -164,6 +165,12 @@ export default async function ProductPage({ params }: Props) {
       <div className="mt-12">
         <ProductDetails specs={product.specs} />
       </div>
+
+      {product.richDescription && product.description && (
+        <div className="mt-8">
+          <ProductDescription html={product.description} />
+        </div>
+      )}
 
       {/* ── Avis clients : la preuve sociale doit être sur la fiche, pas
              seulement sur l'accueil que le client ne voit jamais. ── */}

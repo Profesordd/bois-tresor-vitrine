@@ -328,9 +328,8 @@ const GRANULES: Product[] = ([
 /* ─────────────────────────────────────────────
    DÉSTOCKAGE — Granulés Limouzi, palette de 134 sacs
    Fiche reprise de depot-avenues.pro à la demande du client, qui veut
-   écouler ce stock vite. Prix, prix barré et identifiant de checkout
-   restent à confirmer par lui : `variantId` est null tant qu'il ne l'a pas
-   fourni, la fiche renvoie donc vers le contact.
+   écouler ce stock vite. Variante Shopify 58513507058008, palier 19,99 €
+   × 8. Le prix barré reste à confirmer par le client.
    ───────────────────────────────────────────── */
 const LIMOUZI_BASE = buildGranule({
   name: 'Granulés de bois Limouzi – Palette de 134 sacs de 15 kg',
@@ -348,8 +347,9 @@ const LIMOUZI_BASE = buildGranule({
 
 const LIMOUZI: Product = {
   ...LIMOUZI_BASE,
-  variantId: null,
+  variantId: '58513507058008',
   original_price: 879,
+  richDescription: true,
   badge: 'destockage',
   tagline: 'Déstockage — ENplus A1, 2 010 kg',
   keyPoints: [
@@ -373,7 +373,9 @@ const LIMOUZI: Product = {
 <h3>Pourquoi choisir Limouzi ?</h3>
 <p>Les granulés Limouzi sont parfaits pour les poêles et chaudières à granulés et conviennent à ceux qui souhaitent combiner économie et écoresponsabilité. Optez pour un chauffage de qualité, durable et respectueux de la nature.</p>
 <h3>Stockage</h3>
-<p>Stockez votre palette de granulés dans un espace sec et bien ventilé pour préserver leur qualité et garantir une combustion optimale.</p>`,
+<p>Stockez votre palette de granulés dans un espace sec et bien ventilé pour préserver leur qualité et garantir une combustion optimale.</p>
+<h3>En résumé</h3>
+<p>Les granulés Limouzi – palette de 134 sacs de 15 kg – sont idéaux pour un chauffage écologique et efficace, tout en offrant un rapport qualité-prix avantageux. Profitez d’une chaleur douce et respectueuse de l’environnement pour passer l’hiver sereinement.</p>`,
   specs: [
     { label: 'Type de bois',        value: 'Bois local et naturel' },
     { label: 'Nombre de sacs',      value: '134 sacs' },

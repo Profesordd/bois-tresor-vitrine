@@ -39,6 +39,12 @@ export interface Product {
   /** Points clés courts, un sujet par ligne, dans l'ordre de priorité du persona. */
   keyPoints: string[]
   /**
+   * Affiche `description` en bloc « Description » sur la fiche. Par défaut
+   * elle n'est pas montrée : les points clés suffisent au persona, et les
+   * descriptions du catalogue d'origine ne font que les répéter.
+   */
+  richDescription?: boolean
+  /**
    * Identifiant de variante du checkout. `null` = produit pas encore
    * commandable en ligne (identifiant non fourni).
    */
