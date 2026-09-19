@@ -6,7 +6,7 @@ import { Trash2, ShoppingBag, Truck, ArrowRight, Lock, AlertTriangle } from 'luc
 import { useCartStore } from '@/stores/cart'
 import { formatPrice } from '@/lib/utils'
 import { FREE_SHIPPING_THRESHOLD } from '@/lib/site'
-import { buildCheckoutUrl, getUnavailableItems } from '@/lib/checkout'
+import { buildCheckoutUrl, getUnavailableItems, maxParCommande, messageLimite } from '@/lib/checkout'
 import ProductVisual from '@/components/shop/ProductVisual'
 
 export default function PanierPage() {
@@ -81,11 +81,21 @@ export default function PanierPage() {
                   <span className="w-8 text-center font-semibold">{quantity}</span>
                   <button
                     onClick={() => updateQuantity(product.id, quantity + 1)}
-                    className="w-8 h-8 flex items-center justify-center border border-gray-200 rounded-lg hover:bg-gray-50 text-gray-600 font-bold"
+                    aria-disabled={quantity >= maxParCommande(product)}
+                    className={`w-8 h-8 flex items-center justify-center border border-gray-200 rounded-lg font-bold ${
+                      quantity >= maxParCommande(product)
+                        ? 'text-gray-300 cursor-not-allowed'
+                        : 'hover:bg-gray-50 text-gray-600'
+                    }`}
                   >
                     +
                   </button>
                 </div>
+                {quantity >= maxParCommande(product) && (
+                  <p className="text-[13px] text-amber-800 mt-2 leading-snug">
+                    {messageLimite(maxParCommande(product))}
+                  </p>
+                )}
               </div>
               <div className="flex flex-col items-end justify-between flex-shrink-0">
                 <button

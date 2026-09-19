@@ -6,6 +6,7 @@ import { useEffect, useState } from 'react'
 import { useCartStore } from '@/stores/cart'
 import { formatPrice } from '@/lib/utils'
 import { FREE_SHIPPING_THRESHOLD } from '@/lib/site'
+import { maxParCommande, messageLimite } from '@/lib/checkout'
 import ProductVisual from '@/components/shop/ProductVisual'
 
 /** Au-delà, la commande date d'une visite précédente : on le dit. */
@@ -114,11 +115,21 @@ export default function CartDrawer() {
                     <span className="text-sm w-6 text-center font-medium">{quantity}</span>
                     <button
                       onClick={() => updateQuantity(product.id, quantity + 1)}
-                      className="w-7 h-7 flex items-center justify-center border border-gray-200 rounded text-gray-600 hover:bg-gray-50"
+                      aria-disabled={quantity >= maxParCommande(product)}
+                      className={`w-7 h-7 flex items-center justify-center border border-gray-200 rounded ${
+                        quantity >= maxParCommande(product)
+                          ? 'text-gray-300 cursor-not-allowed'
+                          : 'text-gray-600 hover:bg-gray-50'
+                      }`}
                     >
                       +
                     </button>
                   </div>
+                  {quantity >= maxParCommande(product) && (
+                    <p className="text-[12px] text-amber-800 mt-1.5 leading-snug">
+                      {messageLimite(maxParCommande(product))}
+                    </p>
+                  )}
                 </div>
                 <button
                   onClick={() => removeItem(product.id)}

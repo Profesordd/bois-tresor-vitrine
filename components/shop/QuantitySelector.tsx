@@ -2,10 +2,10 @@
 
 import Link from 'next/link'
 import { useEffect, useRef, useState } from 'react'
-import { Minus, Plus, ShoppingCart, Mail, PackagePlus } from 'lucide-react'
+import { Minus, Plus, ShoppingCart, Mail, PackagePlus, AlertCircle } from 'lucide-react'
 import { useCartStore } from '@/stores/cart'
 import type { Product } from '@/types/database'
-import { buildCheckoutUrl } from '@/lib/checkout'
+import { buildCheckoutUrl, maxParCommande, messageLimite } from '@/lib/checkout'
 import { formatPrice } from '@/lib/utils'
 import { trackAddToCart, trackAddToCartThenRedirect } from '@/lib/analytics/meta'
 
@@ -61,8 +61,18 @@ export default function QuantitySelector({ product }: Props) {
   const { items, addItem, setOpen } = useCartStore()
   const isOutOfStock = product.stock === 0
 
-  function dec() { setQty((q) => Math.max(1, q - 1)) }
-  function inc() { setQty((q) => q + 1) }
+  /* Limite par commande, dite avant que le client ne bute dessus. Quand il
+     tente de la dépasser, le même message passe en avertissement : rien
+     n'est bloqué en silence. */
+  const max = maxParCommande(product)
+  const [depassement, setDepassement] = useState(false)
+  const dejaDansCommande = items.find((i) => i.product.id === product.id)?.quantity ?? 0
+
+  function dec() { setDepassement(false); setQty((q) => Math.max(1, q - 1)) }
+  function inc() {
+    if (qty >= max) { setDepassement(true); return }
+    setQty((q) => q + 1)
+  }
 
   /** Le clic mène au paiement, sans étape intermédiaire à comprendre. */
   function handleBuy() {
@@ -82,6 +92,10 @@ export default function QuantitySelector({ product }: Props) {
   /** Chemin secondaire : le produit rejoint la commande, on reste sur le site. */
   function handleAjouter() {
     if (isOutOfStock) return
+    if (dejaDansCommande + qty > max) {
+      setDepassement(true)
+      if (dejaDansCommande >= max) return
+    }
     addItem(product, qty, { open: true })
     /* Même signal publicitaire que l'achat direct : dans les deux cas, le
        visiteur a mis un produit au panier. */
@@ -127,12 +141,28 @@ export default function QuantitySelector({ product }: Props) {
           <button
             onClick={inc}
             aria-label="Ajouter un article"
-            className="w-14 h-14 border-2 border-gray-200 rounded-r-lg flex items-center justify-center text-gray-700 hover:bg-gray-50 transition-colors"
+            aria-disabled={qty >= max}
+            className={`w-14 h-14 border-2 border-gray-200 rounded-r-lg flex items-center justify-center transition-colors ${
+              qty >= max ? 'text-gray-300 cursor-not-allowed' : 'text-gray-700 hover:bg-gray-50'
+            }`}
           >
             <Plus size={20} />
           </button>
         </div>
       </div>
+
+      <p
+        role={depassement ? 'alert' : undefined}
+        className={`flex items-start gap-2 text-[15px] leading-snug -mt-1 ${
+          depassement ? 'text-red-700 font-semibold' : 'text-gray-600'
+        }`}
+      >
+        <AlertCircle size={18} className="flex-shrink-0 mt-0.5" />
+        <span>
+          {messageLimite(max)}
+          {depassement && ' — vous ne pouvez pas en commander davantage.'}
+        </span>
+      </p>
 
       {isOutOfStock ? (
         <button disabled className="w-full py-5 rounded-lg bg-gray-100 text-gray-400 font-bold text-lg cursor-not-allowed">

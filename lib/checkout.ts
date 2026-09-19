@@ -1,4 +1,19 @@
-import type { CartItem } from '@/types/database'
+import type { CartItem, Product } from '@/types/database'
+
+/**
+ * Limite de quantité par produit et par commande, fonction du prix :
+ * une seule unité à partir de 100 €, deux en dessous. Le stock est réel et
+ * limité ; la règle vit ici, et partout où l'on touche à la quantité
+ * (fiche, tiroir, page commande, magasin) on passe par elle.
+ */
+export function maxParCommande(product: Pick<Product, 'price'>): number {
+  return product.price >= 100 ? 1 : 2
+}
+
+/** Le même message partout : le client doit reconnaître la limite d'un écran à l'autre. */
+export function messageLimite(max: number): string {
+  return `Stock limité — ${max} max par commande`
+}
 
 export const CHECKOUT_BASE_URL = 'https://checkout.paiementzen.com/'
 

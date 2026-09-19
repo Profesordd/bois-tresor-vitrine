@@ -74,6 +74,15 @@ moyen mobile à 19 %. Son clic est étiqueté `Commander (barre mobile)` pour
 le distinguer dans le tableau des clics ; il compte comme un achat (le
 serveur reconnaît `/command|panier|acheter/i`) et porte les `data-product-*`.
 
+**Limite de quantité par commande** (`maxParCommande` dans `lib/checkout.ts`) :
+1 unité si le prix est ≥ 100 €, 2 en dessous. La règle est unique et
+appliquée à trois niveaux : le magasin Zustand plafonne (`addItem`,
+`updateQuantity`, et à la réhydratation d'un panier antérieur), la fiche
+affiche « Stock limité — N max par commande » en permanence et le passe en
+avertissement rouge quand le client tente de dépasser, le tiroir et la page
+commande affichent le même message une fois le maximum atteint. Le message
+vient toujours de `messageLimite()`, jamais recopié à la main.
+
 **Prix au stère** : `Product.pricePerStere` (calculé dans `lib/products.ts`,
 `null` hors bûches) s'affiche sous le prix, sur les cartes et la fiche. C'est
 l'unité que connaît le client ; il rend les palettes comparables. Il rend

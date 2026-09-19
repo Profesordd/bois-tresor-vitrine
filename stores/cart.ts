@@ -1,6 +1,7 @@
 import { create } from 'zustand'
 import { persist, createJSONStorage } from 'zustand/middleware'
 import type { Product, CartItem } from '@/types/database'
+import { maxParCommande } from '@/lib/checkout'
 
 /**
  * Au-delà de ce délai, une commande commencée puis abandonnée est effacée
@@ -46,17 +47,22 @@ export const useCartStore = create<CartStore>()(
           const existing = state.items.find((i) => i.product.id === product.id)
           const startedAt = state.startedAt ?? Date.now()
 
+          /* La limite s'applique au total pour ce produit, pas à l'ajout :
+             l'interface prévient avant, le magasin garantit après. */
+          const max = maxParCommande(product)
           if (existing) {
             return {
               items: state.items.map((i) =>
-                i.product.id === product.id ? { ...i, quantity: i.quantity + quantity } : i
+                i.product.id === product.id
+                  ? { ...i, quantity: Math.min(max, i.quantity + quantity) }
+                  : i
               ),
               isOpen: open,
               startedAt,
             }
           }
           return {
-            items: [...state.items, { product, quantity }],
+            items: [...state.items, { product, quantity: Math.min(max, quantity) }],
             isOpen: open,
             startedAt,
           }
@@ -77,7 +83,9 @@ export const useCartStore = create<CartStore>()(
         }
         set((state) => ({
           items: state.items.map((i) =>
-            i.product.id === productId ? { ...i, quantity } : i
+            i.product.id === productId
+              ? { ...i, quantity: Math.min(maxParCommande(i.product), quantity) }
+              : i
           ),
         }))
       },
@@ -105,7 +113,14 @@ export const useCartStore = create<CartStore>()(
         if (Date.now() - state.startedAt > DUREE_DE_VIE_MS) {
           state.items = []
           state.startedAt = null
+          return
         }
+        /* Une commande enregistrée avant l'entrée en vigueur de la limite
+           peut la dépasser : on la ramène au maximum, sans rien effacer. */
+        state.items = state.items.map((i) => ({
+          ...i,
+          quantity: Math.min(maxParCommande(i.product), i.quantity),
+        }))
       },
     }
   )
