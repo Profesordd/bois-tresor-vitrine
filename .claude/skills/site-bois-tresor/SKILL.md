@@ -66,6 +66,24 @@ Un chemin secondaire discret (« Ajouter à ma commande ») permet de
 commander plusieurs produits. Il ne doit jamais prendre le pas visuellement
 sur le bouton principal.
 
+**Sur téléphone, une barre d'achat fixe** (prix × quantité + « Commander
+maintenant ») reste en bas d'écran tant que le bouton principal n'est pas
+visible. Elle vit dans `QuantitySelector` pour partager la quantité et le
+même `handleBuy`. Motif mesuré : bouton à 20 % de la hauteur de page, scroll
+moyen mobile à 19 %. Son clic est étiqueté `Commander (barre mobile)` pour
+le distinguer dans le tableau des clics ; il compte comme un achat (le
+serveur reconnaît `/command|panier|acheter/i`) et porte les `data-product-*`.
+
+**Prix au stère** : `Product.pricePerStere` (calculé dans `lib/products.ts`,
+`null` hors bûches) s'affiche sous le prix, sur les cartes et la fiche. C'est
+l'unité que connaît le client ; il rend les palettes comparables. Il rend
+aussi visibles les écarts de la grille (34,58 € le stère pour le 45cm,
+54,95 € pour le 1m, 88,15 € pour le hêtre 1,7 stère) — validé par le client
+en connaissance de cause.
+
+**Un seul repère « Notre best-seller »**, sur le 45cm (`badge: 'bestseller'`).
+Ne pas en ajouter d'autres : le repère n'a de sens que s'il est unique.
+
 ### 1.3 Aucun texte trompeur, jamais
 
 Le persona ci-dessous fuit au moindre signal d'arnaque. Sont **interdits** :

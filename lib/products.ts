@@ -26,6 +26,11 @@ function nextId() { _n += 1; return `be-${String(_n).padStart(3, '0')}` }
 
 const WOOD_IMAGE = '/products/buche-feuillus.jpg'
 
+/** « 2,6 » → 89,91 / 2,6. Le stère est écrit à la française dans le catalogue. */
+function prixAuStere(price: number, stere: string): number {
+  return price / Number(stere.replace(',', '.'))
+}
+
 /* ─────────────────────────────────────────────
    BOIS DE CHAUFFAGE — Mélange de bois durs
    (chêne, charme, hêtre, frêne)
@@ -72,6 +77,7 @@ function buildMelange({ length, stere, slug, price, originalPrice, variantId, ch
     description: `<p>Composé des meilleures essences de feuillus durs : chêne, charme, frêne et hêtre. Nous garantissons un rendement maximal de votre poêle à bois.</p><ul><li>Bûches fendues et en grande partie écorcées, longueur ${length} (±5 %)</li><li>100 % bois français, taux d’humidité ≤ 20 %</li><li>Palette de ${stere} stères, livraison soignée</li><li>Utilisation immédiate dès réception</li></ul>`,
     price,
     original_price: originalPrice,
+    pricePerStere: prixAuStere(price, stere),
     stock: 20,
     family: 'bois-de-chauffage',
     subtype: 'buche',
@@ -143,6 +149,7 @@ function buildHetre({ stere, volumeNote, poids, slug, price, originalPrice, vari
     description: `<p>Bois de chauffage 100 % hêtre en bûches de 30 cm, séché au four et prêt à brûler immédiatement. Palette de ${volumeNote} livrée filmée.</p>`,
     price,
     original_price: originalPrice,
+    pricePerStere: prixAuStere(price, stere),
     stock: 15,
     family: 'bois-de-chauffage',
     subtype: 'buche',
@@ -210,6 +217,7 @@ function buildDensifie(d: DensifieInput): Product {
     description: `<p>${d.name}. ${d.composition}, ${d.poids}, livré sur palette filmée et prêt à brûler.</p>`,
     price: d.price,
     original_price: null,
+    pricePerStere: null,
     stock: 20,
     family: 'bois-densifie',
     subtype: d.subtype,
@@ -278,6 +286,7 @@ function buildGranule(g: GranuleInput): Product {
     description: `<p>${g.name}. Palette de ${g.bags} sacs de ${bagKg} kg, soit ${totalWeight} kg au total, livrée filmée.</p>`,
     price: g.price,
     original_price: null,
+    pricePerStere: null,
     stock: 25,
     family: 'granules',
     subtype: 'granule',

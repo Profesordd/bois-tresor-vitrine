@@ -1,11 +1,12 @@
 'use client'
 
 import Link from 'next/link'
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Minus, Plus, ShoppingCart, Mail, PackagePlus } from 'lucide-react'
 import { useCartStore } from '@/stores/cart'
 import type { Product } from '@/types/database'
 import { buildCheckoutUrl } from '@/lib/checkout'
+import { formatPrice } from '@/lib/utils'
 import { trackAddToCart, trackAddToCartThenRedirect } from '@/lib/analytics/meta'
 
 interface Props {
@@ -22,10 +23,40 @@ interface Props {
  *     plusieurs produits. Le mettre au même niveau visuel obligerait tous
  *     les autres à trancher entre deux boutons — exactement l'hésitation
  *     qu'il faut éviter chez un public peu à l'aise avec internet.
+ *
+ * Sur téléphone, une barre fixe en bas d'écran reprend le prix et le bouton
+ * principal tant que celui-ci n'est pas visible. Les mesures montraient le
+ * bouton à 20 % de la hauteur de page pour un défilement moyen de 19 % :
+ * une bonne partie des visiteurs mobiles ne l'atteignait jamais. La barre
+ * vit dans ce composant pour partager la quantité choisie et le même clic.
  */
 export default function QuantitySelector({ product }: Props) {
   const [qty, setQty] = useState(1)
   const [redirecting, setRedirecting] = useState(false)
+
+  /* La barre n'apparaît que lorsque le vrai bouton est hors de l'écran :
+     deux boutons identiques visibles en même temps sèmeraient le doute. */
+  const boutonPrincipal = useRef<HTMLButtonElement>(null)
+  const [barreVisible, setBarreVisible] = useState(false)
+
+  useEffect(() => {
+    const el = boutonPrincipal.current
+    if (!el || typeof IntersectionObserver === 'undefined') return
+    const obs = new IntersectionObserver(([entry]) => setBarreVisible(!entry.isIntersecting))
+    obs.observe(el)
+    return () => obs.disconnect()
+  }, [])
+
+  /* Elle recouvre le bas de page : on réserve la place pour que le pied de
+     page reste atteignable. Rien à faire sur ordinateur, la barre y est
+     masquée par CSS. */
+  useEffect(() => {
+    if (!barreVisible) return
+    const mobile = window.matchMedia('(max-width: 1023px)')
+    if (!mobile.matches) return
+    document.body.style.paddingBottom = '5.5rem'
+    return () => { document.body.style.paddingBottom = '' }
+  }, [barreVisible])
 
   const { items, addItem, setOpen } = useCartStore()
   const isOutOfStock = product.stock === 0
@@ -110,6 +141,7 @@ export default function QuantitySelector({ product }: Props) {
       ) : (
         <>
           <button
+            ref={boutonPrincipal}
             onClick={handleBuy}
             disabled={redirecting}
             data-track="Commander"
@@ -142,6 +174,44 @@ export default function QuantitySelector({ product }: Props) {
           <p className="text-center text-[13px] text-gray-400 -mt-2">
             Pour commander plusieurs produits ensemble.
           </p>
+
+          {/* Barre d'achat fixe, téléphone et tablette uniquement. Toujours
+              montée, glissée hors de l'écran quand le bouton principal est
+              visible : le mouvement dit d'où elle vient. */}
+          <div
+            aria-hidden={!barreVisible}
+            className={`lg:hidden fixed inset-x-0 bottom-0 z-30 bg-white border-t border-gray-200 shadow-[0_-4px_16px_rgba(0,0,0,0.08)] px-4 pt-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] transition-transform duration-200 ${
+              barreVisible ? 'translate-y-0' : 'translate-y-full pointer-events-none'
+            }`}
+          >
+            <div className="flex items-center gap-3 max-w-lg mx-auto">
+              <div className="min-w-0 flex-shrink-0">
+                <p className="text-xl font-bold text-ink leading-tight">
+                  {formatPrice(product.price * qty)}
+                </p>
+                <p className="text-[12px] text-gray-500 leading-tight">
+                  {qty > 1 ? `Quantité : ${qty}` : 'Livraison offerte'}
+                </p>
+              </div>
+              <button
+                onClick={handleBuy}
+                disabled={redirecting}
+                tabIndex={barreVisible ? 0 : -1}
+                data-track="Commander (barre mobile)"
+                data-product-slug={product.slug}
+                data-product-name={product.name}
+                data-product-qty={qty}
+                data-product-value={(product.price * qty).toFixed(2)}
+                className="flex-1 min-w-0 py-3.5 rounded-lg font-bold text-[17px] flex items-center justify-center gap-2 shadow-md bg-brand-600 hover:bg-brand-700 disabled:opacity-70 text-white transition-colors"
+              >
+                {redirecting ? (
+                  'Redirection…'
+                ) : (
+                  <><ShoppingCart size={22} className="flex-shrink-0" />Commander maintenant</>
+                )}
+              </button>
+            </div>
+          </div>
         </>
       )}
     </div>

@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { Truck, Flame, ArrowRight } from 'lucide-react'
+import { Truck, Flame, ArrowRight, Award } from 'lucide-react'
 import type { Product } from '@/types/database'
 import { formatPrice } from '@/lib/utils'
 import ProductVisual from '@/components/shop/ProductVisual'
@@ -23,9 +23,10 @@ interface ProductCardProps {
  * produirait un HTML invalide et un comportement imprévisible au clic.
  */
 export default function ProductCard({ product }: ProductCardProps) {
-  const { slug, name, price, original_price, stock, image, family } = product
+  const { slug, name, price, original_price, pricePerStere, stock, image, family, badge } = product
   const isOutOfStock = stock === 0
   const hasPromo = original_price !== null && original_price > price
+  const isBestSeller = badge === 'bestseller'
 
   return (
     <Link
@@ -34,6 +35,17 @@ export default function ProductCard({ product }: ProductCardProps) {
     >
       <div className="relative aspect-[4/3] overflow-hidden flex-shrink-0 bg-gray-50">
         <ProductVisual image={image} name={name} className="group-hover:scale-105 transition-transform duration-500" />
+
+        {/* Un seul repère dans toute la collection : face à neuf palettes qui
+            se ressemblent, il indique par où commencer. Pas un argument de
+            vente, un simple constat tiré des commandes. */}
+        {isBestSeller && !isOutOfStock && (
+          <span className="absolute top-2 left-2 sm:top-3 sm:left-3 inline-flex items-center gap-1 sm:gap-1.5 rounded-md bg-ink/90 text-white text-[11px] sm:text-[13px] font-semibold px-2 py-1 sm:px-2.5 sm:py-1.5 shadow-sm">
+            <Award size={13} className="sm:hidden" />
+            <Award size={15} className="hidden sm:block" />
+            Notre best-seller
+          </span>
+        )}
 
         {isOutOfStock && (
           <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
@@ -55,12 +67,19 @@ export default function ProductCard({ product }: ProductCardProps) {
           {family === 'granules' ? 'Granulés prêts à l’emploi' : 'Bois sec, prêt à brûler'}
         </p>
 
-        <div className="mt-auto pt-1 flex items-baseline gap-2 flex-wrap">
-          <span className="text-2xl sm:text-3xl font-bold text-ink">{formatPrice(price)}</span>
-          {hasPromo && (
-            <span className="text-base sm:text-lg text-gray-400 line-through">
-              {formatPrice(original_price!)}
-            </span>
+        <div className="mt-auto pt-1">
+          <div className="flex items-baseline gap-2 flex-wrap">
+            <span className="text-2xl sm:text-3xl font-bold text-ink">{formatPrice(price)}</span>
+            {hasPromo && (
+              <span className="text-base sm:text-lg text-gray-400 line-through">
+                {formatPrice(original_price!)}
+              </span>
+            )}
+          </div>
+          {pricePerStere !== null && (
+            <p className="text-[13px] sm:text-[15px] text-gray-600 mt-0.5">
+              soit {formatPrice(pricePerStere)} le stère
+            </p>
           )}
         </div>
 

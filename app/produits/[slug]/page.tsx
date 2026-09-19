@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
-import { ChevronRight, Check, Truck, Lock } from 'lucide-react'
+import { ChevronRight, Check, Truck, Lock, Award } from 'lucide-react'
 import { getProductBySlug, getRelatedProducts, PRODUCTS } from '@/lib/products'
 import { formatPrice } from '@/lib/utils'
 import ProductGallery from '@/components/shop/ProductGallery'
@@ -66,18 +66,26 @@ export default async function ProductPage({ params }: Props) {
 
         {/* ── Colonne achat ── */}
         <div>
-          {product.category && (
-            <p className="text-sm font-semibold uppercase tracking-wider text-brand-700 mb-2">
-              {product.category.name}
-            </p>
-          )}
+          <div className="flex items-center gap-3 flex-wrap mb-2">
+            {product.category && (
+              <p className="text-sm font-semibold uppercase tracking-wider text-brand-700">
+                {product.category.name}
+              </p>
+            )}
+            {product.badge === 'bestseller' && (
+              <span className="inline-flex items-center gap-1.5 rounded-md bg-ink text-white text-[13px] font-semibold px-2.5 py-1">
+                <Award size={15} />
+                Notre best-seller
+              </span>
+            )}
+          </div>
           <h1 className="font-serif text-3xl sm:text-4xl font-bold text-ink mb-3 leading-tight">
             {product.name}
           </h1>
 
           <StarRating className="mb-5" size={17} />
 
-          <div className="flex items-baseline gap-3 flex-wrap mb-2">
+          <div className="flex items-baseline gap-3 flex-wrap">
             <span className="text-4xl font-bold text-ink">{formatPrice(product.price)}</span>
             {product.original_price !== null && product.original_price > product.price && (
               <span className="text-2xl text-gray-400 line-through">
@@ -85,7 +93,14 @@ export default async function ProductPage({ params }: Props) {
               </span>
             )}
           </div>
-          <p className="flex items-center gap-2 text-lg font-semibold text-brand-700 mb-3">
+          {/* Le prix au stère est l'unité que connaît le client : il rend la
+              palette comparable à ce qu'il a toujours payé. */}
+          {product.pricePerStere !== null && (
+            <p className="text-lg text-gray-700 mt-1">
+              soit <span className="font-semibold text-ink">{formatPrice(product.pricePerStere)}</span> le stère
+            </p>
+          )}
+          <p className="flex items-center gap-2 text-lg font-semibold text-brand-700 mt-2 mb-3">
             <Truck size={20} />
             Livraison offerte dès 89 € d’achat
           </p>

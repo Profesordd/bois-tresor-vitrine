@@ -26,6 +26,12 @@ export interface Product {
   description: string | null
   price: number
   original_price: number | null
+  /**
+   * Prix ramené au stère, pour le bois en bûches uniquement (`null` sinon).
+   * Le prix à la palette ne dit rien à qui a toujours acheté au stère :
+   * cette ligne rend les palettes comparables entre elles.
+   */
+  pricePerStere: number | null
   stock: number
   family: ProductFamily
   subtype: ProductSubtype
