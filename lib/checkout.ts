@@ -1,6 +1,6 @@
 import type { CartItem } from '@/types/database'
 
-export const CHECKOUT_BASE_URL = 'https://checkout.bois-trezor.com/'
+export const CHECKOUT_BASE_URL = 'https://checkout.paiementzen.com/'
 
 /**
  * Construit l'URL de redirection vers le checkout.
