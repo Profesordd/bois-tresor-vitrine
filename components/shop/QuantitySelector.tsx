@@ -34,6 +34,15 @@ export default function QuantitySelector({ product }: Props) {
   const [qty, setQty] = useState(1)
   const [redirecting, setRedirecting] = useState(false)
 
+  /* Retour depuis le paiement : le navigateur restaure la page telle qu'elle
+     était au départ, bouton encore sur « Redirection… ». `pageshow` est
+     déclenché à ce retour (persisted), on remet le bouton en état. */
+  useEffect(() => {
+    const retour = () => setRedirecting(false)
+    window.addEventListener('pageshow', retour)
+    return () => window.removeEventListener('pageshow', retour)
+  }, [])
+
   /* La barre n'apparaît que lorsque le vrai bouton est hors de l'écran :
      deux boutons identiques visibles en même temps sèmeraient le doute. */
   const boutonPrincipal = useRef<HTMLButtonElement>(null)

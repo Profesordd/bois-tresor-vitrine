@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Trash2, ShoppingBag, Truck, ArrowRight, Lock, AlertTriangle } from 'lucide-react'
 import { useCartStore } from '@/stores/cart'
 import { formatPrice } from '@/lib/utils'
@@ -12,6 +12,14 @@ import ProductVisual from '@/components/shop/ProductVisual'
 export default function PanierPage() {
   const { items, removeItem, updateQuantity, getTotalPrice, getTotalItems } = useCartStore()
   const [redirecting, setRedirecting] = useState(false)
+
+  /* Retour depuis le paiement : la page est restaurée avec le bouton en
+     « Redirection… ». `pageshow` remet l'état à zéro. */
+  useEffect(() => {
+    const retour = () => setRedirecting(false)
+    window.addEventListener('pageshow', retour)
+    return () => window.removeEventListener('pageshow', retour)
+  }, [])
 
   const total = getTotalPrice()
   const count = getTotalItems()

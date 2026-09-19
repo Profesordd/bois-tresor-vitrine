@@ -89,9 +89,13 @@ le catalogue en dur porte un stock indicatif ; la table liste les produits
 rendu (accueil, collections, fiche). La lecture passe par le cache de
 données Next (60 s, étiquette `stock`) pour garder les pages statiques ;
 toute écriture appelle `invaliderStock()` (`revalidateTag`). Deux sources :
-le bouton « Marquer en rupture / Remettre en vente » de l'admin
-(`/api/admin/stock/`) et le webhook Shopify `orders/paid`
-(`/api/stock/webhook/`, signature HMAC vérifiée, `SHOPIFY_WEBHOOK_SECRET`).
+le webhook Shopify `orders/paid` (`/api/stock/webhook/`, signature HMAC
+vérifiée, `SHOPIFY_WEBHOOK_SECRET`) et une écriture directe en base par le
+développeur (script `pg`, voir section 5). **L'admin n'a volontairement
+aucun bouton** : le client a demandé à gérer les ruptures avec le
+développeur (19/09/2026) — le bloc Stock du tableau de bord est en lecture
+seule. Une écriture directe en base n'invalide pas le cache : comptez
+jusqu'à 60 s avant de la voir sur le site.
 **Stock catalogue = 1 signifie « dernier exemplaire »** : pastille ambre,
 message « Dernier exemplaire en stock — 1 max par commande », et le webhook
 le passe en rupture dès qu'une commande payée le contient. Les autres
@@ -454,3 +458,4 @@ Objectif mesuré sur la collection mobile : **le premier produit à environ
 | Achat depuis les cartes de collection | **non**, passage obligé par la fiche |
 | Bandeau de consentement | reporté par le client |
 | Luxembourg et Monaco dans la zone | conservés |
+| Bouton rupture / remise en vente dans l'admin | **non**, géré avec le développeur |

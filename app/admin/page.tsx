@@ -16,7 +16,6 @@ import {
 import { createAdminClient } from '@/lib/supabase/server'
 import RefreshButton from '@/components/admin/RefreshButton'
 import PeriodePicker from '@/components/admin/PeriodePicker'
-import StockToggle from '@/components/admin/StockToggle'
 import { PRODUCTS } from '@/lib/products'
 import { estDernierExemplaire } from '@/lib/stock'
 
@@ -105,10 +104,8 @@ export default async function AdminDashboard({ searchParams }: Props) {
     getRupturesAdmin(),
   ])
 
-  /* Stock : en tête, ce qui demande l'œil — produits à l'unité et
-     ruptures en cours ; le reste du catalogue replié. */
+  /* Stock : produits à l'unité et ruptures en cours, pour information. */
   const stockSurveille = PRODUCTS.filter((p) => estDernierExemplaire(p) || ruptures.has(p.slug))
-  const stockAutres    = PRODUCTS.filter((p) => !stockSurveille.includes(p))
   const r = overview?.resume
 
   if (!overview || !r) {
@@ -284,51 +281,39 @@ export default async function AdminDashboard({ searchParams }: Props) {
         <span className="text-brand-700 font-semibold text-sm whitespace-nowrap">Ouvrir →</span>
       </Link>
 
-      {/* ── Stock ── */}
+      {/* ── Stock : lecture seule. Les ruptures se règlent avec le
+             développeur ou arrivent du webhook Shopify ; aucun bouton ici,
+             pour qu'un clic malheureux ne retire pas un produit de la vente. ── */}
       <section className="rounded-lg border border-gray-200 bg-white p-5">
         <div className="flex items-center gap-2 mb-1">
           <PackageX size={18} className="text-brand-600" />
           <h2 className="font-semibold text-ink">Stock</h2>
         </div>
-        <p className="text-sm text-gray-500 mb-4">
-          Un produit marqué en rupture disparaît de la vente immédiatement, sans mise en ligne.
-          Les produits vendus à l’unité passent en rupture tout seuls dès qu’une commande payée les contient.
-        </p>
-
-        {stockSurveille.length > 0 && (
-          <ul className="divide-y divide-gray-100 mb-3">
-            {stockSurveille.map((p) => {
-              const epuise = ruptures.has(p.slug)
-              return (
-                <li key={p.slug} className="flex items-center justify-between gap-4 py-3">
-                  <div className="min-w-0">
-                    <p className="text-sm font-medium text-ink truncate">{p.name}</p>
-                    <p className="text-xs text-gray-500">
+        {stockSurveille.length === 0 ? (
+          <p className="text-sm text-gray-500">Tous les produits sont en vente.</p>
+        ) : (
+          <>
+            <p className="text-sm text-gray-500 mb-3">
+              {ruptures.size} produit{ruptures.size > 1 ? 's' : ''} en rupture de stock.
+              Les produits vendus à l’unité passent en rupture d’eux-mêmes dès qu’une commande payée les contient.
+            </p>
+            <ul className="divide-y divide-gray-100">
+              {stockSurveille.map((p) => {
+                const epuise = ruptures.has(p.slug)
+                return (
+                  <li key={p.slug} className="flex items-center justify-between gap-4 py-2.5">
+                    <p className="text-sm text-ink truncate min-w-0">{p.name}</p>
+                    <span className={`text-xs whitespace-nowrap ${epuise ? 'text-gray-500' : 'text-amber-700 font-medium'}`}>
                       {epuise
-                        ? `Rupture de stock${ruptures.get(p.slug) === 'shopify' ? ' — vendu (commande Shopify)' : ' — marqué à la main'}`
-                        : estDernierExemplaire(p) ? 'Dernier exemplaire en stock, 1 max par commande' : 'En vente'}
-                    </p>
-                  </div>
-                  <StockToggle slug={p.slug} epuise={epuise} />
-                </li>
-              )
-            })}
-          </ul>
+                        ? ruptures.get(p.slug) === 'shopify' ? 'Vendu — rupture' : 'Rupture de stock'
+                        : 'Dernier exemplaire'}
+                    </span>
+                  </li>
+                )
+              })}
+            </ul>
+          </>
         )}
-
-        <details className="group">
-          <summary className="cursor-pointer text-sm font-medium text-brand-700 hover:text-brand-800 select-none">
-            Tous les autres produits ({stockAutres.length})
-          </summary>
-          <ul className="divide-y divide-gray-100 mt-2">
-            {stockAutres.map((p) => (
-              <li key={p.slug} className="flex items-center justify-between gap-4 py-2.5">
-                <p className="text-sm text-gray-700 truncate min-w-0">{p.name}</p>
-                <StockToggle slug={p.slug} epuise={false} />
-              </li>
-            ))}
-          </ul>
-        </details>
       </section>
 
       {/* ── Vue d'ensemble ── */}
