@@ -325,7 +325,71 @@ const GRANULES: Product[] = ([
   { name: 'Pellets de bois helios – palette de 65 sacs de 15 kg',                          slug: 'pellets-de-bois-helios-palette-de-65-sacs-de-15-kg',                        price: 224.95, image: '/products/helios-65.webp',         bags: 65, variantId: '58436087611736', checkoutMultiplier: 5 },
 ] as GranuleInput[]).map(buildGranule)
 
-export const PRODUCTS: Product[] = [...MELANGES, ...HETRES, ...DENSIFIES, ...GRANULES]
+/* ─────────────────────────────────────────────
+   DÉSTOCKAGE — Granulés Limouzi, palette de 134 sacs
+   Fiche reprise de depot-avenues.pro à la demande du client, qui veut
+   écouler ce stock vite. Prix, prix barré et identifiant de checkout
+   restent à confirmer par lui : `variantId` est null tant qu'il ne l'a pas
+   fourni, la fiche renvoie donc vers le contact.
+   ───────────────────────────────────────────── */
+const LIMOUZI_BASE = buildGranule({
+  name: 'Granulés de bois Limouzi – Palette de 134 sacs de 15 kg',
+  slug: 'granules-de-bois-limouzi-palette-de-134-sacs-de-15-kg',
+  /* 159,90 € sur le site d'origine : hors grille. 19,99 × 8 = 159,92 est
+     le prix le plus proche que le checkout sait facturer. */
+  price: 159.92,
+  image: '/products/limouzi-134.jpg',
+  bags: 134,
+  cert: 'ENplus A1',
+  comp: 'Bois local et naturel',
+  variantId: '',
+  checkoutMultiplier: 8,
+})
+
+const LIMOUZI: Product = {
+  ...LIMOUZI_BASE,
+  variantId: null,
+  original_price: 879,
+  badge: 'destockage',
+  tagline: 'Déstockage — ENplus A1, 2 010 kg',
+  keyPoints: [
+    'Offre de déstockage, dans la limite des stocks disponibles.',
+    'Certification ENplus A1 : combustion propre, peu de résidus.',
+    'Pouvoir calorifique supérieur à 4,6 kWh/kg, humidité inférieure à 8 %.',
+    '134 sacs de 15 kg, soit 2 010 kg : de quoi tenir toute la saison de chauffe.',
+    'Livraison offerte dès 89 € d’achat, en France métropolitaine, en Belgique et en Suisse.',
+    'Paiement sécurisé en ligne. E-mail de confirmation avec votre numéro de commande.',
+  ],
+  description: `<p>Les granulés de bois Limouzi vous offrent une solution de chauffage performante et respectueuse de l’environnement, conçue pour apporter une chaleur durable et homogène. Produits localement avec des bois de qualité, ces granulés assurent une combustion propre et peu de résidus, tout en garantissant une performance thermique optimale.</p>
+<h3>Avantages des granulés de bois Limouzi</h3>
+<ul>
+<li><strong>Haute efficacité thermique :</strong> une chaleur constante pour des journées d’hiver plus confortables.</li>
+<li><strong>Certification ENplus A1 :</strong> gage de qualité et de fiabilité pour une combustion propre et écologique.</li>
+<li><strong>Taux de cendres réduit :</strong> moins de résidus pour un entretien simplifié de votre appareil de chauffage.</li>
+<li><strong>Grande capacité :</strong> palette de 134 sacs pour une autonomie prolongée durant toute la saison de chauffage.</li>
+</ul>
+<h3>Qualité et respect de l’environnement</h3>
+<p>Ces granulés Limouzi sont fabriqués à partir de bois de forêts locales, garantissant ainsi un impact environnemental réduit. Avec un faible taux d’humidité et un pouvoir calorifique élevé, ils assurent une excellente performance énergétique pour une chaleur douce et continue.</p>
+<h3>Pourquoi choisir Limouzi ?</h3>
+<p>Les granulés Limouzi sont parfaits pour les poêles et chaudières à granulés et conviennent à ceux qui souhaitent combiner économie et écoresponsabilité. Optez pour un chauffage de qualité, durable et respectueux de la nature.</p>
+<h3>Stockage</h3>
+<p>Stockez votre palette de granulés dans un espace sec et bien ventilé pour préserver leur qualité et garantir une combustion optimale.</p>`,
+  specs: [
+    { label: 'Type de bois',        value: 'Bois local et naturel' },
+    { label: 'Nombre de sacs',      value: '134 sacs' },
+    { label: 'Poids par sac',       value: '15 kg' },
+    { label: 'Poids total',         value: '2 010 kg' },
+    { label: 'Pouvoir calorifique', value: 'Supérieur à 4,6 kWh/kg' },
+    { label: 'Taux d’humidité',     value: 'Inférieur à 8 %' },
+    { label: 'Taux de cendre',      value: 'Inférieur à 0,7 %' },
+    { label: 'Certification',       value: 'ENplus A1' },
+    { label: 'Conditionnement',     value: 'Palette de 134 sacs' },
+  ],
+}
+
+/* Le déstockage passe en tête des granulés : il apparaît ainsi parmi les
+   quatre mis en avant sur la page d'accueil. */
+export const PRODUCTS: Product[] = [...MELANGES, ...HETRES, ...DENSIFIES, LIMOUZI, ...GRANULES]
 
 export const BOIS_CHAUFFAGE_PRODUCTS = PRODUCTS.filter(p => p.family === 'bois-de-chauffage')
 export const DENSIFIE_PRODUCTS        = PRODUCTS.filter(p => p.family === 'bois-densifie')

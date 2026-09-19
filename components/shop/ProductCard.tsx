@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { Truck, Flame, ArrowRight, Award } from 'lucide-react'
+import { Truck, Flame, ArrowRight, Award, Tag } from 'lucide-react'
 import type { Product } from '@/types/database'
 import { formatPrice } from '@/lib/utils'
 import ProductVisual from '@/components/shop/ProductVisual'
@@ -27,6 +27,8 @@ export default function ProductCard({ product }: ProductCardProps) {
   const isOutOfStock = stock === 0
   const hasPromo = original_price !== null && original_price > price
   const isBestSeller = badge === 'bestseller'
+  const isDestockage = badge === 'destockage' && hasPromo
+  const remise = hasPromo ? Math.round((1 - price / original_price!) * 100) : 0
 
   return (
     <Link
@@ -44,6 +46,16 @@ export default function ProductCard({ product }: ProductCardProps) {
             <Award size={13} className="sm:hidden" />
             <Award size={15} className="hidden sm:block" />
             Le plus vendu
+          </span>
+        )}
+
+        {/* Déstockage : la remise est calculée depuis le prix barré, jamais
+            saisie à la main, pour que les deux chiffres restent cohérents. */}
+        {isDestockage && !isOutOfStock && (
+          <span className="absolute top-2 left-2 sm:top-3 sm:left-3 inline-flex items-center gap-1 sm:gap-1.5 rounded-md bg-red-700 text-white text-[11px] sm:text-[13px] font-semibold px-2 py-1 sm:px-2.5 sm:py-1.5 shadow-sm">
+            <Tag size={13} className="sm:hidden" />
+            <Tag size={15} className="hidden sm:block" />
+            Déstockage −{remise} %
           </span>
         )}
 

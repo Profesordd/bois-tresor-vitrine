@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
-import { ChevronRight, Check, Truck, Lock, Award } from 'lucide-react'
+import { ChevronRight, Check, Truck, Lock, Award, Tag } from 'lucide-react'
 import { getProductBySlug, getRelatedProducts, PRODUCTS } from '@/lib/products'
 import { formatPrice } from '@/lib/utils'
 import ProductGallery from '@/components/shop/ProductGallery'
@@ -40,6 +40,9 @@ export default async function ProductPage({ params }: Props) {
   if (!product) notFound()
 
   const related = getRelatedProducts(product)
+  const hasPromo = product.original_price !== null && product.original_price > product.price
+  const isDestockage = product.badge === 'destockage' && hasPromo
+  const remise = hasPromo ? Math.round((1 - product.price / product.original_price!) * 100) : 0
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -78,6 +81,12 @@ export default async function ProductPage({ params }: Props) {
                 Le plus vendu
               </span>
             )}
+            {isDestockage && (
+              <span className="inline-flex items-center gap-1.5 rounded-md bg-red-700 text-white text-[13px] font-semibold px-2.5 py-1">
+                <Tag size={15} />
+                Déstockage −{remise} %
+              </span>
+            )}
           </div>
           <h1 className="font-serif text-3xl sm:text-4xl font-bold text-ink mb-3 leading-tight">
             {product.name}
@@ -87,12 +96,22 @@ export default async function ProductPage({ params }: Props) {
 
           <div className="flex items-baseline gap-3 flex-wrap">
             <span className="text-4xl font-bold text-ink">{formatPrice(product.price)}</span>
-            {product.original_price !== null && product.original_price > product.price && (
+            {hasPromo && (
               <span className="text-2xl text-gray-400 line-through">
-                {formatPrice(product.original_price)}
+                {formatPrice(product.original_price!)}
               </span>
             )}
           </div>
+          {/* Pas de compte à rebours : une urgence fabriquée est exactement
+              ce qui fait fuir un acheteur méfiant, et c'est interdit. On dit
+              ce qui est vrai : le stock est limité, le prix tient tant qu'il
+              en reste. */}
+          {isDestockage && (
+            <p className="mt-2 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-[15px] text-red-900 leading-snug">
+              <span className="font-semibold">Offre de déstockage</span> — dans la limite des
+              stocks disponibles. Prix habituel {formatPrice(product.original_price!)}.
+            </p>
+          )}
           {/* Le prix au stère est l'unité que connaît le client : il rend la
               palette comparable à ce qu'il a toujours payé. */}
           {product.pricePerStere !== null && (

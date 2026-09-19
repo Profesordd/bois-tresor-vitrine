@@ -34,7 +34,7 @@ URL envoyée : ?products=58459585479000:9   ← 9, pas 1
 `lib/checkout.ts` applique `quantité choisie × product.checkoutMultiplier`.
 **Envoyer la quantité brute facturerait le client au mauvais prix.**
 
-Les 33 produits tombent exactement sur la grille — vérifie-le après tout
+Les 34 produits tombent exactement sur la grille — vérifie-le après tout
 ajout ou changement de prix :
 
 ```bash
@@ -83,6 +83,16 @@ en connaissance de cause.
 
 **Un seul repère « Le plus vendu »**, sur le 45cm (`badge: 'bestseller'`).
 Ne pas en ajouter d'autres : le repère n'a de sens que s'il est unique.
+
+**Déstockage** (`badge: 'destockage'` + `original_price`) : pastille rouge
+« Déstockage −N % » sur la carte et la fiche, encadré « dans la limite des
+stocks disponibles ». La remise est toujours calculée depuis le prix barré.
+**Jamais de compte à rebours** : l'urgence fabriquée est une pratique
+commerciale trompeuse et c'est précisément ce qui fait fuir le persona.
+Premier cas : granulés Limouzi 134 sacs, repris de depot-avenues.pro
+(19/09/2026), `variantId` null tant que le client ne l'a pas fourni. Le prix
+barré doit être le prix le plus bas pratiqué dans les 30 jours précédents
+(art. L112-1-1 Code de la consommation) — à faire confirmer par le client.
 
 ### 1.3 Aucun texte trompeur, jamais
 
@@ -144,7 +154,7 @@ du trafic vient des publicités Meta qui pointent directement dessus.
 
 Le déploiement est automatique à chaque `git push` sur `main`.
 
-**Le catalogue n'est pas en base.** Les 33 produits vivent en dur dans
+**Le catalogue n'est pas en base.** Les 34 produits vivent en dur dans
 `lib/products.ts`. Les tables `products` et `categories` de Supabase
 existent mais ne sont pas utilisées à l'exécution — elles préparent une
 bascule éventuelle.
@@ -171,7 +181,7 @@ app/
     orders/track/               suivi de commande
 
 lib/
-  products.ts     les 33 produits et 3 catégories
+  products.ts     les 34 produits et 3 catégories
   checkout.ts     construction de l'URL de paiement — voir règle 1.1
   site.ts         SIRET, seuil de livraison, contact
   reviews.ts      note, nombre d'avis, témoignages
