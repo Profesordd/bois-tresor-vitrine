@@ -81,7 +81,7 @@ aussi visibles les écarts de la grille (34,58 € le stère pour le 45cm,
 54,95 € pour le 1m, 88,15 € pour le hêtre 1,7 stère) — validé par le client
 en connaissance de cause.
 
-**Un seul repère « Notre best-seller »**, sur le 45cm (`badge: 'bestseller'`).
+**Un seul repère « Le plus vendu »**, sur le 45cm (`badge: 'bestseller'`).
 Ne pas en ajouter d'autres : le repère n'a de sens que s'il est unique.
 
 ### 1.3 Aucun texte trompeur, jamais

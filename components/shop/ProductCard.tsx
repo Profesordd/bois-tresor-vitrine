@@ -43,7 +43,7 @@ export default function ProductCard({ product }: ProductCardProps) {
           <span className="absolute top-2 left-2 sm:top-3 sm:left-3 inline-flex items-center gap-1 sm:gap-1.5 rounded-md bg-ink/90 text-white text-[11px] sm:text-[13px] font-semibold px-2 py-1 sm:px-2.5 sm:py-1.5 shadow-sm">
             <Award size={13} className="sm:hidden" />
             <Award size={15} className="hidden sm:block" />
-            Notre best-seller
+            Le plus vendu
           </span>
         )}
 

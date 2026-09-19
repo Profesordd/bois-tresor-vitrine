@@ -75,7 +75,7 @@ export default async function ProductPage({ params }: Props) {
             {product.badge === 'bestseller' && (
               <span className="inline-flex items-center gap-1.5 rounded-md bg-ink text-white text-[13px] font-semibold px-2.5 py-1">
                 <Award size={15} />
-                Notre best-seller
+                Le plus vendu
               </span>
             )}
           </div>
