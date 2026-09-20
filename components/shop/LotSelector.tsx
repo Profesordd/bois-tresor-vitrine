@@ -7,6 +7,7 @@ import type { Product, Lot } from '@/types/database'
 import { buildCheckoutUrl, messageLimite } from '@/lib/checkout'
 import { lotsDisponibles, lotParDefaut, libelleLot, produitDuLot, PRIX_MARCHE_SAC, PRIX_MARCHE_DATE } from '@/lib/lots'
 import { formatPrice } from '@/lib/utils'
+import BarreAchatMobile from '@/components/shop/BarreAchatMobile'
 import { trackAddToCartThenRedirect } from '@/lib/analytics/meta'
 
 interface Props {
@@ -61,7 +62,7 @@ export default function LotSelector({ product }: Props) {
   }, [lot])
   useEffect(() => {
     if (!barreVisible || !window.matchMedia('(max-width: 1023px)').matches) return
-    document.body.style.paddingBottom = '5.5rem'
+    document.body.style.paddingBottom = '4.5rem'
     return () => { document.body.style.paddingBottom = '' }
   }, [barreVisible])
 
@@ -193,30 +194,14 @@ export default function LotSelector({ product }: Props) {
         Vous passez directement au paiement sécurisé.
       </p>
 
-      {/* ── Barre fixe, téléphone ── */}
-      <div
-        aria-hidden={!barreVisible}
-        className={`lg:hidden fixed inset-x-0 bottom-0 z-30 bg-white border-t border-gray-200 shadow-[0_-4px_16px_rgba(0,0,0,0.08)] px-4 pt-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] transition-transform duration-200 ${
-          barreVisible ? 'translate-y-0' : 'translate-y-full pointer-events-none'
-        }`}
-      >
-        <div className="flex items-center gap-3 max-w-lg mx-auto">
-          <div className="min-w-0 flex-shrink-0">
-            <p className="text-xl font-bold text-ink leading-tight">{formatPrice(lot.price)}</p>
-            <p className="text-[12px] text-gray-500 leading-tight">{libelleLot(lot)} · livraison offerte</p>
-          </div>
-          <button
-            onClick={handleBuy}
-            disabled={redirecting}
-            tabIndex={barreVisible ? 0 : -1}
-            data-track="Commander (barre mobile)"
-            {...attributs}
-            className="flex-1 min-w-0 py-3.5 rounded-lg font-bold text-[17px] flex items-center justify-center gap-2 shadow-md bg-brand-600 hover:bg-brand-700 disabled:opacity-70 text-white transition-colors"
-          >
-            {redirecting ? 'Redirection…' : <><ShoppingCart size={22} className="flex-shrink-0" />Commander maintenant</>}
-          </button>
-        </div>
-      </div>
+      <BarreAchatMobile
+        visible={barreVisible}
+        prix={lot.price}
+        sousTitre={libelleLot(lot)}
+        redirecting={redirecting}
+        onClick={handleBuy}
+        attributs={{ 'data-track': 'Commander (barre mobile)', ...attributs }}
+      />
     </div>
   )
 }
