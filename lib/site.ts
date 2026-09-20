@@ -3,11 +3,14 @@
  * livraison et le contact, afin que le message ne diverge pas d'une page à l'autre.
  */
 
-/** Seuil de livraison offerte, en euros. */
-export const FREE_SHIPPING_THRESHOLD = 89
-
-export const SHIPPING_LABEL = 'Livraison offerte dès 89 € d’achat'
-export const SHIPPING_SHORT = 'Livraison offerte dès 89 €'
+/**
+ * Livraison offerte sur tout, sans seuil, en France métropolitaine, en
+ * Belgique et en Suisse (décision du 20/09/2026, avec l'arrivée des lots
+ * de granulés à moins de 89 €). Il n'existe plus de montant minimum : ne
+ * pas en réintroduire un dans un texte sans le remettre ici.
+ */
+export const SHIPPING_LABEL = 'Livraison offerte'
+export const SHIPPING_ZONE  = 'en France métropolitaine, en Belgique et en Suisse'
 
 export const CONTACT_EMAIL = 'contact@bois-tresor.com'
 export const CONTACT_HOURS = 'Lun – Ven · 9h – 18h'

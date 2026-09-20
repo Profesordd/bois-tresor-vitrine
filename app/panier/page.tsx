@@ -5,7 +5,6 @@ import { useEffect, useState } from 'react'
 import { Trash2, ShoppingBag, Truck, ArrowRight, Lock, AlertTriangle } from 'lucide-react'
 import { useCartStore } from '@/stores/cart'
 import { formatPrice } from '@/lib/utils'
-import { FREE_SHIPPING_THRESHOLD } from '@/lib/site'
 import { buildCheckoutUrl, getUnavailableItems, maxParCommande, messageLimite } from '@/lib/checkout'
 import ProductVisual from '@/components/shop/ProductVisual'
 
@@ -59,9 +58,7 @@ export default function PanierPage() {
 
       <div className="bg-brand-50 border border-brand-100 rounded-lg p-3 mb-6 flex items-center gap-2 text-brand-700 text-sm font-semibold">
         <Truck size={16} />
-        {total >= FREE_SHIPPING_THRESHOLD
-          ? 'Livraison offerte — votre commande dépasse 89 €'
-          : `Plus que ${formatPrice(FREE_SHIPPING_THRESHOLD - total)} pour la livraison offerte`}
+        Livraison offerte — sans montant minimum
       </div>
 
       <div className="grid lg:grid-cols-3 gap-8">
@@ -133,14 +130,7 @@ export default function PanierPage() {
               </div>
               <div className="flex justify-between text-gray-600">
                 <span>Livraison</span>
-                {total >= FREE_SHIPPING_THRESHOLD ? (
-                  <span className="text-brand-700 font-semibold">Offerte</span>
-                ) : (
-                  /* Aucun produit n'est en dessous du seuil aujourd'hui : cette
-                     branche ne s'affiche pas. On y rappelle la règle plutôt que
-                     d'annoncer un tarif que nous ne connaissons pas. */
-                  <span className="text-gray-600">Offerte dès {FREE_SHIPPING_THRESHOLD} €</span>
-                )}
+                <span className="text-brand-700 font-semibold">Offerte</span>
               </div>
             </div>
             <div className="border-t border-gray-100 pt-4 mb-5">
@@ -149,7 +139,7 @@ export default function PanierPage() {
                 <span>{formatPrice(total)}</span>
               </div>
               <p className="text-xs text-gray-400 mt-1">
-                {total >= FREE_SHIPPING_THRESHOLD ? 'TTC, livraison incluse' : 'TTC, hors frais de livraison'}
+                TTC, livraison incluse
               </p>
             </div>
             {unavailable.length > 0 && (

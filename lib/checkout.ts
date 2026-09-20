@@ -6,14 +6,17 @@ import type { CartItem, Product } from '@/types/database'
  * limité ; la règle vit ici, et partout où l'on touche à la quantité
  * (fiche, tiroir, page commande, magasin) on passe par elle.
  */
-export function maxParCommande(product: Pick<Product, 'price' | 'stock'>): number {
+export function maxParCommande(product: Pick<Product, 'price' | 'stock' | 'lot'>): number {
+  /* Un lot est une quantité en soi : pour plus, on prend le lot supérieur. */
+  if (product.lot) return 1
   const selonPrix = product.price >= 100 ? 1 : 2
   /* Un produit vendu à l'unité (stock catalogue 1) ne peut pas dépasser 1. */
   return product.stock === 1 ? 1 : selonPrix
 }
 
 /** Le même message partout : le client doit reconnaître la limite d'un écran à l'autre. */
-export function messageLimite(product: Pick<Product, 'price' | 'stock'>): string {
+export function messageLimite(product: Pick<Product, 'price' | 'stock' | 'lot'>): string {
+  if (product.lot) return '1 lot par commande — pour plus de sacs, choisissez le lot supérieur'
   const max = maxParCommande(product)
   return product.stock === 1
     ? 'Dernier exemplaire en stock — 1 max par commande'

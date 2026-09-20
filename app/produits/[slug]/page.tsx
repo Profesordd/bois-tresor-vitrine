@@ -8,6 +8,8 @@ import ProductGallery from '@/components/shop/ProductGallery'
 import ProductDetails from '@/components/shop/ProductDetails'
 import ProductDescription from '@/components/shop/ProductDescription'
 import QuantitySelector from '@/components/shop/QuantitySelector'
+import LotSelector from '@/components/shop/LotSelector'
+import { lotsDisponibles } from '@/lib/lots'
 import ProductGrid from '@/components/shop/ProductGrid'
 import ViewContentTracker from '@/components/analytics/ViewContentTracker'
 import LivraisonPays from '@/components/ui/LivraisonPays'
@@ -46,8 +48,11 @@ export default async function ProductPage({ params }: Props) {
     ruptures.has(p.slug) ? { ...p, stock: 0 } : p
   )
   const hasPromo = product.original_price !== null && product.original_price > product.price
-  const isDestockage = product.badge === 'destockage' && hasPromo
+  const isDestockage = product.badge === 'destockage'
   const remise = hasPromo ? Math.round((1 - product.price / product.original_price!) * 100) : 0
+  /* Vendu par lot : le choix, le prix et le bouton vivent dans LotSelector,
+     placé juste sous le titre — le prix est l'argument de ce produit. */
+  const parLot = lotsDisponibles(product).length > 0 && product.stock > 0
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -89,7 +94,7 @@ export default async function ProductPage({ params }: Props) {
             {isDestockage && (
               <span className="inline-flex items-center gap-1.5 rounded-md bg-red-700 text-white text-[13px] font-semibold px-2.5 py-1">
                 <Tag size={15} />
-                Déstockage −{remise} %
+                {hasPromo ? `Déstockage −${remise} %` : 'Prix déstockage'}
               </span>
             )}
             {product.stock === 1 && (
@@ -110,6 +115,13 @@ export default async function ProductPage({ params }: Props) {
 
           <StarRating className="mb-5" size={17} />
 
+          {parLot && (
+            <div className="mb-8">
+              <LotSelector product={product} />
+            </div>
+          )}
+
+          {!parLot && (<>
           <div className="flex items-baseline gap-3 flex-wrap">
             <span className="text-4xl font-bold text-ink">{formatPrice(product.price)}</span>
             {hasPromo && (
@@ -137,8 +149,9 @@ export default async function ProductPage({ params }: Props) {
           )}
           <p className="flex items-center gap-2 text-lg font-semibold text-brand-700 mt-2 mb-3">
             <Truck size={20} />
-            Livraison offerte dès 89 € d’achat
+            Livraison offerte
           </p>
+          </>)}
 
           {/* Visible depuis la Belgique ou la Suisse, juste sous le prix :
               c'est là que le doute « suis-je concerné ? » se pose. */}
@@ -160,7 +173,7 @@ export default async function ProductPage({ params }: Props) {
             <SocialProof variant="inline" />
           </div>
 
-          <QuantitySelector product={product} />
+          {!parLot && <QuantitySelector product={product} />}
 
           <div className="mt-6">
             <BuyReassurance />

@@ -41,7 +41,7 @@ export default function LivraisonPays({
     return (
       <p className="flex items-center gap-2 text-[15px] font-semibold text-brand-700">
         <Truck size={18} className="flex-shrink-0" />
-        Oui, nous livrons en {nom} — livraison offerte dès 89 € d’achat.
+        Oui, nous livrons en {nom} — livraison offerte.
       </p>
     )
   }
@@ -51,8 +51,8 @@ export default function LivraisonPays({
       <Truck size={20} className="text-brand-600 flex-shrink-0 mt-0.5" />
       <p className="text-[15px] text-gray-800 leading-snug">
         <strong className="text-ink">{enTete} Nous livrons chez vous.</strong>{' '}
-        Mêmes conditions qu’en France : livraison offerte dès 89&nbsp;€ d’achat, palette déposée au
-        plus près de votre lieu de stockage.
+        Mêmes conditions qu’en France : livraison offerte, palette déposée au plus près de votre
+        lieu de stockage.
       </p>
     </div>
   )

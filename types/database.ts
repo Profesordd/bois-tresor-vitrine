@@ -18,6 +18,24 @@ export interface Category {
   created_at: string
 }
 
+/**
+ * Format de vente d'un produit vendu par lot : un lot = un identifiant de
+ * checkout, un multiplicateur et un prix, comme un produit à part entière.
+ */
+export interface Lot {
+  /** Identifiant court, utilisé dans l'URL (`?lot=20`) et le panier. */
+  id: string
+  sacs: number
+  /** Poids total, tel qu'affiché : « 300 kg ». */
+  poids: string
+  /** Libellé si « N sacs » ne suffit pas : « Palette complète · 134 sacs ». */
+  label?: string
+  price: number
+  /** null tant que le produit Shopify n'existe pas : le lot est alors masqué. */
+  variantId: string | null
+  checkoutMultiplier: number
+}
+
 export interface Product {
   id: string
   slug: string
@@ -44,6 +62,12 @@ export interface Product {
    * descriptions du catalogue d'origine ne font que les répéter.
    */
   richDescription?: boolean
+  /** Formats de vente. Présent = fiche à choix de lot, sans quantité libre. */
+  lots?: Lot[]
+  /** Lot présélectionné sur la fiche. */
+  defaultLotId?: string
+  /** Sur un produit dérivé d'un lot (panier, checkout) : le lot choisi. */
+  lot?: Lot
   /**
    * Identifiant de variante du checkout. `null` = produit pas encore
    * commandable en ligne (identifiant non fourni).

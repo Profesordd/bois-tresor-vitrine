@@ -34,7 +34,7 @@ const STRENGTHS = [
   {
     icon: Truck,
     title: 'Comment il arrive chez vous',
-    desc: 'Palettisé, filmé et déposé au plus près de votre stockage. Livraison offerte dès 89 € d’achat.',
+    desc: 'Palettisé, filmé et déposé au plus près de votre stockage. Livraison offerte.',
   },
 ]
 
@@ -42,8 +42,13 @@ export default async function HomePage() {
   const catalogue = await chargerProduits()
   /* 4 produits par famille : la page d'accueil donne un aperçu, le choix
      complet se fait sur la page de collection. */
-  const boisChauffageHighlights = catalogue.filter((p) => p.family === 'bois-de-chauffage').slice(0, 4)
-  const granulesHighlights      = catalogue.filter((p) => p.family === 'granules').slice(0, 4)
+  /* Seuls les produits en vente sont mis en avant : une rupture sur la
+     page d'accueil est une porte fermée, pas une vitrine. S'il en reste
+     moins de quatre, la grille se resserre plutôt que de laisser des trous. */
+  const enVente = (f: string) => catalogue.filter((p) => p.family === f && p.stock > 0).slice(0, 4)
+  const boisChauffageHighlights = enVente('bois-de-chauffage')
+  const granulesHighlights      = enVente('granules')
+  const colonnes = (n: number) => Math.max(1, Math.min(4, n)) as 1 | 2 | 3 | 4
 
   return (
     <>
@@ -67,7 +72,7 @@ export default async function HomePage() {
           </h1>
           <p className="text-lg sm:text-xl mb-10 text-gray-200 max-w-2xl mx-auto">
             Moins de 20 % d’humidité : notre bois chauffe vraiment et ne fume pas.
-            Livraison offerte dès 89 € d’achat, paiement sécurisé.
+            Livraison offerte, paiement sécurisé.
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center mb-10">
@@ -124,7 +129,7 @@ export default async function HomePage() {
             Voir tout →
           </Link>
         </div>
-        <ProductGrid products={boisChauffageHighlights} columns={4} />
+        <ProductGrid products={boisChauffageHighlights} columns={colonnes(boisChauffageHighlights.length)} />
       </section>
 
       {/* ── 3 POINTS FORTS ── */}
@@ -157,7 +162,7 @@ export default async function HomePage() {
             Voir tout →
           </Link>
         </div>
-        <ProductGrid products={granulesHighlights} columns={4} />
+        <ProductGrid products={granulesHighlights} columns={colonnes(granulesHighlights.length)} />
       </section>
 
       {/* ── URGENCE CRÉDIBLE ── */}
@@ -171,7 +176,7 @@ export default async function HomePage() {
           <h2 className="font-serif text-3xl sm:text-4xl font-bold text-white mb-3">Prêt pour l’hiver</h2>
           <p className="text-brand-300 text-lg mb-6">Un feu d’exception commence par un bois d’exception.</p>
           <p className="text-gray-300 mb-10">
-            Palettes à partir de 89,00 € — livraison offerte dès 89 € d’achat, paiement 100 % sécurisé, expédition sous 48 h.
+            Livraison offerte, paiement 100 % sécurisé, expédition sous 48 h.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link href="/product-category/bois-de-chauffage/" className="inline-block bg-brand-500 hover:bg-brand-400 text-white px-7 py-3 rounded-lg font-semibold transition-colors">

@@ -3,6 +3,7 @@ import { Truck, Flame, ArrowRight, Award, Tag, PackageCheck } from 'lucide-react
 import type { Product } from '@/types/database'
 import { formatPrice } from '@/lib/utils'
 import ProductVisual from '@/components/shop/ProductVisual'
+import { lotsDisponibles, prixMinimum, prixAuSacMinimum } from '@/lib/lots'
 
 interface ProductCardProps {
   product: Product
@@ -28,8 +29,11 @@ export default function ProductCard({ product }: ProductCardProps) {
   const hasPromo = original_price !== null && original_price > price
   const isBestSeller = badge === 'bestseller'
   const dernierExemplaire = stock === 1
-  const isDestockage = badge === 'destockage' && hasPromo
+  const isDestockage = badge === 'destockage'
   const remise = hasPromo ? Math.round((1 - price / original_price!) * 100) : 0
+  const parLot = lotsDisponibles(product).length > 0
+  const prixAffiche = parLot ? prixMinimum(product) : price
+  const auSac = parLot ? prixAuSacMinimum(product) : null
 
   return (
     <Link
@@ -56,7 +60,7 @@ export default function ProductCard({ product }: ProductCardProps) {
           <span className="absolute top-2 left-2 sm:top-3 sm:left-3 inline-flex items-center gap-1 sm:gap-1.5 rounded-md bg-red-700 text-white text-[11px] sm:text-[13px] font-semibold px-2 py-1 sm:px-2.5 sm:py-1.5 shadow-sm">
             <Tag size={13} className="sm:hidden" />
             <Tag size={15} className="hidden sm:block" />
-            Déstockage −{remise} %
+            {hasPromo ? `Déstockage −${remise} %` : 'Déstockage'}
           </span>
         )}
 
@@ -90,7 +94,8 @@ export default function ProductCard({ product }: ProductCardProps) {
 
         <div className="mt-auto pt-1">
           <div className="flex items-baseline gap-2 flex-wrap">
-            <span className="text-2xl sm:text-3xl font-bold text-ink">{formatPrice(price)}</span>
+            {parLot && <span className="text-[13px] sm:text-[15px] text-gray-600">à partir de</span>}
+            <span className="text-2xl sm:text-3xl font-bold text-ink">{formatPrice(prixAffiche)}</span>
             {hasPromo && (
               <span className="text-base sm:text-lg text-gray-400 line-through">
                 {formatPrice(original_price!)}
@@ -102,12 +107,17 @@ export default function ProductCard({ product }: ProductCardProps) {
               soit {formatPrice(pricePerStere)} le stère
             </p>
           )}
+          {auSac !== null && (
+            <p className="text-[13px] sm:text-[15px] text-gray-600 mt-0.5">
+              jusqu’à {formatPrice(auSac)} le sac
+            </p>
+          )}
         </div>
 
         <p className="flex items-center gap-1.5 sm:gap-2 text-[13px] sm:text-[15px] font-semibold text-brand-700">
           <Truck size={14} className="flex-shrink-0 sm:hidden" />
           <Truck size={16} className="flex-shrink-0 hidden sm:block" />
-          Livraison offerte dès 89 €
+          Livraison offerte
         </p>
 
         {isOutOfStock ? (

@@ -14,7 +14,7 @@ const FAQ: { q: string; a: string }[] = [
   },
   {
     q: 'La livraison est-elle payante ?',
-    a: 'La livraison est offerte dès 89 € d’achat. En dessous, les frais éventuels vous sont indiqués avant tout paiement : vous ne découvrez jamais de frais au dernier moment.',
+    a: 'Non : la livraison est offerte sur toutes nos commandes, sans montant minimum, en France métropolitaine, en Belgique et en Suisse. Le prix affiché est le prix payé, il ne s’ajoute rien au paiement.',
   },
   {
     q: 'Comment se passe le paiement ?',

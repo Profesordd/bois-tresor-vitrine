@@ -22,9 +22,9 @@ export default function LivraisonPage() {
         <section>
           <h2 className="text-xl font-bold text-ink">Frais de livraison</h2>
           <p>
-            La livraison est offerte dès 89 € d’achat, en France métropolitaine comme en Belgique
-            et en Suisse. En dessous de ce montant, les frais éventuels vous sont indiqués avant
-            tout paiement : vous ne découvrez jamais de frais au dernier moment.
+            La livraison est offerte sur toutes les commandes, sans montant minimum, en France
+            métropolitaine comme en Belgique et en Suisse. Le prix affiché sur le site est le prix
+            payé : rien ne s’ajoute au moment du paiement.
           </p>
         </section>
       </div>

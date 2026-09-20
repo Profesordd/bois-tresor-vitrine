@@ -1,4 +1,4 @@
-import type { Product, Category, Spec } from '@/types/database'
+import type { Product, Category, Spec, Lot } from '@/types/database'
 
 /**
  * Catalogue Bois Tresor — repris du site en production du client
@@ -71,7 +71,7 @@ function buildMelange({ length, stere, slug, price, originalPrice, variantId, ch
       '100 % feuillus durs français : chêne, charme, hêtre et frêne.',
       `Bûches de ${length}, fendues et en grande partie écorcées.`,
       `Palette de ${stere} stères, livrée filmée.`,
-      'Livraison offerte dès 89 € d’achat, en France métropolitaine, en Belgique et en Suisse.',
+      'Livraison offerte, en France métropolitaine, en Belgique et en Suisse.',
       'Paiement sécurisé en ligne. E-mail de confirmation avec votre numéro de commande.',
     ],
     description: `<p>Composé des meilleures essences de feuillus durs : chêne, charme, frêne et hêtre. Nous garantissons un rendement maximal de votre poêle à bois.</p><ul><li>Bûches fendues et en grande partie écorcées, longueur ${length} (±5 %)</li><li>100 % bois français, taux d’humidité ≤ 20 %</li><li>Palette de ${stere} stères, livraison soignée</li><li>Utilisation immédiate dès réception</li></ul>`,
@@ -143,7 +143,7 @@ function buildHetre({ stere, volumeNote, poids, slug, price, originalPrice, vari
       '100 % hêtre, issu de forêts gérées durablement.',
       'Bûches de 30 cm, séchées au four.',
       `Palette de ${volumeNote}, ${poids} environ, livrée filmée.`,
-      'Livraison offerte dès 89 € d’achat, en France métropolitaine, en Belgique et en Suisse.',
+      'Livraison offerte, en France métropolitaine, en Belgique et en Suisse.',
       'Paiement sécurisé en ligne. E-mail de confirmation avec votre numéro de commande.',
     ],
     description: `<p>Bois de chauffage 100 % hêtre en bûches de 30 cm, séché au four et prêt à brûler immédiatement. Palette de ${volumeNote} livrée filmée.</p>`,
@@ -211,7 +211,7 @@ function buildDensifie(d: DensifieInput): Product {
         ? 'Compressé à haute pression, sans liant chimique : plus de chaleur et moins de cendres qu’une bûche classique.'
         : 'Combustion longue durée, idéale pour tenir la nuit.',
       `${d.poids}, livré sur palette filmée.`,
-      'Livraison offerte dès 89 € d’achat, en France métropolitaine, en Belgique et en Suisse.',
+      'Livraison offerte, en France métropolitaine, en Belgique et en Suisse.',
       'Paiement sécurisé en ligne. E-mail de confirmation avec votre numéro de commande.',
     ],
     description: `<p>${d.name}. ${d.composition}, ${d.poids}, livré sur palette filmée et prêt à brûler.</p>`,
@@ -273,7 +273,7 @@ function buildGranule(g: GranuleInput): Product {
     g.comp ? `Composition : ${g.comp}.` : null,
     g.cert ? `Certification ${g.cert}.` : null,
     `${g.bags} sacs de ${bagKg} kg, soit ${totalWeight} kg. Palette filmée.`,
-    'Livraison offerte dès 89 € d’achat, en France métropolitaine, en Belgique et en Suisse.',
+    'Livraison offerte, en France métropolitaine, en Belgique et en Suisse.',
     'Paiement sécurisé en ligne. E-mail de confirmation avec votre numéro de commande.',
   ].filter((p): p is string => p !== null)
 
@@ -326,16 +326,16 @@ const GRANULES: Product[] = ([
 ] as GranuleInput[]).map(buildGranule)
 
 /* ─────────────────────────────────────────────
-   DÉSTOCKAGE — Granulés Limouzi, palette de 134 sacs
-   Fiche reprise de depot-avenues.pro à la demande du client, qui veut
-   écouler ce stock vite. Variante Shopify 58513507058008, palier 19,99 €
-   × 8. Le prix barré reste à confirmer par le client.
+   DÉSTOCKAGE — Granulés Limouzi, vendus par lot
+   Une seule fiche, quatre formats : chaque lot a son propre produit
+   Shopify (identifiant + multiplicateur), le site construit le lien de
+   paiement du lot choisi. Un lot sans identifiant est masqué jusqu'à ce
+   que le client le fournisse. Le slug historique est conservé : la fiche
+   est déjà en ligne et référencée.
    ───────────────────────────────────────────── */
 const LIMOUZI_BASE = buildGranule({
-  name: 'Granulés de bois Limouzi – Palette de 134 sacs de 15 kg',
+  name: 'Granulés de bois Limouzi – sacs de 15 kg, par lot ou par palette',
   slug: 'granules-de-bois-limouzi-palette-de-134-sacs-de-15-kg',
-  /* 159,90 € sur le site d'origine : hors grille. 19,99 × 8 = 159,92 est
-     le prix le plus proche que le checkout sait facturer. */
   price: 159.92,
   image: '/products/limouzi-134.jpg',
   bags: 134,
@@ -345,23 +345,34 @@ const LIMOUZI_BASE = buildGranule({
   checkoutMultiplier: 8,
 })
 
+/* Prix calés sur la grille du checkout, dégressifs au sac :
+   2,50 → 2,00 → 1,87 → 1,19 €. Deux petits lots ne coûtent jamais moins
+   qu'un grand, pour que la logique « plus vous prenez, moins c'est cher »
+   ne puisse pas être contournée. */
+const LIMOUZI_LOTS: Lot[] = [
+  { id: '20',      sacs: 20,  poids: '300 kg',   price: 49.98,  variantId: null,             checkoutMultiplier: 2 },  // 24,99 × 2
+  { id: '30',      sacs: 30,  poids: '450 kg',   price: 59.97,  variantId: null,             checkoutMultiplier: 3 },  // 19,99 × 3
+  { id: '40',      sacs: 40,  poids: '600 kg',   price: 74.97,  variantId: null,             checkoutMultiplier: 3 },  // 24,99 × 3
+  { id: 'palette', sacs: 134, poids: '2 010 kg', price: 159.92, variantId: '58513507058008', checkoutMultiplier: 8, label: 'Palette complète · 134 sacs' },  // 19,99 × 8
+]
+
 const LIMOUZI: Product = {
   ...LIMOUZI_BASE,
   variantId: '58513507058008',
-  /* Une seule palette à vendre. Stock 1 = « dernier exemplaire » : limite
-     à 1 par commande, et le webhook Shopify le passe en rupture dès qu'une
-     commande payée le contient. */
-  stock: 1,
-  original_price: 879,
-  richDescription: true,
+  original_price: null,
   badge: 'destockage',
-  tagline: 'Déstockage — ENplus A1, 2 010 kg',
+  richDescription: true,
+  lots: LIMOUZI_LOTS,
+  defaultLotId: '30',
+  stock: 20,
+  tagline: 'Déstockage — ENplus A1, par lot de 20 sacs ou par palette',
   keyPoints: [
-    'Offre de déstockage, dans la limite des stocks disponibles.',
+    'Prix déstockage, dans la limite des stocks disponibles.',
+    'Vendu par lot de 20, 30 ou 40 sacs, ou par palette complète de 134 sacs. Plus vous prenez, moins le sac est cher.',
     'Certification ENplus A1 : combustion propre, peu de résidus.',
     'Pouvoir calorifique supérieur à 4,6 kWh/kg, humidité inférieure à 8 %.',
-    '134 sacs de 15 kg, soit 2 010 kg : de quoi tenir toute la saison de chauffe.',
-    'Livraison offerte dès 89 € d’achat, en France métropolitaine, en Belgique et en Suisse.',
+    'Sacs de 15 kg, faciles à porter et à ranger : 20 sacs tiennent sur moins d’un mètre carré.',
+    'Livraison offerte, en France métropolitaine, en Belgique et en Suisse, déposée au plus près de votre stockage.',
     'Paiement sécurisé en ligne. E-mail de confirmation avec votre numéro de commande.',
   ],
   description: `<p>Les granulés de bois Limouzi vous offrent une solution de chauffage performante et respectueuse de l’environnement, conçue pour apporter une chaleur durable et homogène. Produits localement avec des bois de qualité, ces granulés assurent une combustion propre et peu de résidus, tout en garantissant une performance thermique optimale.</p>
@@ -370,26 +381,25 @@ const LIMOUZI: Product = {
 <li><strong>Haute efficacité thermique :</strong> une chaleur constante pour des journées d’hiver plus confortables.</li>
 <li><strong>Certification ENplus A1 :</strong> gage de qualité et de fiabilité pour une combustion propre et écologique.</li>
 <li><strong>Taux de cendres réduit :</strong> moins de résidus pour un entretien simplifié de votre appareil de chauffage.</li>
-<li><strong>Grande capacité :</strong> palette de 134 sacs pour une autonomie prolongée durant toute la saison de chauffage.</li>
+<li><strong>À votre mesure :</strong> par lot de 20, 30 ou 40 sacs pour un petit poêle ou un petit espace, ou par palette complète pour toute la saison.</li>
 </ul>
 <h3>Qualité et respect de l’environnement</h3>
 <p>Ces granulés Limouzi sont fabriqués à partir de bois de forêts locales, garantissant ainsi un impact environnemental réduit. Avec un faible taux d’humidité et un pouvoir calorifique élevé, ils assurent une excellente performance énergétique pour une chaleur douce et continue.</p>
 <h3>Pourquoi choisir Limouzi ?</h3>
 <p>Les granulés Limouzi sont parfaits pour les poêles et chaudières à granulés et conviennent à ceux qui souhaitent combiner économie et écoresponsabilité. Optez pour un chauffage de qualité, durable et respectueux de la nature.</p>
 <h3>Stockage</h3>
-<p>Stockez votre palette de granulés dans un espace sec et bien ventilé pour préserver leur qualité et garantir une combustion optimale.</p>
+<p>Stockez vos sacs dans un espace sec et bien ventilé pour préserver leur qualité et garantir une combustion optimale.</p>
 <h3>En résumé</h3>
-<p>Les granulés Limouzi – palette de 134 sacs de 15 kg – sont idéaux pour un chauffage écologique et efficace, tout en offrant un rapport qualité-prix avantageux. Profitez d’une chaleur douce et respectueuse de l’environnement pour passer l’hiver sereinement.</p>`,
+<p>Les granulés Limouzi, en sacs de 15 kg, sont idéaux pour un chauffage écologique et efficace, tout en offrant un rapport qualité-prix avantageux. Profitez d’une chaleur douce et respectueuse de l’environnement pour passer l’hiver sereinement.</p>`,
   specs: [
     { label: 'Type de bois',        value: 'Bois local et naturel' },
-    { label: 'Nombre de sacs',      value: '134 sacs' },
+    { label: 'Formats',             value: '20, 30 ou 40 sacs, ou palette de 134 sacs' },
     { label: 'Poids par sac',       value: '15 kg' },
-    { label: 'Poids total',         value: '2 010 kg' },
     { label: 'Pouvoir calorifique', value: 'Supérieur à 4,6 kWh/kg' },
     { label: 'Taux d’humidité',     value: 'Inférieur à 8 %' },
     { label: 'Taux de cendre',      value: 'Inférieur à 0,7 %' },
     { label: 'Certification',       value: 'ENplus A1' },
-    { label: 'Conditionnement',     value: 'Palette de 134 sacs' },
+    { label: 'Conditionnement',     value: 'Sacs filmés sur palette' },
   ],
 }
 

@@ -5,7 +5,6 @@ import Link from 'next/link'
 import { useEffect, useState } from 'react'
 import { useCartStore } from '@/stores/cart'
 import { formatPrice } from '@/lib/utils'
-import { FREE_SHIPPING_THRESHOLD } from '@/lib/site'
 import { maxParCommande, messageLimite } from '@/lib/checkout'
 import ProductVisual from '@/components/shop/ProductVisual'
 
@@ -75,11 +74,7 @@ export default function CartDrawer() {
         {mounted && total > 0 && (
           <div className="px-4 py-2 bg-brand-50 border-b border-gray-100 flex items-center gap-2 text-xs text-brand-700">
             <Truck size={14} />
-            <span className="font-semibold">
-              {total >= FREE_SHIPPING_THRESHOLD
-                ? 'Livraison offerte'
-                : `Plus que ${formatPrice(FREE_SHIPPING_THRESHOLD - total)} pour la livraison offerte`}
-            </span>
+            <span className="font-semibold">Livraison offerte</span>
           </div>
         )}
 
@@ -152,11 +147,7 @@ export default function CartDrawer() {
             </div>
             <div className="flex justify-between text-sm text-gray-600">
               <span>Livraison</span>
-              {total >= FREE_SHIPPING_THRESHOLD ? (
-                <span className="text-brand-700 font-semibold">Offerte</span>
-              ) : (
-                <span className="text-gray-600">Offerte dès {FREE_SHIPPING_THRESHOLD} €</span>
-              )}
+              <span className="text-brand-700 font-semibold">Offerte</span>
             </div>
             <div className="flex justify-between text-base font-bold text-ink pt-1 border-t border-gray-100">
               <span>Total TTC</span>

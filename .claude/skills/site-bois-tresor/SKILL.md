@@ -101,6 +101,26 @@ message « Dernier exemplaire en stock — 1 max par commande », et le webhook
 le passe en rupture dès qu'une commande payée le contient. Les autres
 produits ne sont pas suivis par le webhook. Premier cas : Limouzi.
 
+**Produits vendus par lot** (`Product.lots`, `lib/lots.ts`, `LotSelector`) :
+une seule fiche, plusieurs formats, chaque lot avec son propre `variantId`
+Shopify et son multiplicateur. Au choix, `produitDuLot()` fabrique un
+produit dérivé (id `produit:lot`, prix et identifiant du lot, champ `lot`)
+qui traverse panier, checkout, mesure et Meta sans que ces couches
+connaissent les lots. Règles : un lot est toujours sélectionné (jamais
+d'état vide), présélection par `?lot=<id>` pour les publicités, prix
+affiché = prix du lot choisi, 1 lot par commande (`maxParCommande`), pas de
+sélecteur de quantité. Un lot dont `variantId` est null est masqué ; s'il
+n'en reste qu'un, la liste de choix disparaît. Premier cas : Limouzi, lots
+20 / 30 / 40 sacs et palette 134, prix 49,98 / 59,97 / 74,97 / 159,92 €
+(tous sur la grille). Les cartes affichent « à partir de » + « jusqu'à X € le
+sac ».
+
+**Livraison offerte partout, sans seuil** (décision du 20/09/2026) : plus
+aucun montant minimum nulle part — `lib/site.ts` n'a plus de
+`FREE_SHIPPING_THRESHOLD`, tiroir et page commande n'ont plus de logique
+de seuil, CGV article 5 et FAQ réécrites. Shopify doit facturer 0 € de
+port sur tout.
+
 **Prix au stère** : `Product.pricePerStere` (calculé dans `lib/products.ts`,
 `null` hors bûches) s'affiche sous le prix, sur les cartes et la fiche. C'est
 l'unité que connaît le client ; il rend les palettes comparables. Il rend
@@ -160,7 +180,7 @@ Ordre des messages, imposé par ce profil :
 1. **Confiance** — entreprise familiale française, vraies personnes, SIRET
 2. **Bois sec** — moins de 20 % d'humidité, il chauffe vraiment
 3. **Qualité** — essences, séchage, calibrage
-4. **Livraison** — offerte dès 89 €, déposée au plus près
+4. **Livraison** — offerte sur tout, sans seuil, déposée au plus près
 5. **Urgence crédible** — la saison, jamais un faux compteur
 
 La page collection est le vrai point d'entrée, pas l'accueil : la majorité
@@ -210,7 +230,7 @@ app/
 lib/
   products.ts     les 34 produits et 3 catégories
   checkout.ts     construction de l'URL de paiement — voir règle 1.1
-  site.ts         SIRET, seuil de livraison, contact
+  site.ts         SIRET, libellé livraison, contact
   reviews.ts      note, nombre d'avis, témoignages
   analytics/      meta.ts capi.ts track.ts geo.ts queries.ts rapport.ts
   admin/session.ts  jeton signé HMAC
