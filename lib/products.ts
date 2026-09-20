@@ -71,7 +71,7 @@ function buildMelange({ length, stere, slug, price, originalPrice, variantId, ch
       '100 % feuillus durs français : chêne, charme, hêtre et frêne.',
       `Bûches de ${length}, fendues et en grande partie écorcées.`,
       `Palette de ${stere} stères, livrée filmée.`,
-      'Livraison offerte, en France métropolitaine, en Belgique et en Suisse.',
+      'Livraison offerte, en France métropolitaine, en Belgique, en Suisse et au Luxembourg.',
       'Paiement sécurisé en ligne. E-mail de confirmation avec votre numéro de commande.',
     ],
     description: `<p>Composé des meilleures essences de feuillus durs : chêne, charme, frêne et hêtre. Nous garantissons un rendement maximal de votre poêle à bois.</p><ul><li>Bûches fendues et en grande partie écorcées, longueur ${length} (±5 %)</li><li>100 % bois français, taux d’humidité ≤ 20 %</li><li>Palette de ${stere} stères, livraison soignée</li><li>Utilisation immédiate dès réception</li></ul>`,
@@ -143,7 +143,7 @@ function buildHetre({ stere, volumeNote, poids, slug, price, originalPrice, vari
       '100 % hêtre, issu de forêts gérées durablement.',
       'Bûches de 30 cm, séchées au four.',
       `Palette de ${volumeNote}, ${poids} environ, livrée filmée.`,
-      'Livraison offerte, en France métropolitaine, en Belgique et en Suisse.',
+      'Livraison offerte, en France métropolitaine, en Belgique, en Suisse et au Luxembourg.',
       'Paiement sécurisé en ligne. E-mail de confirmation avec votre numéro de commande.',
     ],
     description: `<p>Bois de chauffage 100 % hêtre en bûches de 30 cm, séché au four et prêt à brûler immédiatement. Palette de ${volumeNote} livrée filmée.</p>`,
@@ -211,7 +211,7 @@ function buildDensifie(d: DensifieInput): Product {
         ? 'Compressé à haute pression, sans liant chimique : plus de chaleur et moins de cendres qu’une bûche classique.'
         : 'Combustion longue durée, idéale pour tenir la nuit.',
       `${d.poids}, livré sur palette filmée.`,
-      'Livraison offerte, en France métropolitaine, en Belgique et en Suisse.',
+      'Livraison offerte, en France métropolitaine, en Belgique, en Suisse et au Luxembourg.',
       'Paiement sécurisé en ligne. E-mail de confirmation avec votre numéro de commande.',
     ],
     description: `<p>${d.name}. ${d.composition}, ${d.poids}, livré sur palette filmée et prêt à brûler.</p>`,
@@ -273,7 +273,7 @@ function buildGranule(g: GranuleInput): Product {
     g.comp ? `Composition : ${g.comp}.` : null,
     g.cert ? `Certification ${g.cert}.` : null,
     `${g.bags} sacs de ${bagKg} kg, soit ${totalWeight} kg. Palette filmée.`,
-    'Livraison offerte, en France métropolitaine, en Belgique et en Suisse.',
+    'Livraison offerte, en France métropolitaine, en Belgique, en Suisse et au Luxembourg.',
     'Paiement sécurisé en ligne. E-mail de confirmation avec votre numéro de commande.',
   ].filter((p): p is string => p !== null)
 
@@ -373,7 +373,7 @@ const LIMOUZI: Product = {
     'Certification ENplus A1 : combustion propre, peu de résidus.',
     'Pouvoir calorifique supérieur à 4,6 kWh/kg, humidité inférieure à 8 %.',
     'Sacs de 15 kg, faciles à porter et à ranger : 20 sacs tiennent sur moins d’un mètre carré.',
-    'Livraison offerte, en France métropolitaine, en Belgique et en Suisse, déposée au plus près de votre stockage.',
+    'Livraison offerte, en France métropolitaine, en Belgique, en Suisse et au Luxembourg, déposée au plus près de votre stockage.',
     'Paiement sécurisé en ligne. E-mail de confirmation avec votre numéro de commande.',
   ],
   description: `<p>Les granulés de bois Limouzi vous offrent une solution de chauffage performante et respectueuse de l’environnement, conçue pour apporter une chaleur durable et homogène. Produits localement avec des bois de qualité, ces granulés assurent une combustion propre et peu de résidus, tout en garantissant une performance thermique optimale.</p>

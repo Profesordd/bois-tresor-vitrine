@@ -5,7 +5,7 @@ interface Props {
 }
 
 const DELIVERY = [
-  'Livraison offerte, en France métropolitaine, en Belgique et en Suisse — sans montant minimum.',
+  'Livraison offerte, en France métropolitaine, en Belgique, en Suisse et au Luxembourg — sans montant minimum.',
   'Préparation sous 48 h ouvrées, livraison en 3 à 7 jours ouvrés selon votre région.',
   'Transporteur spécialisé, camion équipé d’un hayon et d’un chariot élévateur adapté au bois : la palette est déposée au plus près de votre lieu de stockage, même en accès difficile.',
   'Vous recevez un e-mail dès l’expédition, avec le suivi de votre commande.',

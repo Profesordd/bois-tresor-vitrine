@@ -9,12 +9,12 @@ const FAQ: { q: string; a: string }[] = [
     a: 'Choisissez votre quantité et cliquez sur Commander maintenant : vous passez directement au paiement sécurisé. Vous recevez immédiatement un e-mail de confirmation avec votre numéro de commande.',
   },
   {
-    q: 'Livrez-vous partout en France, en Belgique et en Suisse ?',
-    a: 'Oui, partout en France métropolitaine, en Belgique et en Suisse. La palette est déposée au plus près de votre lieu de stockage par un transporteur spécialisé, dont le camion est équipé d’un hayon et d’un chariot élévateur adapté au bois.',
+    q: 'Livrez-vous partout en France, en Belgique, en Suisse et au Luxembourg ?',
+    a: 'Oui, partout en France métropolitaine, en Belgique, en Suisse et au Luxembourg. La palette est déposée au plus près de votre lieu de stockage par un transporteur spécialisé, dont le camion est équipé d’un hayon et d’un chariot élévateur adapté au bois.',
   },
   {
     q: 'La livraison est-elle payante ?',
-    a: 'Non : la livraison est offerte sur toutes nos commandes, sans montant minimum, en France métropolitaine, en Belgique et en Suisse. Le prix affiché est le prix payé, il ne s’ajoute rien au paiement.',
+    a: 'Non : la livraison est offerte sur toutes nos commandes, sans montant minimum, en France métropolitaine, en Belgique, en Suisse et au Luxembourg. Le prix affiché est le prix payé, il ne s’ajoute rien au paiement.',
   },
   {
     q: 'Comment se passe le paiement ?',

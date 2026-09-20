@@ -10,7 +10,7 @@
  * pas en réintroduire un dans un texte sans le remettre ici.
  */
 export const SHIPPING_LABEL = 'Livraison offerte'
-export const SHIPPING_ZONE  = 'en France métropolitaine, en Belgique et en Suisse'
+export const SHIPPING_ZONE  = 'en France métropolitaine, en Belgique, en Suisse et au Luxembourg'
 
 export const CONTACT_EMAIL = 'contact@bois-tresor.com'
 export const CONTACT_HOURS = 'Lun – Ven · 9h – 18h'

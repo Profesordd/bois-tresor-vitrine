@@ -60,7 +60,7 @@ export async function construireRapport(du: string, au: string): Promise<string>
   /* ── Contexte : sans lui, une IA interprète les chiffres de travers ── */
   L.push(`## Comment lire ces données`)
   L.push('')
-  L.push(`Bois Tresor vend du bois de chauffage, des granulés et du bois densifié, livrés par palette en France, Belgique et Suisse. La clientèle visée est âgée, rurale, peu à l'aise avec internet, et sa première crainte est l'arnaque — la réassurance prime sur la promotion.`)
+  L.push(`Bois Tresor vend du bois de chauffage, des granulés et du bois densifié, livrés par palette en France, Belgique, Suisse et Luxembourg. La clientèle visée est âgée, rurale, peu à l'aise avec internet, et sa première crainte est l'arnaque — la réassurance prime sur la promotion.`)
   L.push('')
   L.push(`**Le parcours d'achat est volontairement linéaire :** page collection → fiche produit → paiement. Il n'y a pas d'étape de panier. Cliquer « Commander maintenant » sur une fiche envoie directement vers un système de paiement externe, hors de portée de cette mesure. « Mise au panier » et « départ vers le paiement » désignent donc le même clic, et c'est la dernière étape observable ici : **les ventes réellement conclues ne figurent pas dans ce document.**`)
   L.push('')

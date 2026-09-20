@@ -479,5 +479,5 @@ Objectif mesuré sur la collection mobile : **le premier produit à environ
 | Envoi d'emails par le formulaire | **non**, lecture dans l'admin |
 | Achat depuis les cartes de collection | **non**, passage obligé par la fiche |
 | Bandeau de consentement | reporté par le client |
-| Luxembourg et Monaco dans la zone | conservés |
+| Luxembourg et Monaco dans la zone | conservés ; **Luxembourg desservi** depuis le 20/09/2026 (bandeau LU, livraison offerte) |
 | Bouton rupture / remise en vente dans l'admin | **non**, géré avec le développeur |

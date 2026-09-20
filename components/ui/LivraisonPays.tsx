@@ -15,8 +15,9 @@ import { Truck } from 'lucide-react'
  * une évidence qui alourdit la page pour rien.
  */
 const PAYS: Record<string, { nom: string; enTete: string }> = {
-  BE: { nom: 'Belgique', enTete: 'Vous êtes en Belgique ?' },
-  CH: { nom: 'Suisse', enTete: 'Vous êtes en Suisse ?' },
+  BE: { nom: 'en Belgique',   enTete: 'Vous êtes en Belgique ?' },
+  CH: { nom: 'en Suisse',     enTete: 'Vous êtes en Suisse ?' },
+  LU: { nom: 'au Luxembourg', enTete: 'Vous êtes au Luxembourg ?' },
 }
 
 export default function LivraisonPays({
@@ -41,7 +42,7 @@ export default function LivraisonPays({
     return (
       <p className="flex items-center gap-2 text-[15px] font-semibold text-brand-700">
         <Truck size={18} className="flex-shrink-0" />
-        Oui, nous livrons en {nom} — livraison offerte.
+        Oui, nous livrons {nom} — livraison offerte.
       </p>
     )
   }

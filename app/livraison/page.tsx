@@ -4,7 +4,7 @@ export default function LivraisonPage() {
   return (
     <div className="max-w-3xl mx-auto px-4 sm:px-6 py-16">
       <h1 className="text-3xl font-bold text-ink mb-2 font-serif">Livraison</h1>
-      <p className="text-gray-500 mb-10">Bois de chauffage et granulés livrés en France métropolitaine, en Belgique et en Suisse, directement chez vous.</p>
+      <p className="text-gray-500 mb-10">Bois de chauffage et granulés livrés en France métropolitaine, en Belgique, en Suisse et au Luxembourg, directement chez vous.</p>
 
       <div className="prose prose-gray max-w-none text-gray-700 space-y-8">
         <section>
@@ -23,7 +23,7 @@ export default function LivraisonPage() {
           <h2 className="text-xl font-bold text-ink">Frais de livraison</h2>
           <p>
             La livraison est offerte sur toutes les commandes, sans montant minimum, en France
-            métropolitaine comme en Belgique et en Suisse. Le prix affiché sur le site est le prix
+            métropolitaine comme en Belgique, en Suisse et au Luxembourg. Le prix affiché sur le site est le prix
             payé : rien ne s’ajoute au moment du paiement.
           </p>
         </section>
