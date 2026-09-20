@@ -336,24 +336,25 @@ const GRANULES: Product[] = ([
 const LIMOUZI_BASE = buildGranule({
   name: 'Granulés de bois Limouzi – sacs de 15 kg, par lot ou par palette',
   slug: 'granules-de-bois-limouzi-palette-de-134-sacs-de-15-kg',
-  price: 159.92,
+  price: 124.95,
   image: '/products/limouzi-134.jpg',
-  bags: 134,
+  bags: 65,
   cert: 'ENplus A1',
   comp: 'Bois local et naturel',
   variantId: '',
-  checkoutMultiplier: 8,
+  checkoutMultiplier: 5,
 })
 
-/* Prix calés sur la grille du checkout, dégressifs au sac :
-   2,50 → 2,00 → 1,87 → 1,19 €. Deux petits lots ne coûtent jamais moins
-   qu'un grand, pour que la logique « plus vous prenez, moins c'est cher »
-   ne puisse pas être contournée. */
+/* Prix calés sur la grille du checkout (produits Shopify créés le
+   20/09/2026). Deux petits lots ne coûtent jamais moins qu'un grand, pour
+   que « plus vous prenez, moins c'est cher » ne puisse pas être contourné.
+   Le repère « meilleur prix au sac » et la phrase de progression sont
+   calculés depuis ces prix, jamais écrits à la main. */
 const LIMOUZI_LOTS: Lot[] = [
-  { id: '20',      sacs: 20,  poids: '300 kg',   price: 49.98,  variantId: null,             checkoutMultiplier: 2 },  // 24,99 × 2
-  { id: '30',      sacs: 30,  poids: '450 kg',   price: 59.97,  variantId: null,             checkoutMultiplier: 3 },  // 19,99 × 3
-  { id: '40',      sacs: 40,  poids: '600 kg',   price: 74.97,  variantId: null,             checkoutMultiplier: 3 },  // 24,99 × 3
-  { id: 'palette', sacs: 134, poids: '2 010 kg', price: 159.92, variantId: '58513507058008', checkoutMultiplier: 8, label: 'Palette complète · 134 sacs' },  // 19,99 × 8
+  { id: '20',      sacs: 20, poids: '300 kg', price: 49.98,  variantId: '58519088136536', checkoutMultiplier: 2 },  // 24,99 × 2 — 2,50 €/sac
+  { id: '30',      sacs: 30, poids: '450 kg', price: 59.97,  variantId: '58519088169304', checkoutMultiplier: 3 },  // 19,99 × 3 — 2,00 €/sac
+  { id: '40',      sacs: 40, poids: '600 kg', price: 74.97,  variantId: '58519088202072', checkoutMultiplier: 3 },  // 24,99 × 3 — 1,87 €/sac
+  { id: 'palette', sacs: 65, poids: '975 kg', price: 124.95, variantId: '58513507058008', checkoutMultiplier: 5, label: 'Palette 65 sacs' },  // 24,99 × 5 — 1,92 €/sac
 ]
 
 const LIMOUZI: Product = {
@@ -368,7 +369,7 @@ const LIMOUZI: Product = {
   tagline: 'Déstockage — ENplus A1, par lot de 20 sacs ou par palette',
   keyPoints: [
     'Prix déstockage, dans la limite des stocks disponibles.',
-    'Vendu par lot de 20, 30 ou 40 sacs, ou par palette complète de 134 sacs. Plus vous prenez, moins le sac est cher.',
+    'Vendu par lot de 20, 30 ou 40 sacs, ou par palette de 65 sacs. Plus vous prenez, moins le sac est cher.',
     'Certification ENplus A1 : combustion propre, peu de résidus.',
     'Pouvoir calorifique supérieur à 4,6 kWh/kg, humidité inférieure à 8 %.',
     'Sacs de 15 kg, faciles à porter et à ranger : 20 sacs tiennent sur moins d’un mètre carré.',
@@ -381,7 +382,7 @@ const LIMOUZI: Product = {
 <li><strong>Haute efficacité thermique :</strong> une chaleur constante pour des journées d’hiver plus confortables.</li>
 <li><strong>Certification ENplus A1 :</strong> gage de qualité et de fiabilité pour une combustion propre et écologique.</li>
 <li><strong>Taux de cendres réduit :</strong> moins de résidus pour un entretien simplifié de votre appareil de chauffage.</li>
-<li><strong>À votre mesure :</strong> par lot de 20, 30 ou 40 sacs pour un petit poêle ou un petit espace, ou par palette complète pour toute la saison.</li>
+<li><strong>À votre mesure :</strong> par lot de 20, 30 ou 40 sacs pour un petit poêle ou un petit espace, ou par palette de 65 sacs pour toute la saison.</li>
 </ul>
 <h3>Qualité et respect de l’environnement</h3>
 <p>Ces granulés Limouzi sont fabriqués à partir de bois de forêts locales, garantissant ainsi un impact environnemental réduit. Avec un faible taux d’humidité et un pouvoir calorifique élevé, ils assurent une excellente performance énergétique pour une chaleur douce et continue.</p>
@@ -393,7 +394,7 @@ const LIMOUZI: Product = {
 <p>Les granulés Limouzi, en sacs de 15 kg, sont idéaux pour un chauffage écologique et efficace, tout en offrant un rapport qualité-prix avantageux. Profitez d’une chaleur douce et respectueuse de l’environnement pour passer l’hiver sereinement.</p>`,
   specs: [
     { label: 'Type de bois',        value: 'Bois local et naturel' },
-    { label: 'Formats',             value: '20, 30 ou 40 sacs, ou palette de 134 sacs' },
+    { label: 'Formats',             value: '20, 30 ou 40 sacs, ou palette de 65 sacs (975 kg)' },
     { label: 'Poids par sac',       value: '15 kg' },
     { label: 'Pouvoir calorifique', value: 'Supérieur à 4,6 kWh/kg' },
     { label: 'Taux d’humidité',     value: 'Inférieur à 8 %' },

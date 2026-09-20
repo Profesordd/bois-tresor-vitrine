@@ -1,6 +1,15 @@
 import type { Product, Lot } from '@/types/database'
 
 /**
+ * Prix moyen d'un sac de 15 kg en magasin, affiché comme repère sur la
+ * fiche. Chiffre réel et sourcé (baromètres Selectra / 7monÉnergie,
+ * septembre 2026 : 6,50 € le sac, 430 € la palette de 66). À mettre à jour
+ * avec sa date : un repère périmé devient un mensonge.
+ */
+export const PRIX_MARCHE_SAC = 6.5
+export const PRIX_MARCHE_DATE = 'septembre 2026'
+
+/**
  * Produits vendus par lot : une seule fiche, plusieurs formats, chacun avec
  * son propre identifiant de checkout.
  *

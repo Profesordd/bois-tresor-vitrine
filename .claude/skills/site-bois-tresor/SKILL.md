@@ -111,8 +111,9 @@ d'état vide), présélection par `?lot=<id>` pour les publicités, prix
 affiché = prix du lot choisi, 1 lot par commande (`maxParCommande`), pas de
 sélecteur de quantité. Un lot dont `variantId` est null est masqué ; s'il
 n'en reste qu'un, la liste de choix disparaît. Premier cas : Limouzi, lots
-20 / 30 / 40 sacs et palette 134, prix 49,98 / 59,97 / 74,97 / 159,92 €
-(tous sur la grille). Les cartes affichent « à partir de » + « jusqu'à X € le
+20 / 30 / 40 sacs et palette 65, prix 49,98 / 59,97 / 74,97 / 124,95 €
+(tous sur la grille). La fiche affiche un repère « prix moyen constaté en
+magasin » (`PRIX_MARCHE_SAC`, daté) : chiffre réel à tenir à jour. Les cartes affichent « à partir de » + « jusqu'à X € le
 sac ».
 
 **Livraison offerte partout, sans seuil** (décision du 20/09/2026) : plus
@@ -136,7 +137,7 @@ Ne pas en ajouter d'autres : le repère n'a de sens que s'il est unique.
 stocks disponibles ». La remise est toujours calculée depuis le prix barré.
 **Jamais de compte à rebours** : l'urgence fabriquée est une pratique
 commerciale trompeuse et c'est précisément ce qui fait fuir le persona.
-Premier cas : granulés Limouzi 134 sacs, repris de depot-avenues.pro
+Premier cas : granulés Limouzi (palette 134 sacs à l'origine), repris de depot-avenues.pro
 (19/09/2026), `variantId` null tant que le client ne l'a pas fourni. Le prix
 barré doit être le prix le plus bas pratiqué dans les 30 jours précédents
 (art. L112-1-1 Code de la consommation) — à faire confirmer par le client.

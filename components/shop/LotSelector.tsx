@@ -5,7 +5,7 @@ import { ShoppingCart, PackagePlus, AlertCircle, Check } from 'lucide-react'
 import { useCartStore } from '@/stores/cart'
 import type { Product, Lot } from '@/types/database'
 import { buildCheckoutUrl, messageLimite } from '@/lib/checkout'
-import { lotsDisponibles, lotParDefaut, libelleLot, produitDuLot } from '@/lib/lots'
+import { lotsDisponibles, lotParDefaut, libelleLot, produitDuLot, PRIX_MARCHE_SAC, PRIX_MARCHE_DATE } from '@/lib/lots'
 import { formatPrice } from '@/lib/utils'
 import { trackAddToCart, trackAddToCartThenRedirect } from '@/lib/analytics/meta'
 
@@ -29,7 +29,7 @@ export default function LotSelector({ product }: Props) {
   const [lotId, setLotId] = useState<string | undefined>(lotParDefaut(product)?.id)
   const [redirecting, setRedirecting] = useState(false)
   const [depassement, setDepassement] = useState(false)
-  const { items, addItem } = useCartStore()
+  const { items, addItem, removeItem } = useCartStore()
 
   const lot = lots.find((l) => l.id === lotId) ?? lots[0]
   const meilleurAuSac = lots.length > 0 ? Math.min(...lots.map((l) => l.price / l.sacs)) : 0
@@ -77,9 +77,14 @@ export default function LotSelector({ product }: Props) {
   }
 
   function handleBuy() {
-    const autres = items.filter((i) => i.product.id !== article.id)
+    /* Un autre lot du même produit, resté d'un clic précédent, ne part pas
+       avec : changer d'avis entre 30 et 40 sacs ne doit pas faire payer les
+       deux. Les autres produits, eux, suivent comme d'habitude. */
+    const autres = items.filter((i) => i.product.slug !== product.slug)
     const url = buildCheckoutUrl([...autres, { product: article, quantity: 1 }])
     if (!url) return
+    items.filter((i) => i.product.slug === product.slug && i.product.id !== article.id)
+      .forEach((i) => removeItem(i.product.id))
     addItem(article, 1)
     setRedirecting(true)
     trackAddToCartThenRedirect(article, 1, url)
@@ -170,6 +175,11 @@ export default function LotSelector({ product }: Props) {
           <span className="font-semibold text-red-700">Prix déstockage</span> — soit{' '}
           <span className="font-semibold text-ink">{formatPrice(lot.price / lot.sacs)}</span> le sac de 15 kg.
           Livraison offerte.
+        </p>
+        {/* Le repère qui rend le prix crédible : d'où l'on part. Chiffre réel
+            et daté, pas un prix barré inventé. */}
+        <p className="text-[14px] text-gray-500 mt-1">
+          Prix moyen constaté en magasin : {formatPrice(PRIX_MARCHE_SAC)} le sac ({PRIX_MARCHE_DATE}).
         </p>
       </div>
 
