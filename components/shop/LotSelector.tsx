@@ -1,13 +1,13 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
-import { ShoppingCart, PackagePlus, AlertCircle, Check } from 'lucide-react'
+import { ShoppingCart, AlertCircle, Check } from 'lucide-react'
 import { useCartStore } from '@/stores/cart'
 import type { Product, Lot } from '@/types/database'
 import { buildCheckoutUrl, messageLimite } from '@/lib/checkout'
 import { lotsDisponibles, lotParDefaut, libelleLot, produitDuLot, PRIX_MARCHE_SAC, PRIX_MARCHE_DATE } from '@/lib/lots'
 import { formatPrice } from '@/lib/utils'
-import { trackAddToCart, trackAddToCartThenRedirect } from '@/lib/analytics/meta'
+import { trackAddToCartThenRedirect } from '@/lib/analytics/meta'
 
 interface Props {
   product: Product
@@ -28,7 +28,6 @@ export default function LotSelector({ product }: Props) {
   const lots = lotsDisponibles(product)
   const [lotId, setLotId] = useState<string | undefined>(lotParDefaut(product)?.id)
   const [redirecting, setRedirecting] = useState(false)
-  const [depassement, setDepassement] = useState(false)
   const { items, addItem, removeItem } = useCartStore()
 
   const lot = lots.find((l) => l.id === lotId) ?? lots[0]
@@ -69,11 +68,9 @@ export default function LotSelector({ product }: Props) {
   if (!lot) return null
 
   const article = produitDuLot(product, lot)
-  const dejaDansCommande = items.find((i) => i.product.id === article.id)?.quantity ?? 0
 
   function choisir(l: Lot) {
     setLotId(l.id)
-    setDepassement(false)
   }
 
   function handleBuy() {
@@ -88,12 +85,6 @@ export default function LotSelector({ product }: Props) {
     addItem(article, 1)
     setRedirecting(true)
     trackAddToCartThenRedirect(article, 1, url)
-  }
-
-  function handleAjouter() {
-    if (dejaDansCommande >= 1) { setDepassement(true); return }
-    addItem(article, 1, { open: true })
-    trackAddToCart(article, 1)
   }
 
   const attributs = {
@@ -183,12 +174,7 @@ export default function LotSelector({ product }: Props) {
         </p>
       </div>
 
-      <p
-        role={depassement ? 'alert' : undefined}
-        className={`flex items-start gap-2 text-[15px] leading-snug ${
-          depassement ? 'text-red-700 font-semibold' : 'text-gray-600'
-        }`}
-      >
+      <p className="flex items-start gap-2 text-[15px] leading-snug text-gray-600">
         <AlertCircle size={18} className="flex-shrink-0 mt-0.5" />
         <span>{messageLimite(article)}</span>
       </p>
@@ -205,17 +191,6 @@ export default function LotSelector({ product }: Props) {
       </button>
       <p className="text-center text-sm text-gray-500 -mt-2">
         Vous passez directement au paiement sécurisé.
-      </p>
-
-      <button
-        onClick={handleAjouter}
-        className="w-full py-3 rounded-lg border border-gray-200 bg-white text-[15px] font-medium text-gray-600 hover:border-brand-400 hover:text-brand-700 flex items-center justify-center gap-2 transition-colors"
-      >
-        <PackagePlus size={17} />
-        Ajouter à ma commande
-      </button>
-      <p className="text-center text-[13px] text-gray-400 -mt-3">
-        Pour commander plusieurs produits ensemble.
       </p>
 
       {/* ── Barre fixe, téléphone ── */}

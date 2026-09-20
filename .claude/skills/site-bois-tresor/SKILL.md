@@ -62,9 +62,10 @@ entière est un lien vers la fiche. C'est délibéré — les données montraien
 que la majorité des visiteurs achetaient depuis la carte, sautant toute la
 réassurance qui décide précisément cet acheteur-là.
 
-Un chemin secondaire discret (« Ajouter à ma commande ») permet de
-commander plusieurs produits. Il ne doit jamais prendre le pas visuellement
-sur le bouton principal.
+**Il n'y a plus de bouton « Ajouter à ma commande »** sur les fiches
+(retiré le 20/09/2026 à la demande du client) : quantité + « Commander
+maintenant », rien d'autre. Le tiroir « Ma commande » et la page /panier
+existent toujours ; ce qui s'y trouve part avec au paiement.
 
 **Sur téléphone, une barre d'achat fixe** (prix × quantité + « Commander
 maintenant ») reste en bas d'écran tant que le bouton principal n'est pas

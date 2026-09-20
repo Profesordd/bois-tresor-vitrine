@@ -2,12 +2,12 @@
 
 import Link from 'next/link'
 import { useEffect, useRef, useState } from 'react'
-import { Minus, Plus, ShoppingCart, Mail, PackagePlus, AlertCircle } from 'lucide-react'
+import { Minus, Plus, ShoppingCart, Mail, AlertCircle } from 'lucide-react'
 import { useCartStore } from '@/stores/cart'
 import type { Product } from '@/types/database'
 import { buildCheckoutUrl, maxParCommande, messageLimite } from '@/lib/checkout'
 import { formatPrice } from '@/lib/utils'
-import { trackAddToCart, trackAddToCartThenRedirect } from '@/lib/analytics/meta'
+import { trackAddToCartThenRedirect } from '@/lib/analytics/meta'
 
 interface Props {
   product: Product
@@ -16,13 +16,11 @@ interface Props {
 /**
  * Le seul endroit du site où l'on peut commander.
  *
- * Deux chemins, volontairement inégaux :
- *   - « Commander maintenant », gros et plein, mène droit au paiement.
- *     C'est le parcours de l'immense majorité : on clique, on paie.
- *   - « Ajouter à ma commande », discret, sert au client rare qui veut
- *     plusieurs produits. Le mettre au même niveau visuel obligerait tous
- *     les autres à trancher entre deux boutons — exactement l'hésitation
- *     qu'il faut éviter chez un public peu à l'aise avec internet.
+ * Un seul chemin : la quantité, puis « Commander maintenant », qui mène
+ * droit au paiement. Le bouton secondaire « Ajouter à ma commande » a été
+ * retiré (20/09/2026) : deux boutons, c'est une hésitation de plus pour un
+ * public peu à l'aise avec internet. Ce qui est déjà dans la commande part
+ * quand même avec (voir handleBuy).
  *
  * Sur téléphone, une barre fixe en bas d'écran reprend le prix et le bouton
  * principal tant que celui-ci n'est pas visible. Les mesures montraient le
@@ -67,7 +65,7 @@ export default function QuantitySelector({ product }: Props) {
     return () => { document.body.style.paddingBottom = '' }
   }, [barreVisible])
 
-  const { items, addItem, setOpen } = useCartStore()
+  const { items, addItem } = useCartStore()
   const isOutOfStock = product.stock === 0
 
   /* Limite par commande, dite avant que le client ne bute dessus. Quand il
@@ -75,7 +73,6 @@ export default function QuantitySelector({ product }: Props) {
      n'est bloqué en silence. */
   const max = maxParCommande(product)
   const [depassement, setDepassement] = useState(false)
-  const dejaDansCommande = items.find((i) => i.product.id === product.id)?.quantity ?? 0
 
   function dec() { setDepassement(false); setQty((q) => Math.max(1, q - 1)) }
   function inc() {
@@ -96,19 +93,6 @@ export default function QuantitySelector({ product }: Props) {
     /* AddToCart part avant la redirection : sans ce signal, aucune audience
        « panier abandonné » ne peut être constituée côté Meta. */
     trackAddToCartThenRedirect(product, qty, url)
-  }
-
-  /** Chemin secondaire : le produit rejoint la commande, on reste sur le site. */
-  function handleAjouter() {
-    if (isOutOfStock) return
-    if (dejaDansCommande + qty > max) {
-      setDepassement(true)
-      if (dejaDansCommande >= max) return
-    }
-    addItem(product, qty, { open: true })
-    /* Même signal publicitaire que l'achat direct : dans les deux cas, le
-       visiteur a mis un produit au panier. */
-    trackAddToCart(product, qty)
   }
 
   /* Pas d'identifiant de checkout : le produit n'est pas encore payable en
@@ -199,19 +183,6 @@ export default function QuantitySelector({ product }: Props) {
 
           <p className="text-center text-sm text-gray-500">
             Vous passez directement au paiement sécurisé.
-          </p>
-
-          {/* Chemin secondaire : bordure fine, fond blanc, texte plus petit.
-              Visible pour qui le cherche, effacé pour les autres. */}
-          <button
-            onClick={handleAjouter}
-            className="w-full py-3 rounded-lg border border-gray-200 bg-white text-[15px] font-medium text-gray-600 hover:border-brand-400 hover:text-brand-700 flex items-center justify-center gap-2 transition-colors"
-          >
-            <PackagePlus size={17} />
-            Ajouter à ma commande
-          </button>
-          <p className="text-center text-[13px] text-gray-400 -mt-2">
-            Pour commander plusieurs produits ensemble.
           </p>
 
           {/* Barre d'achat fixe, téléphone et tablette uniquement. Toujours
