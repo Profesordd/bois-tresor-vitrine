@@ -100,7 +100,12 @@ export default function LotSelector({ product }: Props) {
       {/* ── Les lots (masqués tant qu'un seul est commandable) ── */}
       {lots.length > 1 && (
       <div>
-        <p className="text-base font-semibold text-gray-800 mb-2.5">Choisissez votre quantité</p>
+        <p className="text-base font-semibold text-gray-800">Choisissez votre quantité</p>
+        {/* Le repère qui rend chaque lot lisible : d'où l'on part. Chiffre
+            réel et daté, pas un prix barré inventé. */}
+        <p className="text-[14px] text-gray-600 mb-2.5">
+          En magasin, le sac de 15 kg est à {formatPrice(PRIX_MARCHE_SAC)} en moyenne ({PRIX_MARCHE_DATE}).
+        </p>
         <div className="grid gap-2.5 sm:grid-cols-2" role="radiogroup" aria-label="Quantité">
           {lots.map((l) => {
             const actif = l.id === lot.id
@@ -167,11 +172,6 @@ export default function LotSelector({ product }: Props) {
           <span className="font-semibold text-red-700">Prix déstockage</span> — soit{' '}
           <span className="font-semibold text-ink">{formatPrice(lot.price / lot.sacs)}</span> le sac de 15 kg.
           Livraison offerte.
-        </p>
-        {/* Le repère qui rend le prix crédible : d'où l'on part. Chiffre réel
-            et daté, pas un prix barré inventé. */}
-        <p className="text-[14px] text-gray-500 mt-1">
-          Prix moyen constaté en magasin : {formatPrice(PRIX_MARCHE_SAC)} le sac ({PRIX_MARCHE_DATE}).
         </p>
       </div>
 

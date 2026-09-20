@@ -5,6 +5,8 @@ interface Props {
   /** Nombre d'avis affichés (6 sur l'accueil, 3 sur une fiche produit). */
   limit?: number
   title?: string
+  /** Avis à écarter sur cette page (fragments de texte). */
+  exclure?: string[]
   /** Fond coloré pleine largeur (accueil) ou fond transparent (fiche produit). */
   background?: boolean
 }
@@ -17,9 +19,10 @@ interface Props {
 export default function Testimonials({
   limit = TESTIMONIALS.length,
   title = 'Ils nous font confiance',
+  exclure = [],
   background = true,
 }: Props) {
-  const reviews = TESTIMONIALS.slice(0, limit)
+  const reviews = TESTIMONIALS.filter((t) => !exclure.some((mot) => t.text.includes(mot))).slice(0, limit)
 
   return (
     <section className={background ? 'py-16 bg-brand-50' : ''}>

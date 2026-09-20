@@ -2,7 +2,7 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { ChevronRight, Check, Truck, Lock, Award, Tag, PackageCheck } from 'lucide-react'
 import { getProductBySlug, getRelatedProducts, PRODUCTS } from '@/lib/products'
-import { chargerProduit, getRuptures } from '@/lib/stock'
+import { chargerProduit, chargerProduits } from '@/lib/stock'
 import { formatPrice } from '@/lib/utils'
 import ProductGallery from '@/components/shop/ProductGallery'
 import ProductDetails from '@/components/shop/ProductDetails'
@@ -43,10 +43,7 @@ export default async function ProductPage({ params }: Props) {
   const product = await chargerProduit(slug)
   if (!product) notFound()
 
-  const ruptures = await getRuptures()
-  const related = getRelatedProducts(product).map((p) =>
-    ruptures.has(p.slug) ? { ...p, stock: 0 } : p
-  )
+  const related = getRelatedProducts(product, 4, await chargerProduits())
   const hasPromo = product.original_price !== null && product.original_price > product.price
   const isDestockage = product.badge === 'destockage'
   const remise = hasPromo ? Math.round((1 - product.price / product.original_price!) * 100) : 0
@@ -206,15 +203,18 @@ export default async function ProductPage({ params }: Props) {
         <Testimonials
           background={false}
           title="Ce qu’en disent nos clients"
+          /* Sur un déstockage moins cher qu'en magasin, un avis qui dit
+             « plus cher qu'en grande surface » contredit la page. */
+          exclure={product.badge === 'destockage' ? ['plus cher qu’en grande surface'] : []}
         />
       </div>
 
       <div className="mt-10">
-        <UrgencyNote />
+        <UrgencyNote variant={product.badge === 'destockage' ? 'destockage' : 'saison'} />
       </div>
 
       <div className="mt-12 max-w-3xl">
-        <ProductFaq />
+        <ProductFaq family={product.family} parLot={parLot} />
       </div>
 
       {related.length > 0 && (

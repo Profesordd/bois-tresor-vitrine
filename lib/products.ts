@@ -334,7 +334,7 @@ const GRANULES: Product[] = ([
    est déjà en ligne et référencée.
    ───────────────────────────────────────────── */
 const LIMOUZI_BASE = buildGranule({
-  name: 'Granulés de bois Limouzi – sacs de 15 kg, par lot ou par palette',
+  name: 'Granulés de bois Limouzi – sacs de 15 kg',
   slug: 'granules-de-bois-limouzi-palette-de-134-sacs-de-15-kg',
   price: 119.88,
   image: '/products/limouzi-134.jpg',
@@ -362,18 +362,21 @@ const LIMOUZI: Product = {
   variantId: '58513507058008',
   original_price: null,
   badge: 'destockage',
-  richDescription: true,
+  /* Description longue volontairement non affichée : 250 mots de texte
+     générique qui répètent les points clés. Le client venu de la pub veut
+     le prix, le lot, la certification, et le bouton. */
+  richDescription: false,
   lots: LIMOUZI_LOTS,
   defaultLotId: '30',
   stock: 20,
   tagline: 'Déstockage — ENplus A1, par lot de 20 sacs ou par palette',
+  /* Cinq lignes, pas plus. La première sert aussi de description dans les
+     résultats de recherche et les aperçus de partage. */
   keyPoints: [
+    'Par lot de 20, 30 ou 40 sacs, ou palette de 65 sacs, à partir de 49,98 € — livraison offerte. Plus vous prenez, moins le sac est cher.',
     'Prix déstockage, dans la limite des stocks disponibles.',
-    'Vendu par lot de 20, 30 ou 40 sacs, ou par palette de 65 sacs. Plus vous prenez, moins le sac est cher.',
-    'Certification ENplus A1 : combustion propre, peu de résidus.',
-    'Pouvoir calorifique supérieur à 4,6 kWh/kg, humidité inférieure à 8 %.',
+    'Certification ENplus A1 : combustion propre, très peu de cendres.',
     'Sacs de 15 kg, faciles à porter et à ranger : 20 sacs tiennent sur moins d’un mètre carré.',
-    'Livraison offerte, en France métropolitaine, en Belgique, en Suisse et au Luxembourg, déposée au plus près de votre stockage.',
     'Paiement sécurisé en ligne. E-mail de confirmation avec votre numéro de commande.',
   ],
   description: `<p>Les granulés de bois Limouzi vous offrent une solution de chauffage performante et respectueuse de l’environnement, conçue pour apporter une chaleur durable et homogène. Produits localement avec des bois de qualité, ces granulés assurent une combustion propre et peu de résidus, tout en garantissant une performance thermique optimale.</p>
@@ -416,6 +419,16 @@ export function getProductBySlug(slug: string): Product | undefined {
   return PRODUCTS.find(p => p.slug === slug)
 }
 
-export function getRelatedProducts(product: Product, limit = 4): Product[] {
-  return PRODUCTS.filter(p => p.family === product.family && p.id !== product.id).slice(0, limit)
+/**
+ * Produits proposés en bas de fiche. Même famille d'abord, puis les autres
+ * familles si elle ne suffit pas — pour que le bloc ne montre jamais une
+ * rangée de produits en rupture sous un produit en vente. Le stock réel
+ * est appliqué par l'appelant (voir lib/stock.ts) ; ici on reçoit le
+ * catalogue déjà filtré.
+ */
+export function getRelatedProducts(product: Product, limit = 4, catalogue: Product[] = PRODUCTS): Product[] {
+  const autres = catalogue.filter(p => p.id !== product.id && p.stock > 0)
+  const memeFamille = autres.filter(p => p.family === product.family)
+  const reste = autres.filter(p => p.family !== product.family)
+  return [...memeFamille, ...reste].slice(0, limit)
 }

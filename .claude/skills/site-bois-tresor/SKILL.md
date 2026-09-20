@@ -117,6 +117,16 @@ n'en reste qu'un, la liste de choix disparaît. Premier cas : Limouzi, lots
 magasin » (`PRIX_MARCHE_SAC`, daté) : chiffre réel à tenir à jour. Les cartes affichent « à partir de » + « jusqu'à X € le
 sac ».
 
+**Fiche granulés prête pour la publicité** (20/09/2026) : pas de bloc
+Description (`richDescription: false`), 5 points clés, repère marché placé
+sous « Choisissez votre quantité », FAQ filtrée par famille (`ProductFaq`
+reçoit `family` et `parLot` ; les questions « bois sec » ne s'affichent pas
+sur les granulés), `UrgencyNote variant="destockage"`, témoignage « plus
+cher qu'en grande surface » exclu sur un déstockage, produits liés jamais
+en rupture (`getRelatedProducts` reçoit le catalogue à stock réel, complète
+avec les autres familles). Aucune caractéristique non vérifiée dans les
+réponses (pas de diamètre, pas de marque de poêle).
+
 **Livraison offerte partout, sans seuil** (décision du 20/09/2026) : plus
 aucun montant minimum nulle part — `lib/site.ts` n'a plus de
 `FREE_SHIPPING_THRESHOLD`, tiroir et page commande n'ont plus de logique

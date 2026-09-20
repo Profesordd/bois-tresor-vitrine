@@ -2,8 +2,14 @@
 
 import { useState } from 'react'
 import { ChevronDown } from 'lucide-react'
+import type { ProductFamily } from '@/types/database'
 
-const FAQ: { q: string; a: string }[] = [
+interface Item { q: string; a: string; /** Familles concernées ; absent = toutes. */ familles?: ProductFamily[] }
+
+/* Les questions sur le bois sec ne s'affichent pas sur les granulés, et
+   inversement : une question qui ne concerne pas le produit fait douter de
+   tout le reste. */
+const FAQ: Item[] = [
   {
     q: 'Comment passer commande ?',
     a: 'Choisissez votre quantité et cliquez sur Commander maintenant : vous passez directement au paiement sécurisé. Vous recevez immédiatement un e-mail de confirmation avec votre numéro de commande.',
@@ -23,6 +29,17 @@ const FAQ: { q: string; a: string }[] = [
   {
     q: 'Votre bois est-il vraiment sec ?',
     a: 'Oui. Nous le séchons 18 à 24 mois, jusqu’à moins de 20 % d’humidité. Un bois à ce taux s’allume facilement, chauffe vraiment et ne fume pas.',
+    familles: ['bois-de-chauffage', 'bois-densifie'],
+  },
+  {
+    q: 'Vos granulés conviennent-ils à mon poêle ?',
+    a: 'Oui : ce sont des granulés certifiés ENplus A1, la norme que demandent les fabricants de poêles et de chaudières à granulés. Très peu de cendres, humidité inférieure à 8 %.',
+    familles: ['granules'],
+  },
+  {
+    q: 'Pourquoi ce prix, si bas par rapport aux magasins ?',
+    a: 'C’est un déstockage : nous écoulons un stock à prix réduit, dans la limite des quantités disponibles. Ce sont les mêmes sacs de 15 kg certifiés ENplus A1 que ceux vendus 6,50 € en magasin — simplement, nous n’avons pas de rayon à faire tourner.',
+    familles: ['granules'],
   },
   {
     q: 'En combien de temps suis-je livré ?',
@@ -58,12 +75,20 @@ function Row({ q, a }: { q: string; a: string }) {
   )
 }
 
-export default function ProductFaq() {
+export default function ProductFaq({ family, parLot = false }: { family?: ProductFamily; parLot?: boolean }) {
+  const items = FAQ
+    .filter((i) => !i.familles || !family || i.familles.includes(family))
+    .map((i) =>
+      /* Vendu par lot : on ne choisit pas une quantité, on choisit un lot. */
+      parLot && i.q === 'Comment passer commande ?'
+        ? { ...i, a: i.a.replace('Choisissez votre quantité', 'Choisissez votre lot') }
+        : i
+    )
   return (
     <section>
       <h2 className="font-serif text-2xl font-bold text-ink mb-4">Questions fréquentes</h2>
       <div className="border-2 border-gray-200 rounded-lg px-5">
-        {FAQ.map(item => <Row key={item.q} {...item} />)}
+        {items.map(item => <Row key={item.q} q={item.q} a={item.a} />)}
       </div>
     </section>
   )
