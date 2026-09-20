@@ -93,8 +93,10 @@ export default function ProductCard({ product }: ProductCardProps) {
         </p>
 
         <div className="mt-auto pt-1">
+          {/* Sur sa propre ligne : en deux colonnes sur téléphone, « à partir
+              de 49,98 € » ne tient pas sur une seule et se coupait n'importe où. */}
+          {parLot && <p className="text-[13px] sm:text-[15px] text-gray-600 leading-none mb-1">à partir de</p>}
           <div className="flex items-baseline gap-2 flex-wrap">
-            {parLot && <span className="text-[13px] sm:text-[15px] text-gray-600">à partir de</span>}
             <span className="text-2xl sm:text-3xl font-bold text-ink">{formatPrice(prixAffiche)}</span>
             {hasPromo && (
               <span className="text-base sm:text-lg text-gray-400 line-through">
