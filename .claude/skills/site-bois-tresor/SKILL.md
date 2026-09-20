@@ -111,7 +111,7 @@ d'état vide), présélection par `?lot=<id>` pour les publicités, prix
 affiché = prix du lot choisi, 1 lot par commande (`maxParCommande`), pas de
 sélecteur de quantité. Un lot dont `variantId` est null est masqué ; s'il
 n'en reste qu'un, la liste de choix disparaît. Premier cas : Limouzi, lots
-20 / 30 / 40 sacs et palette 65, prix 49,98 / 59,97 / 74,97 / 124,95 €
+20 / 30 / 40 sacs et palette 65, prix 49,98 / 59,97 / 74,97 / 119,88 €
 (tous sur la grille). La fiche affiche un repère « prix moyen constaté en
 magasin » (`PRIX_MARCHE_SAC`, daté) : chiffre réel à tenir à jour. Les cartes affichent « à partir de » + « jusqu'à X € le
 sac ».

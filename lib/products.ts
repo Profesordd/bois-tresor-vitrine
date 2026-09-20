@@ -336,13 +336,13 @@ const GRANULES: Product[] = ([
 const LIMOUZI_BASE = buildGranule({
   name: 'Granulés de bois Limouzi – sacs de 15 kg, par lot ou par palette',
   slug: 'granules-de-bois-limouzi-palette-de-134-sacs-de-15-kg',
-  price: 124.95,
+  price: 119.88,
   image: '/products/limouzi-134.jpg',
   bags: 65,
   cert: 'ENplus A1',
   comp: 'Bois local et naturel',
   variantId: '',
-  checkoutMultiplier: 5,
+  checkoutMultiplier: 12,
 })
 
 /* Prix calés sur la grille du checkout (produits Shopify créés le
@@ -354,7 +354,7 @@ const LIMOUZI_LOTS: Lot[] = [
   { id: '20',      sacs: 20, poids: '300 kg', price: 49.98,  variantId: '58519088136536', checkoutMultiplier: 2 },  // 24,99 × 2 — 2,50 €/sac
   { id: '30',      sacs: 30, poids: '450 kg', price: 59.97,  variantId: '58519088169304', checkoutMultiplier: 3 },  // 19,99 × 3 — 2,00 €/sac
   { id: '40',      sacs: 40, poids: '600 kg', price: 74.97,  variantId: '58519088202072', checkoutMultiplier: 3 },  // 24,99 × 3 — 1,87 €/sac
-  { id: 'palette', sacs: 65, poids: '975 kg', price: 124.95, variantId: '58513507058008', checkoutMultiplier: 5, label: 'Palette 65 sacs' },  // 24,99 × 5 — 1,92 €/sac
+  { id: 'palette', sacs: 65, poids: '975 kg', price: 119.88, variantId: '58513507058008', checkoutMultiplier: 12, label: 'Palette 65 sacs' },  // 9,99 × 12 — 1,84 €/sac
 ]
 
 const LIMOUZI: Product = {
