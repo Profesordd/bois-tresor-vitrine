@@ -3,8 +3,9 @@
 import { useState } from 'react'
 import { ChevronDown } from 'lucide-react'
 import type { ProductFamily } from '@/types/database'
+import { SIRET, TVA_INTRACOM, ADRESSE_SIEGE, ANNUAIRE_URL } from '@/lib/site'
 
-interface Item { q: string; a: string; /** Familles concernées ; absent = toutes. */ familles?: ProductFamily[] }
+interface Item { q: string; a: React.ReactNode; /** Familles concernées ; absent = toutes. */ familles?: ProductFamily[] }
 
 /* Les questions sur le bois sec ne s'affichent pas sur les granulés, et
    inversement : une question qui ne concerne pas le produit fait douter de
@@ -46,6 +47,23 @@ const FAQ: Item[] = [
     a: 'Votre commande est préparée sous 48 h ouvrées, puis livrée en 3 à 7 jours ouvrés selon votre région. Vous recevez un e-mail dès l’expédition.',
   },
   {
+    /* La question que les clients posent par e-mail : on y répond avant,
+       avec de quoi vérifier eux-mêmes. */
+    q: 'Qui êtes-vous ? Puis-je vérifier votre entreprise ?',
+    a: (
+      <>
+        Bois Tresor est une entreprise familiale française. Siège social : {ADRESSE_SIEGE.rue},{' '}
+        {ADRESSE_SIEGE.ville}. SIRET {SIRET}, TVA intracommunautaire {TVA_INTRACOM}. Vous pouvez vérifier
+        ces informations sur{' '}
+        <a href={ANNUAIRE_URL} target="_blank" rel="noopener noreferrer" className="text-brand-700 underline">
+          l’annuaire officiel des entreprises
+        </a>{' '}
+        (service public), et consulter nos{' '}
+        <a href="/mentions-legales" className="text-brand-700 underline">mentions légales</a>.
+      </>
+    ),
+  },
+  {
     q: 'Et si j’ai un problème ?',
     a: 'Écrivez-nous à contact@bois-tresor.com : nous répondons sous 24 h ouvrées. En cas de produit non conforme ou non livré, vous êtes livré ou remboursé.',
   },
@@ -55,7 +73,7 @@ const FAQ: Item[] = [
   },
 ]
 
-function Row({ q, a }: { q: string; a: string }) {
+function Row({ q, a }: { q: string; a: React.ReactNode }) {
   const [open, setOpen] = useState(false)
   return (
     <div className="border-b border-gray-200 last:border-b-0">
@@ -80,7 +98,7 @@ export default function ProductFaq({ family, parLot = false }: { family?: Produc
     .filter((i) => !i.familles || !family || i.familles.includes(family))
     .map((i) =>
       /* Vendu par lot : on ne choisit pas une quantité, on choisit un lot. */
-      parLot && i.q === 'Comment passer commande ?'
+      parLot && i.q === 'Comment passer commande ?' && typeof i.a === 'string'
         ? { ...i, a: i.a.replace('Choisissez votre quantité', 'Choisissez votre lot') }
         : i
     )

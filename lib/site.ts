@@ -21,3 +21,10 @@ export const CONTACT_HOURS = 'Lun – Ven · 9h – 18h'
  * écritures différentes du même numéro seraient lues comme une anomalie.
  */
 export const SIRET = '844 733 964 00010'
+/** SIREN = les 9 premiers chiffres du SIRET ; sert au lien vers l'annuaire officiel. */
+export const SIREN = '844733964'
+/** Clé 80 vérifiée : (12 + 3 × (SIREN mod 97)) mod 97. */
+export const TVA_INTRACOM = 'FR80 844 733 964'
+export const ADRESSE_SIEGE = { rue: '380 Route du Moulin', ville: '13100 Aix-en-Provence', pays: 'France' }
+/** Fiche publique de l'entreprise : le client peut vérifier lui-même. */
+export const ANNUAIRE_URL = `https://annuaire-entreprises.data.gouv.fr/entreprise/${SIREN}`

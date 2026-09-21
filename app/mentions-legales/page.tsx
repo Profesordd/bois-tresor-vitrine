@@ -1,5 +1,5 @@
 import { ShieldCheck } from 'lucide-react'
-import { SIRET } from '@/lib/site'
+import { SIRET, TVA_INTRACOM, ANNUAIRE_URL } from '@/lib/site'
 
 export const metadata = { title: 'Mentions légales' }
 
@@ -31,8 +31,16 @@ export default function MentionsLegalesPage() {
             <li>Responsable : Jean-Paul MONMEJA</li>
             <li>Adresse de la société et siège social : 380 Route du Moulin, 13100 Aix-en-Provence</li>
             <li>SIRET : {SIRET}</li>
+            <li>TVA intracommunautaire : {TVA_INTRACOM}</li>
             <li>E-mail : contact@bois-tresor.com</li>
           </ul>
+          <p>
+            Ces informations sont vérifiables sur{' '}
+            <a href={ANNUAIRE_URL} target="_blank" rel="noopener noreferrer" className="text-brand-700 underline">
+              l’annuaire officiel des entreprises
+            </a>{' '}
+            (service public).
+          </p>
         </section>
 
         <section>

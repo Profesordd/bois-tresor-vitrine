@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import { SIRET, TVA_INTRACOM, ADRESSE_SIEGE, ANNUAIRE_URL } from '@/lib/site'
 
 const shopLinks = [
   { label: 'Bois de chauffage',  href: '/product-category/bois-de-chauffage/' },
@@ -90,12 +91,35 @@ export default function Footer() {
         </div>
       </div>
 
+      {/* ── Identité de l'entreprise, lisible sans cliquer. Des clients
+             écrivaient pour demander le SIRET : il était derrière un lien gris.
+             Pour un acheteur méfiant, l'adresse et le numéro sont un
+             argument, pas une formalité. ── */}
+      <div className="border-t border-white/10">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+          <p className="text-[11px] uppercase tracking-wider text-gray-500 mb-2">Une entreprise française</p>
+          <p className="text-sm text-gray-300 leading-relaxed">
+            <span className="font-semibold text-white">Bois Tresor</span> — Siège social : {ADRESSE_SIEGE.rue}, {ADRESSE_SIEGE.ville}, {ADRESSE_SIEGE.pays}
+            <span className="hidden sm:inline"> · </span><br className="sm:hidden" />
+            SIRET {SIRET} · TVA {TVA_INTRACOM}
+          </p>
+          <p className="text-sm mt-2 flex flex-wrap gap-x-5 gap-y-1">
+            <a href={ANNUAIRE_URL} target="_blank" rel="noopener noreferrer" className="text-brand-400 hover:text-brand-300 underline underline-offset-2">
+              Vérifier sur l’annuaire officiel des entreprises
+            </a>
+            <Link href="/mentions-legales" className="text-brand-400 hover:text-brand-300 underline underline-offset-2">
+              Consulter nos mentions légales
+            </Link>
+          </p>
+        </div>
+      </div>
+
       <div className="border-t border-white/10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-gray-500">
           <span>© {new Date().getFullYear()} Bois Tresor — Tous droits réservés.</span>
           <nav className="flex flex-wrap gap-x-5 gap-y-1 justify-center">
             {legalLinks.map((l) => (
-              <Link key={l.href} href={l.href} className="hover:text-gray-300 transition-colors">
+              <Link key={l.href} href={l.href} className="text-gray-400 hover:text-white transition-colors">
                 {l.label}
               </Link>
             ))}

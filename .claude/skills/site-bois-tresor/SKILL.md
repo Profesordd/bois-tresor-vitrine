@@ -127,6 +127,16 @@ en rupture (`getRelatedProducts` reçoit le catalogue à stock réel, complète
 avec les autres familles). Aucune caractéristique non vérifiée dans les
 réponses (pas de diamètre, pas de marque de poêle).
 
+**Identité de l'entreprise visible partout** (21/09/2026) : des clients
+écrivaient pour demander le SIRET. Source unique dans `lib/site.ts`
+(`SIRET`, `SIREN`, `TVA_INTRACOM` = FR80 844 733 964, `ADRESSE_SIEGE`,
+`ANNUAIRE_URL` vers annuaire-entreprises.data.gouv.fr). Affichée dans le
+pied de page (bloc « Une entreprise française », sur toutes les pages), la
+FAQ produit (« Qui êtes-vous ? Puis-je vérifier votre entreprise ? »), la
+page Contact, la réassurance sous le bouton et les mentions légales.
+Toujours avec le lien « vérifier sur l'annuaire officiel ». Le nom du
+gérant reste réservé aux mentions légales.
+
 **Livraison offerte partout, sans seuil** (décision du 20/09/2026) : plus
 aucun montant minimum nulle part — `lib/site.ts` n'a plus de
 `FREE_SHIPPING_THRESHOLD`, tiroir et page commande n'ont plus de logique
@@ -473,7 +483,7 @@ Objectif mesuré sur la collection mobile : **le premier produit à environ
 - **CGV à relire** : elles décrivent encore une étape de panier qui
   n'existe plus.
 - Informations manquantes côté client : raison sociale, forme juridique,
-  TVA intracommunautaire, médiateur de la consommation.
+  médiateur de la consommation (la TVA est connue depuis le 21/09/2026).
 - **Compte Vercel en offre Hobby**, réservée à un usage non commercial.
   Ce site est commercial à double titre. Signalé au client.
 - Le token Meta a circulé en clair et doit être régénéré.

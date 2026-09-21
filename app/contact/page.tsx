@@ -2,7 +2,8 @@
 
 import Link from 'next/link'
 import { useState } from 'react'
-import { Mail, Clock, MapPin, CheckCircle, Package } from 'lucide-react'
+import { Mail, Clock, MapPin, CheckCircle, Package, Building2 } from 'lucide-react'
+import { SIRET, TVA_INTRACOM, ADRESSE_SIEGE, ANNUAIRE_URL } from '@/lib/site'
 
 export default function ContactPage() {
   const [sent, setSent]       = useState(false)
@@ -59,6 +60,7 @@ export default function ContactPage() {
               { icon: Mail,   title: 'E-mail',    val: 'contact@bois-tresor.com', sub: 'Un vrai humain vous répond sous 24h' },
               { icon: Clock,  title: 'Horaires',  val: 'Lun – Ven · 9h – 18h', sub: 'Fermé week-end et jours fériés' },
               { icon: MapPin, title: 'Zone de livraison', val: 'France métropolitaine, Belgique, Suisse et Luxembourg', sub: 'Livraison par transporteur spécialisé' },
+              { icon: Building2, title: 'Siège social', val: `${ADRESSE_SIEGE.rue}, ${ADRESSE_SIEGE.ville}`, sub: `SIRET ${SIRET} · TVA ${TVA_INTRACOM}` },
             ].map(({ icon: Icon, title, val, sub }) => (
               <div key={title} className="flex gap-4 p-4 bg-brand-50 rounded-lg">
                 <div className="w-10 h-10 bg-white rounded-lg flex items-center justify-center flex-shrink-0">
@@ -71,6 +73,13 @@ export default function ContactPage() {
                 </div>
               </div>
             ))}
+
+            <p className="text-sm text-gray-600 -mt-2">
+              Ces informations sont vérifiables sur{' '}
+              <a href={ANNUAIRE_URL} target="_blank" rel="noopener noreferrer" className="text-brand-700 underline">
+                l’annuaire officiel des entreprises
+              </a>.
+            </p>
 
             <div className="p-4 border border-brand-100 rounded-lg">
               <p className="font-semibold text-ink text-sm mb-2 flex items-center gap-2">
