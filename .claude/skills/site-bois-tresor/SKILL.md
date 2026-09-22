@@ -367,7 +367,21 @@ contexte du site, sans lequel une IA interprète les chiffres de travers.
 `GET /api/meta/`, connecté en admin, renvoie un diagnostic en direct du
 suivi Meta.
 
-### Le formulaire de contact n'envoie aucun email
+### Il n'y a plus de formulaire de contact (22/09/2026)
+
+La page Contact affiche deux grandes cartes (`CartesContact`, canaux dans
+`lib/site.ts` : `CANAUX`) : « Je n'ai pas encore commandé » → `contact@`,
+« J'ai déjà commandé » → adresse de support externe (`APRES_VENTE_EMAIL`).
+Chaque carte est un `mailto:` avec objet pré-rempli (et, après-vente, le
+corps « Numéro de commande (commence par BA) : »), l'adresse en clair et un
+bouton « Copier l'adresse » — sur ordinateur, un mailto n'ouvre parfois
+rien. `?canal=apres-vente` met la carte commande en premier. La route
+`/api/contact` est supprimée ; la page admin « Demandes de contact » ne
+sert plus qu'à l'archive des anciens messages. Règle d'adressage partout
+sur le site : avant-vente et légal → `contact@`, tout ce qui suit une
+commande (FAQ « problème », suivi, retours) → `APRES_VENTE_EMAIL`.
+
+### (Historique) Le formulaire de contact n'envoyait aucun email
 
 Les demandes sont enregistrées en base et lues dans `/admin/messages`. Le
 gérant répond depuis sa propre boîte.

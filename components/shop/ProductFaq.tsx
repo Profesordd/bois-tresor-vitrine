@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { ChevronDown } from 'lucide-react'
 import type { ProductFamily } from '@/types/database'
-import { SIRET, TVA_INTRACOM, ADRESSE_SIEGE, ANNUAIRE_URL } from '@/lib/site'
+import { SIRET, TVA_INTRACOM, ADRESSE_SIEGE, ANNUAIRE_URL, APRES_VENTE_EMAIL } from '@/lib/site'
 
 interface Item { q: string; a: React.ReactNode; /** Familles concernées ; absent = toutes. */ familles?: ProductFamily[] }
 
@@ -65,7 +65,7 @@ const FAQ: Item[] = [
   },
   {
     q: 'Et si j’ai un problème ?',
-    a: 'Écrivez-nous à contact@bois-tresor.com : nous répondons sous 24 h ouvrées. En cas de produit non conforme ou non livré, vous êtes livré ou remboursé.',
+    a: `Écrivez-nous à ${APRES_VENTE_EMAIL} avec votre numéro de commande : nous répondons sous 24 h ouvrées. En cas de produit non conforme ou non livré, vous êtes livré ou remboursé.`,
   },
   {
     q: 'Comment se passe la livraison ? Faut-il un accès particulier ?',

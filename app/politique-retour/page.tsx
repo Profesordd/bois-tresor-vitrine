@@ -1,3 +1,4 @@
+import { APRES_VENTE_EMAIL } from '@/lib/site'
 export const metadata = { title: 'Retours & rétractation' }
 
 export default function PolitiqueRetourPage() {
@@ -20,7 +21,7 @@ export default function PolitiqueRetourPage() {
         </section>
         <section>
           <h2 className="text-xl font-bold text-ink">Procédure</h2>
-          <p>Contactez-nous à contact@bois-tresor.com avec votre numéro de commande et le détail du produit concerné ; nous vous indiquerons la marche à suivre.</p>
+          <p>Contactez-nous à {APRES_VENTE_EMAIL} avec votre numéro de commande et le détail du produit concerné ; nous vous indiquerons la marche à suivre.</p>
         </section>
         <section>
           <h2 className="text-xl font-bold text-ink">Remboursement</h2>

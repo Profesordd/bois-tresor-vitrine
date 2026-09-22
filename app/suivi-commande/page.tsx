@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { Package, Search, Copy, ArrowLeft } from 'lucide-react'
 import type { OrderStatus } from '@/types/database'
+import { APRES_VENTE_EMAIL } from '@/lib/site'
 
 function fmt(iso: string) {
   return new Date(iso).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', year: 'numeric' })
@@ -197,7 +198,7 @@ export default function SuiviCommandePage() {
                 }
               </button>
               <p className="text-xs text-brand-400 text-center">
-                Vous ne retrouvez pas votre commande ici ? Écrivez-nous à contact@bois-tresor.com
+                Vous ne retrouvez pas votre commande ici ? Écrivez-nous à {APRES_VENTE_EMAIL}
                 avec votre numéro de commande, nous vous répondons sous 24 h ouvrées.
               </p>
             </form>

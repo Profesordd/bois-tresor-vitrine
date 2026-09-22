@@ -12,7 +12,44 @@
 export const SHIPPING_LABEL = 'Livraison offerte'
 export const SHIPPING_ZONE  = 'en France métropolitaine, en Belgique, en Suisse et au Luxembourg'
 
+/**
+ * Deux canaux de contact, deux boîtes (décision du 22/09/2026). Le site
+ * n'envoie plus rien lui-même : chaque carte de la page Contact ouvre la
+ * messagerie du visiteur vers la bonne adresse.
+ *   - avant-vente : questions avant d'acheter → contact@ (boîte du gérant)
+ *   - après-vente : commande, livraison, retour → support externe
+ * Les libellés évitent « SAV » : pour ce public, « J'ai déjà commandé »
+ * parle, « service après-vente » évoque un numéro surtaxé.
+ */
 export const CONTACT_EMAIL = 'contact@bois-tresor.com'
+export const APRES_VENTE_EMAIL = 'help+paiementzen@thesupport.care'
+
+export interface Canal {
+  id: 'avant-vente' | 'apres-vente'
+  titre: string
+  description: string
+  email: string
+  objet: string
+  corps?: string
+}
+
+export const CANAUX: Canal[] = [
+  {
+    id: 'avant-vente',
+    titre: 'Je n’ai pas encore commandé',
+    description: 'Une question avant d’acheter : livraison chez moi, quel lot choisir, le bois, le paiement…',
+    email: CONTACT_EMAIL,
+    objet: 'Question avant de commander',
+  },
+  {
+    id: 'apres-vente',
+    titre: 'J’ai déjà commandé',
+    description: 'Livraison, suivi, facture, ou un problème avec ma commande.',
+    email: APRES_VENTE_EMAIL,
+    objet: 'Ma commande',
+    corps: 'Numéro de commande (commence par BA) : \n\nMa question : \n',
+  },
+]
 export const CONTACT_HOURS = 'Lun – Ven · 9h – 18h'
 
 /**
