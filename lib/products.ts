@@ -438,6 +438,10 @@ interface HerbicideInput {
   description: string
 }
 
+/* Au-dessus de ce prix, le produit est affiché en rupture (décision du
+   client, 22/09/2026) : les gros bidons ne sont pas vendus ici. */
+const HERBICIDE_PRIX_MAX = 170
+
 function buildHerbicide(h: HerbicideInput): Product {
   const specs: Spec[] = [
     { label: 'Type', value: h.selectif ? 'Herbicide sélectif (gazon)' : 'Herbicide total, non sélectif' },
@@ -466,7 +470,7 @@ function buildHerbicide(h: HerbicideInput): Product {
     price: h.price,
     original_price: h.original_price,
     pricePerStere: null,
-    stock: 20,
+    stock: h.price > HERBICIDE_PRIX_MAX ? 0 : 20,
     family: 'jardin',
     subtype: 'herbicide',
     image: h.image,
