@@ -1,7 +1,7 @@
 export type OrderStatus = 'pending' | 'paid' | 'processing' | 'shipped' | 'delivered' | 'cancelled' | 'refunded'
 
-export type ProductFamily = 'bois-de-chauffage' | 'bois-densifie' | 'granules'
-export type ProductSubtype = 'buche' | 'bois-densifie' | 'buche-compressee' | 'granule'
+export type ProductFamily = 'bois-de-chauffage' | 'bois-densifie' | 'granules' | 'jardin'
+export type ProductSubtype = 'buche' | 'bois-densifie' | 'buche-compressee' | 'granule' | 'herbicide'
 
 export interface Spec {
   label: string
@@ -15,6 +15,11 @@ export interface Category {
   /** Libellé abrégé, pour les pastilles de filtre sur téléphone. */
   shortName?: string
   family: ProductFamily
+  /**
+   * Catégorie accessible par son URL seulement : absente du menu, des
+   * filtres, du « tout voir », des produits liés et de l'accueil.
+   */
+  hidden?: boolean
   created_at: string
 }
 

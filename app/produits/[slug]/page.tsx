@@ -166,9 +166,11 @@ export default async function ProductPage({ params }: Props) {
             ))}
           </ul>
 
-          <div className="mb-5">
-            <SocialProof variant="inline" />
-          </div>
+          {product.family !== 'jardin' && (
+            <div className="mb-5">
+              <SocialProof variant="inline" />
+            </div>
+          )}
 
           {!parLot && <QuantitySelector product={product} />}
 
@@ -188,7 +190,7 @@ export default async function ProductPage({ params }: Props) {
       </div>
 
       <div className="mt-12">
-        <ProductDetails specs={product.specs} />
+        <ProductDetails specs={product.specs} family={product.family} />
       </div>
 
       {product.richDescription && product.description && (
@@ -210,7 +212,7 @@ export default async function ProductPage({ params }: Props) {
       </div>
 
       <div className="mt-10">
-        <UrgencyNote variant={product.badge === 'destockage' ? 'destockage' : 'saison'} />
+        <UrgencyNote variant={product.badge === 'destockage' || product.family === 'jardin' ? 'destockage' : 'saison'} />
       </div>
 
       <div className="mt-12 max-w-3xl">

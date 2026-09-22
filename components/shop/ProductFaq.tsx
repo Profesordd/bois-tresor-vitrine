@@ -18,6 +18,17 @@ const FAQ: Item[] = [
   {
     q: 'Livrez-vous partout en France, en Belgique, en Suisse et au Luxembourg ?',
     a: 'Oui, partout en France métropolitaine, en Belgique, en Suisse et au Luxembourg. La palette est déposée au plus près de votre lieu de stockage par un transporteur spécialisé, dont le camion est équipé d’un hayon et d’un chariot élévateur adapté au bois.',
+    familles: ['bois-de-chauffage', 'bois-densifie', 'granules'],
+  },
+  {
+    q: 'Livrez-vous partout en France, en Belgique, en Suisse et au Luxembourg ?',
+    a: 'Oui, partout en France métropolitaine, en Belgique, en Suisse et au Luxembourg, en colis, livraison offerte.',
+    familles: ['jardin'],
+  },
+  {
+    q: 'Puis-je acheter ce produit en tant que particulier ?',
+    a: 'Ces herbicides sont réservés aux utilisateurs professionnels titulaires du certificat Certiphyto, conformément à la réglementation. Lisez toujours l’étiquette et respectez les doses et précautions indiquées.',
+    familles: ['jardin'],
   },
   {
     q: 'La livraison est-elle payante ?',
@@ -68,6 +79,7 @@ const FAQ: Item[] = [
     a: `Écrivez-nous à ${APRES_VENTE_EMAIL} avec votre numéro de commande : nous répondons sous 24 h ouvrées. En cas de produit non conforme ou non livré, vous êtes livré ou remboursé.`,
   },
   {
+    familles: ['bois-de-chauffage', 'bois-densifie', 'granules'],
     q: 'Comment se passe la livraison ? Faut-il un accès particulier ?',
     a: 'Pas d’inquiétude : votre commande est livrée par palette directement chez vous. Le transporteur spécialisé intervient avec un camion équipé d’un hayon et d’un chariot élévateur adapté au bois : nous pouvons livrer même les endroits difficiles d’accès. Vous pourrez nous préciser les détails de votre accès après votre commande, pour que tout se passe au mieux le jour de la livraison. Dans la grande majorité des cas, il n’y a aucun souci.',
   },

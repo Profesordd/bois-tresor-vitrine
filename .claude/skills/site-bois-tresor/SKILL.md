@@ -137,6 +137,18 @@ page Contact, la réassurance sous le bouton et les mentions légales.
 Toujours avec le lien « vérifier sur l'annuaire officiel ». Le nom du
 gérant reste réservé aux mentions légales.
 
+**Catégorie cachée « Désherbants & herbicides »** (22/09/2026) : 28 fiches
+importées de naturejardin-fr.com par `scripts/import-herbicides.mjs`
+(données `lib/herbicides.json`, photos `public/products/herbicides/`),
+famille `jardin`, catégorie `hidden: true`. Accessible seulement par
+`/product-category/desherbants-herbicides/` : absente du menu, des filtres,
+du « tout voir » (`CATEGORIES_VISIBLES`), de l'accueil et des produits liés
+des autres fiches. Textes adaptés par famille : livraison en colis, FAQ
+jardin (« réservé aux professionnels, Certiphyto »), pas de preuve sociale
+« se chauffer ». **Non commandables** (`variantId: null`) tant que les
+produits Shopify n'existent pas et que les prix (64,90, 149,90…) ne sont
+pas ramenés sur la grille du checkout. Prix barrés = ceux du site source.
+
 **Livraison offerte partout, sans seuil** (décision du 20/09/2026) : plus
 aucun montant minimum nulle part — `lib/site.ts` n'a plus de
 `FREE_SHIPPING_THRESHOLD`, tiroir et page commande n'ont plus de logique

@@ -89,7 +89,7 @@ export default function ProductCard({ product }: ProductCardProps) {
         <p className="flex items-center gap-1.5 sm:gap-2 text-[13px] sm:text-[15px] text-gray-700">
           <Flame size={14} className="text-brand-600 flex-shrink-0 sm:hidden" />
           <Flame size={16} className="text-brand-600 flex-shrink-0 hidden sm:block" />
-          {family === 'granules' ? 'Granulés prêts à l’emploi' : 'Bois sec, prêt à brûler'}
+          {family === 'granules' ? 'Granulés prêts à l’emploi' : family === 'jardin' ? 'Usage professionnel' : 'Bois sec, prêt à brûler'}
         </p>
 
         <div className="mt-auto pt-1">

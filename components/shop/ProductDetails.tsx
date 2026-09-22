@@ -1,13 +1,21 @@
-import type { Spec } from '@/types/database'
+import type { Spec, ProductFamily } from '@/types/database'
 
 interface Props {
   specs: Spec[]
+  family?: ProductFamily
 }
 
 const DELIVERY = [
   'Livraison offerte, en France métropolitaine, en Belgique, en Suisse et au Luxembourg — sans montant minimum.',
   'Préparation sous 48 h ouvrées, livraison en 3 à 7 jours ouvrés selon votre région.',
   'Transporteur spécialisé, camion équipé d’un hayon et d’un chariot élévateur adapté au bois : la palette est déposée au plus près de votre lieu de stockage, même en accès difficile.',
+  'Vous recevez un e-mail dès l’expédition, avec le suivi de votre commande.',
+]
+
+/* Bidons et flacons : pas de palette, pas de hayon. */
+const DELIVERY_COLIS = [
+  'Livraison offerte, en France métropolitaine, en Belgique, en Suisse et au Luxembourg — sans montant minimum.',
+  'Préparation sous 48 h ouvrées, livraison en colis en 3 à 7 jours ouvrés selon votre région.',
   'Vous recevez un e-mail dès l’expédition, avec le suivi de votre commande.',
 ]
 
@@ -19,7 +27,8 @@ const PAYMENT = [
 ]
 
 /** Détails produit : rien n'est masqué derrière un accordéon, le persona ne clique pas. */
-export default function ProductDetails({ specs }: Props) {
+export default function ProductDetails({ specs, family }: Props) {
+  const livraison = family === 'jardin' ? DELIVERY_COLIS : DELIVERY
   return (
     <div className="grid md:grid-cols-3 gap-6 items-start">
       <section className="border-2 border-gray-100 rounded-lg p-5">
@@ -37,7 +46,7 @@ export default function ProductDetails({ specs }: Props) {
       <section className="border-2 border-gray-100 rounded-lg p-5">
         <h2 className="font-bold text-ink text-lg mb-4">Livraison</h2>
         <ul className="space-y-2.5 text-[15px] text-gray-700 leading-relaxed">
-          {DELIVERY.map(item => <li key={item}>{item}</li>)}
+          {livraison.map(item => <li key={item}>{item}</li>)}
         </ul>
       </section>
 

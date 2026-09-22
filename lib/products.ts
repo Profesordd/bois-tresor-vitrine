@@ -1,4 +1,5 @@
 import type { Product, Category, Spec, Lot } from '@/types/database'
+import HERBICIDES from '@/lib/herbicides.json'
 
 /**
  * Catalogue Bois Tresor — repris du site en production du client
@@ -15,7 +16,14 @@ export const CATEGORIES: Category[] = [
   { id: 'cat-buches',    slug: 'bois-de-chauffage',    name: 'Bois de chauffage',   family: 'bois-de-chauffage', created_at: '' },
   { id: 'cat-densifie',  slug: 'bois-densifie',        name: 'Bois densifié & bûches compressées', shortName: 'Bois densifié', family: 'bois-densifie', created_at: '' },
   { id: 'cat-granules',  slug: 'granules-et-pellets',  name: 'Granulés & pellets',  shortName: 'Granulés', family: 'granules',          created_at: '' },
+  /* Catégorie cachée (22/09/2026) : accessible par son URL uniquement,
+     /product-category/desherbants-herbicides/. Jamais dans le menu ni sur
+     l'accueil. */
+  { id: 'cat-herbicides', slug: 'desherbants-herbicides', name: 'Désherbants & herbicides', shortName: 'Désherbants', family: 'jardin', hidden: true, created_at: '' },
 ]
+
+/** Catégories visibles dans la navigation, les filtres et le « tout voir ». */
+export const CATEGORIES_VISIBLES = CATEGORIES.filter((c) => !c.hidden)
 
 function cat(id: string): Category {
   return CATEGORIES.find(c => c.id === id)!
@@ -407,9 +415,75 @@ const LIMOUZI: Product = {
   ],
 }
 
+/* ─────────────────────────────────────────────
+   DÉSHERBANTS & HERBICIDES — catégorie cachée
+   28 fiches importées de naturejardin-fr.com (scripts/import-herbicides.mjs,
+   données dans lib/herbicides.json, photos dans public/products/herbicides/).
+   Aucun identifiant de checkout : non commandables tant que les produits
+   Shopify n'existent pas et que les prix ne sont pas ramenés sur la grille.
+   Les prix barrés sont ceux du site source, à faire confirmer par le client.
+   ───────────────────────────────────────────── */
+interface HerbicideInput {
+  slug: string
+  name: string
+  price: number
+  original_price: number | null
+  contenance: string | null
+  matiere_active: string | null
+  selectif: boolean
+  image: string
+  description: string
+}
+
+function buildHerbicide(h: HerbicideInput): Product {
+  const specs: Spec[] = [
+    { label: 'Type', value: h.selectif ? 'Herbicide sélectif (gazon)' : 'Herbicide total, non sélectif' },
+  ]
+  if (h.matiere_active) specs.push({ label: 'Matière active', value: h.matiere_active })
+  if (h.contenance) specs.push({ label: 'Contenance', value: h.contenance })
+  specs.push({ label: 'Usage', value: 'Réservé aux utilisateurs professionnels' })
+
+  return {
+    id: nextId(),
+    slug: h.slug,
+    name: h.name,
+    tagline: h.selectif ? 'Sélectif gazon — feuilles larges' : 'Herbicide total à action systémique',
+    keyPoints: [
+      h.selectif
+        ? 'Herbicide sélectif pour pelouse : élimine les feuilles larges (trèfle, pissenlit, plantain) sans abîmer le gazon.'
+        : 'Herbicide total à action systémique : absorbé par les feuilles, il descend jusqu’aux racines.',
+      h.matiere_active ? `Matière active : ${h.matiere_active}.` : null,
+      h.contenance ? `Contenance : ${h.contenance}.` : null,
+      'Produit réservé aux utilisateurs professionnels (certificat Certiphyto). Lire l’étiquette avant toute utilisation.',
+      'Livraison offerte, en France métropolitaine, en Belgique, en Suisse et au Luxembourg.',
+      'Paiement sécurisé en ligne. E-mail de confirmation avec votre numéro de commande.',
+    ].filter((p): p is string => p !== null),
+    description: h.description,
+    richDescription: true,
+    price: h.price,
+    original_price: h.original_price,
+    pricePerStere: null,
+    stock: 20,
+    family: 'jardin',
+    subtype: 'herbicide',
+    image: h.image,
+    variantId: null,
+    checkoutMultiplier: null,
+    specs,
+    category_id: cat('cat-herbicides').id,
+    category: cat('cat-herbicides'),
+    badge: h.original_price ? 'destockage' : null,
+    rating: null,
+    review_count: 0,
+    created_at: '',
+  }
+}
+
+const HERBICIDES_PRODUITS: Product[] = (HERBICIDES as HerbicideInput[]).map(buildHerbicide)
+
 /* Le déstockage passe en tête des granulés : il apparaît ainsi parmi les
    quatre mis en avant sur la page d'accueil. */
-export const PRODUCTS: Product[] = [...MELANGES, ...HETRES, ...DENSIFIES, LIMOUZI, ...GRANULES]
+export const PRODUCTS: Product[] = [...MELANGES, ...HETRES, ...DENSIFIES, LIMOUZI, ...GRANULES, ...HERBICIDES_PRODUITS]
 
 export const BOIS_CHAUFFAGE_PRODUCTS = PRODUCTS.filter(p => p.family === 'bois-de-chauffage')
 export const DENSIFIE_PRODUCTS        = PRODUCTS.filter(p => p.family === 'bois-densifie')
@@ -427,7 +501,10 @@ export function getProductBySlug(slug: string): Product | undefined {
  * catalogue déjà filtré.
  */
 export function getRelatedProducts(product: Product, limit = 4, catalogue: Product[] = PRODUCTS): Product[] {
-  const autres = catalogue.filter(p => p.id !== product.id && p.stock > 0)
+  /* Une catégorie cachée ne s'invite sur aucune autre fiche, et ses propres
+     fiches ne proposent qu'elle-même. */
+  const cachee = (p: Product) => Boolean(p.category?.hidden)
+  const autres = catalogue.filter(p => p.id !== product.id && p.stock > 0 && cachee(p) === cachee(product))
   const memeFamille = autres.filter(p => p.family === product.family)
   const reste = autres.filter(p => p.family !== product.family)
   return [...memeFamille, ...reste].slice(0, limit)

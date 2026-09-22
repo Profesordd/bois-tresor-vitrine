@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { CATEGORIES } from '@/lib/products'
+import { CATEGORIES, CATEGORIES_VISIBLES } from '@/lib/products'
 import type { Product } from '@/types/database'
 import ProductGrid from '@/components/shop/ProductGrid'
 import FamilyBlock from '@/components/ui/FamilyBlock'
@@ -26,7 +26,8 @@ export default function CollectionView({ categorySlug, allProducts }: Props) {
   const activeCategory = CATEGORIES.find((c) => c.slug === categorySlug)
   const products = activeCategory
     ? allProducts.filter((p) => p.category_id === activeCategory.id)
-    : allProducts
+    : allProducts.filter((p) => !p.category?.hidden)
+  const jardin = activeCategory?.family === 'jardin'
 
   return (
     <div>
@@ -44,6 +45,11 @@ export default function CollectionView({ categorySlug, allProducts }: Props) {
             {activeCategory ? activeCategory.name : 'Bois de chauffage sec, prêt à brûler'}
           </h1>
 
+          {jardin ? (
+            <p className="text-brand-50 text-[17px] sm:text-xl max-w-2xl mx-auto leading-snug">
+              Désherbants professionnels en déstockage. Livraison offerte, paiement sécurisé.
+            </p>
+          ) : (<>
           {/* Téléphone : l'essentiel en une ligne de moins. */}
           <p className="sm:hidden text-brand-50 text-[17px] leading-snug">
             Moins de 20 % d’humidité : il chauffe vraiment et ne fume pas.
@@ -52,6 +58,7 @@ export default function CollectionView({ categorySlug, allProducts }: Props) {
             Moins de 20 % d’humidité : notre bois chauffe vraiment et ne fume pas.
             Livraison offerte, paiement sécurisé.
           </p>
+          </>)}
         </div>
       </div>
 
@@ -64,10 +71,13 @@ export default function CollectionView({ categorySlug, allProducts }: Props) {
           <LivraisonPays />
         </div>
 
-        {/* ── Preuve sociale, vue dès l'arrivée ── */}
-        <div className="mb-5 sm:mb-8">
-          <SocialProof />
-        </div>
+        {/* ── Preuve sociale, vue dès l'arrivée (elle parle de chauffage :
+               pas sur le jardin) ── */}
+        {!jardin && (
+          <div className="mb-5 sm:mb-8">
+            <SocialProof />
+          </div>
+        )}
 
         {/* ── Réassurance : qui nous sommes ── */}
         <FamilyBlock />
@@ -79,7 +89,7 @@ export default function CollectionView({ categorySlug, allProducts }: Props) {
              fait — le client vient de voir les palettes, on l'incite à ne
              pas attendre. ── */}
         <div className="mt-6 hidden sm:block">
-          <UrgencyNote />
+          <UrgencyNote variant={jardin ? 'destockage' : 'saison'} />
         </div>
 
         {/* ── Filtres ──
@@ -106,7 +116,7 @@ export default function CollectionView({ categorySlug, allProducts }: Props) {
           >
             Tout voir
           </Link>
-          {CATEGORIES.map((c) => (
+          {(jardin ? CATEGORIES.filter((c) => c.hidden) : CATEGORIES_VISIBLES).map((c) => (
             <Link
               key={c.slug}
               href={`/product-category/${c.slug}/`}
@@ -131,7 +141,7 @@ export default function CollectionView({ categorySlug, allProducts }: Props) {
           /* Sans filtre, on sépare clairement les deux univers plutôt que
              d'aligner 53 produits d'affilée : le persona a besoin de repères. */
           <div className="space-y-14">
-            {CATEGORIES.map((c) => {
+            {CATEGORIES_VISIBLES.map((c) => {
               const list = allProducts.filter((p) => p.category_id === c.id)
               if (list.length === 0) return null
               return (
@@ -149,7 +159,7 @@ export default function CollectionView({ categorySlug, allProducts }: Props) {
 
         {/* Sur téléphone uniquement : l'urgence arrive après les produits. */}
         <div className="mt-10 sm:hidden">
-          <UrgencyNote />
+          <UrgencyNote variant={jardin ? 'destockage' : 'saison'} />
         </div>
       </div>
     </div>
