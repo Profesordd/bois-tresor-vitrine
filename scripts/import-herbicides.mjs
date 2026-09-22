@@ -7,6 +7,9 @@
  * photo principale de chaque fiche dans public/products/herbicides/.
  *
  * Source de vérité : le CSV (nom, prix, prix barré, description, image).
+ * L'ordre de popularité (champ `popularite`) a été relevé séparément sur
+ * ?orderby=popularity et appliqué au JSON : relancer cet import remet les
+ * produits dans l'ordre du CSV — trier ensuite sur `popularite`.
  * La page produit du site n'est consultée que pour vérifier que la fiche
  * existe encore et récupérer son slug d'origine.
  */

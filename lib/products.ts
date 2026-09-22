@@ -421,7 +421,10 @@ const LIMOUZI: Product = {
    données dans lib/herbicides.json, photos dans public/products/herbicides/).
    Aucun identifiant de checkout : non commandables tant que les produits
    Shopify n'existent pas et que les prix ne sont pas ramenés sur la grille.
-   Les prix barrés sont ceux du site source, à faire confirmer par le client.
+   Les prix et prix barrés sont exactement ceux du site source (l'autre site
+   du client). L'ordre du fichier est l'ordre de popularité de ce site
+   (?orderby=popularity, relevé le 22/09/2026) : la collection l'affiche tel
+   quel, les plus vendus d'abord.
    ───────────────────────────────────────────── */
 interface HerbicideInput {
   slug: string
