@@ -67,7 +67,7 @@ export default async function ProductPage({ params }: Props) {
 
         {/* ── Colonne visuelle : photo produit + photo de l'équipe ── */}
         <div className="space-y-5">
-          <ProductGallery image={product.image} name={product.name} />
+          <ProductGallery image={product.image} name={product.name} fit={product.family === 'jardin' ? 'contain' : 'cover'} />
           {/* Sur mobile, ces blocs passent après le prix et le bouton. */}
           <div className="hidden lg:block space-y-5">
             <TeamPhoto />
@@ -212,7 +212,7 @@ export default async function ProductPage({ params }: Props) {
       </div>
 
       <div className="mt-10">
-        <UrgencyNote variant={product.badge === 'destockage' || product.family === 'jardin' ? 'destockage' : 'saison'} />
+        <UrgencyNote variant={product.family === 'jardin' ? 'jardin' : product.badge === 'destockage' ? 'destockage' : 'saison'} />
       </div>
 
       <div className="mt-12 max-w-3xl">

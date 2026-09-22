@@ -6,6 +6,9 @@ import FamilyBlock from '@/components/ui/FamilyBlock'
 import UrgencyNote from '@/components/ui/UrgencyNote'
 import SocialProof from '@/components/ui/SocialProof'
 import LivraisonPays from '@/components/ui/LivraisonPays'
+import StarRating from '@/components/shop/StarRating'
+import { Truck, ShieldCheck, Building2 } from 'lucide-react'
+import { SIRET } from '@/lib/site'
 
 interface Props {
   /** Slug de catégorie actif, ou undefined pour « tout voir ». */
@@ -46,9 +49,17 @@ export default function CollectionView({ categorySlug, allProducts }: Props) {
           </h1>
 
           {jardin ? (
-            <p className="text-brand-50 text-[17px] sm:text-xl max-w-2xl mx-auto leading-snug">
-              Désherbants professionnels en déstockage. Livraison offerte, paiement sécurisé.
-            </p>
+            <>
+              <p className="text-brand-50 text-[17px] sm:text-xl max-w-2xl mx-auto leading-snug">
+                Roundup, Radikal, Tidex, Barbarian : désherbants professionnels en déstockage,
+                jusqu’à −70 %. Livraison offerte.
+              </p>
+              {/* Les étoiles dès le hero : sur une catégorie où le client ne
+                  nous connaît pas encore, la note vient avant le prix. */}
+              <div className="mt-4 sm:mt-5 flex justify-center">
+                <StarRating tone="dark" size={20} className="text-[16px]" />
+              </div>
+            </>
           ) : (<>
           {/* Téléphone : l'essentiel en une ligne de moins. */}
           <p className="sm:hidden text-brand-50 text-[17px] leading-snug">
@@ -79,8 +90,31 @@ export default function CollectionView({ categorySlug, allProducts }: Props) {
           </div>
         )}
 
-        {/* ── Réassurance : qui nous sommes ── */}
-        <FamilyBlock />
+        {/* ── Réassurance : qui nous sommes. Le récit du bois n'a rien à faire
+               sur les désherbants ; on y met ce qui rassure ici : la note, la
+               livraison, le paiement, l'entreprise. ── */}
+        {jardin ? (
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
+            {[
+              { icon: ShieldCheck, titre: 'Paiement sécurisé', texte: '3D-Secure, aucune donnée bancaire conservée' },
+              { icon: Truck,       titre: 'Livraison offerte', texte: 'France, Belgique, Suisse, Luxembourg' },
+              { icon: Building2,   titre: 'Entreprise française', texte: `SIRET ${SIRET}` },
+            ].map(({ icon: Icon, titre, texte }) => (
+              <div key={titre} className="flex gap-3 rounded-lg border border-gray-200 bg-white p-3.5 sm:p-4">
+                <Icon size={22} className="text-brand-600 flex-shrink-0 mt-0.5" />
+                <div className="min-w-0">
+                  <p className="font-semibold text-ink text-[15px] leading-tight">{titre}</p>
+                  <p className="text-[13px] text-gray-500 leading-snug mt-0.5">{texte}</p>
+                </div>
+              </div>
+            ))}
+            <div className="flex flex-col justify-center rounded-lg border border-gray-200 bg-white p-3.5 sm:p-4">
+              <StarRating size={17} className="text-[14px] flex-wrap gap-y-1" />
+            </div>
+          </div>
+        ) : (
+          <FamilyBlock />
+        )}
 
         {/* ── Urgence crédible ──
              Sur grand écran elle précède les produits. Sur téléphone elle
@@ -89,7 +123,7 @@ export default function CollectionView({ categorySlug, allProducts }: Props) {
              fait — le client vient de voir les palettes, on l'incite à ne
              pas attendre. ── */}
         <div className="mt-6 hidden sm:block">
-          <UrgencyNote variant={jardin ? 'destockage' : 'saison'} />
+          <UrgencyNote variant={jardin ? 'jardin' : 'saison'} />
         </div>
 
         {/* ── Filtres ──
@@ -99,6 +133,7 @@ export default function CollectionView({ categorySlug, allProducts }: Props) {
              visiteur vient d'abord voir des palettes.
              Les marges négatives laissent le défilement atteindre les bords
              de l'écran, sinon la dernière pastille semble coupée net. ── */}
+        {!jardin && (
         <div
           className="flex gap-2 sm:gap-3 mt-5 mb-4 sm:mt-10 sm:mb-8
                      overflow-x-auto sm:overflow-visible sm:flex-wrap
@@ -134,6 +169,9 @@ export default function CollectionView({ categorySlug, allProducts }: Props) {
             </Link>
           ))}
         </div>
+        )}
+
+        {jardin && <div className="mt-6 sm:mt-10" />}
 
         {activeCategory ? (
           <ProductGrid products={products} />
@@ -159,7 +197,7 @@ export default function CollectionView({ categorySlug, allProducts }: Props) {
 
         {/* Sur téléphone uniquement : l'urgence arrive après les produits. */}
         <div className="mt-10 sm:hidden">
-          <UrgencyNote variant={jardin ? 'destockage' : 'saison'} />
+          <UrgencyNote variant={jardin ? 'jardin' : 'saison'} />
         </div>
       </div>
     </div>

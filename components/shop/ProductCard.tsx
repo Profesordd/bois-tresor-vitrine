@@ -1,9 +1,11 @@
 import Link from 'next/link'
-import { Truck, Flame, ArrowRight, Award, Tag, PackageCheck } from 'lucide-react'
+import { Truck, Flame, ArrowRight, Award, Tag, PackageCheck, Sprout } from 'lucide-react'
 import type { Product } from '@/types/database'
 import { formatPrice } from '@/lib/utils'
 import ProductVisual from '@/components/shop/ProductVisual'
 import { lotsDisponibles, prixMinimum, prixAuSacMinimum } from '@/lib/lots'
+import { Star } from 'lucide-react'
+import { REVIEW_RATING, REVIEW_COUNT } from '@/lib/reviews'
 
 interface ProductCardProps {
   product: Product
@@ -41,7 +43,7 @@ export default function ProductCard({ product }: ProductCardProps) {
       className="group bg-white rounded-lg border-2 border-gray-100 hover:border-brand-400 hover:shadow-lg transition-all duration-300 overflow-hidden flex flex-col focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
     >
       <div className="relative aspect-[4/3] overflow-hidden flex-shrink-0 bg-gray-50">
-        <ProductVisual image={image} name={name} className="group-hover:scale-105 transition-transform duration-500" />
+        <ProductVisual image={image} name={name} fit={family === 'jardin' ? 'contain' : 'cover'} className="group-hover:scale-105 transition-transform duration-500" />
 
         {/* Un seul repère dans toute la collection : face à neuf palettes qui
             se ressemblent, il indique par où commencer. Pas un argument de
@@ -86,9 +88,25 @@ export default function ProductCard({ product }: ProductCardProps) {
           {name}
         </h3>
 
+        {/* Étoiles sur les cartes de la catégorie jardin : le visiteur y
+            arrive sans connaître la maison, la note doit être sur la carte. */}
+        {family === 'jardin' && (
+          <p className="flex items-center gap-1 sm:gap-1.5 text-[11px] sm:text-[13px] text-gray-600 whitespace-nowrap">
+            <span className="flex gap-px">
+              {[1, 2, 3, 4, 5].map((i) => <Star key={i} size={12} className="fill-brand-500 text-brand-500 sm:hidden" />)}
+              {[1, 2, 3, 4, 5].map((i) => <Star key={`l${i}`} size={14} className="fill-brand-500 text-brand-500 hidden sm:block" />)}
+            </span>
+            <span><strong className="font-semibold text-ink">{REVIEW_RATING}</strong> · {REVIEW_COUNT} avis</span>
+          </p>
+        )}
+
         <p className="flex items-center gap-1.5 sm:gap-2 text-[13px] sm:text-[15px] text-gray-700">
+          {family === 'jardin' ? (
+            <Sprout size={15} className="text-brand-600 flex-shrink-0" />
+          ) : (<>
           <Flame size={14} className="text-brand-600 flex-shrink-0 sm:hidden" />
           <Flame size={16} className="text-brand-600 flex-shrink-0 hidden sm:block" />
+          </>)}
           {family === 'granules' ? 'Granulés prêts à l’emploi' : family === 'jardin' ? 'Usage professionnel' : 'Bois sec, prêt à brûler'}
         </p>
 
