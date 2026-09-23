@@ -116,6 +116,17 @@ clics** : un prix plus haut peut augmenter les clics et baisser les
 paiements. Les formats diffèrent entre A et B : le test ne mesure pas le
 prix seul, c'est assumé.
 
+**Offre à durée limitée** (`Product.offre`, `OffreLimitee.tsx`) : quantité
+restante + compte à rebours, sur la fiche B seulement. Règle qui rend la
+chose acceptable ici, alors que l'urgence fabriquée est interdite ailleurs :
+`finAt` est une **date réelle et fixe**, identique pour tous, jamais
+réinitialisée, écrite en toutes lettres sous le décompte ; passée cette
+date la fiche **cesse de vendre** (bouton désactivé, barre mobile retirée).
+`lotsRestants` doit être la quantité réelle — à tenir à jour, et passer la
+fiche en rupture une fois à zéro. Ne jamais remettre la date en avant pour
+faire repartir le compteur : ce serait un faux, et le site perdrait ce qui
+le distingue pour ce public.
+
 ⚠️ **Contrôler la grille en centimes, jamais en flottants** : 119,97 / 29,99
 donne 4,0003, arrondi à 4 — un faux positif. `Math.round(prix*100) % mult`
 puis appartenance à la grille.

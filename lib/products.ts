@@ -520,6 +520,10 @@ const LIMOUZI_B: Product = {
   checkoutMultiplier: 2,
   unlisted: true,
   canonicalOf: LIMOUZI.slug,
+  /* Arrivage limité, d'un autre fournisseur : quantité et date réelles,
+     à tenir à jour. Le compte à rebours vise cette date exacte et la fiche
+     cesse de vendre une fois passée. */
+  offre: { finAt: '2026-09-30T23:59:00+02:00', lotsRestants: 3 },
   keyPoints: LIMOUZI.keyPoints.map((l) =>
     l.startsWith('Par lot de')
       ? 'Par lot de 20 ou 30 sacs, ou demi-palette de 45 sacs, à partir de 89,98 € — livraison offerte. Plus vous prenez, moins le sac est cher.'

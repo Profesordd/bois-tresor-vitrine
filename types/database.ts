@@ -85,6 +85,22 @@ export interface Product {
    */
   canonicalOf?: string
   /**
+   * Offre à durée et quantité limitées.
+   *
+   * Les deux valeurs doivent être vraies : le compte à rebours vise une
+   * date réelle, identique pour tous les visiteurs, et ne se réinitialise
+   * jamais. Passée cette date, ou une fois les lots écoulés, la fiche ne
+   * vend plus — sans quoi le site annoncerait une limite qu'il ne tient
+   * pas, ce qui est précisément ce qui fait fuir ce public (et une
+   * pratique commerciale trompeuse).
+   */
+  offre?: {
+    /** Fin de l'offre, en ISO 8601 avec fuseau : '2026-09-30T23:59:00+02:00'. */
+    finAt: string
+    /** Nombre de lots encore disponibles à ce prix. */
+    lotsRestants: number
+  }
+  /**
    * Identifiant de variante du checkout. `null` = produit pas encore
    * commandable en ligne (identifiant non fourni).
    */

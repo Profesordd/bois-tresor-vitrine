@@ -9,6 +9,7 @@ import { lotsDisponibles, lotParDefaut, libelleLot, produitDuLot, PRIX_MARCHE_SA
 import { formatPrice } from '@/lib/utils'
 import BarreAchatMobile from '@/components/shop/BarreAchatMobile'
 import { trackAddToCartThenRedirect } from '@/lib/analytics/meta'
+import OffreLimitee from '@/components/shop/OffreLimitee'
 
 interface Props {
   product: Product
@@ -29,6 +30,8 @@ export default function LotSelector({ product }: Props) {
   const lots = lotsDisponibles(product)
   const [lotId, setLotId] = useState<string | undefined>(lotParDefaut(product)?.id)
   const [redirecting, setRedirecting] = useState(false)
+  /* Offre échue : plus aucun achat possible à ce prix. */
+  const [offreTerminee, setOffreTerminee] = useState(false)
   const { items, addItem, removeItem } = useCartStore()
 
   const lot = lots.find((l) => l.id === lotId) ?? lots[0]
@@ -75,6 +78,7 @@ export default function LotSelector({ product }: Props) {
   }
 
   function handleBuy() {
+    if (offreTerminee) return
     /* Un autre lot du même produit, resté d'un clic précédent, ne part pas
        avec : changer d'avis entre 30 et 40 sacs ne doit pas faire payer les
        deux. Les autres produits, eux, suivent comme d'habitude. */
@@ -167,6 +171,14 @@ export default function LotSelector({ product }: Props) {
       </div>
       )}
 
+      {product.offre && (
+        <OffreLimitee
+          finAt={product.offre.finAt}
+          lotsRestants={product.offre.lotsRestants}
+          onTermine={setOffreTerminee}
+        />
+      )}
+
       {/* ── Le prix du lot choisi ── */}
       <div>
         <div className="flex items-baseline gap-3 flex-wrap">
@@ -190,19 +202,25 @@ export default function LotSelector({ product }: Props) {
       <button
         ref={boutonPrincipal}
         onClick={handleBuy}
-        disabled={redirecting}
+        disabled={redirecting || offreTerminee}
         data-track="Commander"
         {...attributs}
-        className="w-full py-5 rounded-lg font-bold text-xl flex items-center justify-center gap-3 transition-all duration-200 shadow-md bg-brand-600 hover:bg-brand-700 hover:shadow-lg disabled:opacity-70 text-white"
+        className="w-full py-5 rounded-lg font-bold text-xl flex items-center justify-center gap-3 transition-all duration-200 shadow-md bg-brand-600 hover:bg-brand-700 hover:shadow-lg disabled:opacity-70 disabled:bg-gray-300 disabled:hover:bg-gray-300 text-white"
       >
-        {redirecting ? 'Redirection vers le paiement…' : <><ShoppingCart size={26} />Commander maintenant</>}
+        {offreTerminee
+          ? 'Offre terminée'
+          : redirecting
+            ? 'Redirection vers le paiement…'
+            : <><ShoppingCart size={26} />Commander maintenant</>}
       </button>
-      <p className="text-center text-sm text-gray-500 -mt-2">
-        Vous passez directement au paiement sécurisé.
-      </p>
+      {!offreTerminee && (
+        <p className="text-center text-sm text-gray-500 -mt-2">
+          Vous passez directement au paiement sécurisé.
+        </p>
+      )}
 
       <BarreAchatMobile
-        visible={barreVisible}
+        visible={barreVisible && !offreTerminee}
         prix={lot.price}
         sousTitre={libelleLot(lot)}
         redirecting={redirecting}
