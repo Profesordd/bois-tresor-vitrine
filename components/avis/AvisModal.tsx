@@ -1,10 +1,10 @@
 'use client'
 
 import { useEffect } from 'react'
-import { X, Star, MapPin, ShieldCheck } from 'lucide-react'
+import { X, Star, ShieldCheck } from 'lucide-react'
 import { useAvisModal } from '@/stores/avis'
 import {
-  TESTIMONIALS, REVIEW_RATING, REVIEW_COUNT, REVIEW_DISTRIBUTION, AVATAR_COLORS,
+  TESTIMONIALS, REVIEW_RATING, REVIEW_COUNT, REVIEW_DISTRIBUTION, AVATAR_COLORS, REVIEWS_SOURCE,
 } from '@/lib/reviews'
 
 /** Les étoiles d'un avis, pleines jusqu'à `note`. */
@@ -70,9 +70,19 @@ export default function AvisModal() {
                 <strong className="font-semibold text-ink">{REVIEW_RATING}/5</strong> · {REVIEW_COUNT} avis
               </span>
             </div>
-            <p className="flex items-center gap-1.5 text-[13px] text-gray-500 mt-1.5">
+            <p className="flex items-center gap-1.5 text-[13px] text-gray-500 mt-1.5 flex-wrap">
               <ShieldCheck size={14} className="text-brand-600 flex-shrink-0" />
-              Avis de clients ayant commandé chez nous
+              <span>
+                Avis publiés sur {REVIEWS_SOURCE.nom} —{' '}
+                <a
+                  href={REVIEWS_SOURCE.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-brand-700 underline underline-offset-2"
+                >
+                  voir la page
+                </a>
+              </span>
             </p>
           </div>
           <button
@@ -85,7 +95,8 @@ export default function AvisModal() {
         </div>
 
         <div className="overflow-y-auto flex-1 p-5 sm:p-6 space-y-5">
-          {/* ── Répartition ── */}
+          {/* ── Répartition, seulement si elle est connue ── */}
+          {REVIEW_DISTRIBUTION && (
           <div className="rounded-lg border border-gray-200 p-4 space-y-1.5">
             {([5, 4, 3, 2, 1] as const).map((n) => (
               <div key={n} className="flex items-center gap-3 text-[13px]">
@@ -93,13 +104,14 @@ export default function AvisModal() {
                 <span className="flex-1 h-2 rounded-full bg-gray-100 overflow-hidden">
                   <span
                     className="block h-full rounded-full bg-brand-500"
-                    style={{ width: `${REVIEW_DISTRIBUTION[n]}%` }}
+                    style={{ width: `${REVIEW_DISTRIBUTION![n]}%` }}
                   />
                 </span>
-                <span className="w-10 flex-shrink-0 text-right text-gray-500">{REVIEW_DISTRIBUTION[n]} %</span>
+                <span className="w-10 flex-shrink-0 text-right text-gray-500">{REVIEW_DISTRIBUTION![n]} %</span>
               </div>
             ))}
           </div>
+          )}
 
           {/* ── Les avis ── */}
           <div>
@@ -117,11 +129,11 @@ export default function AvisModal() {
                     </span>
                     <div className="min-w-0 flex-1">
                       <p className="font-semibold text-ink text-[15px] leading-tight">{t.name}</p>
+                      {/* Une seule ligne de texte : en éléments flex, « Aix-en-Provence »
+                          et la date se coupaient chacun de leur côté sur téléphone. */}
                       {(t.city || t.date) && (
-                        <p className="flex items-center gap-1.5 text-[12px] text-gray-500 mt-0.5">
-                          {t.city && (<><MapPin size={12} className="flex-shrink-0" />{t.city}</>)}
-                          {t.city && t.date && <span aria-hidden>·</span>}
-                          {t.date}
+                        <p className="text-[12px] text-gray-500 mt-0.5 leading-snug">
+                          {[t.city, t.date].filter(Boolean).join(' · ')}
                         </p>
                       )}
                     </div>
