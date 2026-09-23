@@ -157,6 +157,14 @@ produit. Les champs ville/date/produit/note sont **facultatifs et ne
 s'affichent que s'ils existent** : ne jamais en inventer un.
 `BandeauAvis` tient sur une ligne dès 320 px (le libellé se raccourcit).
 
+**Widgets Trustpilot officiels** (`lib/trustpilot.ts`, `components/avis/TrustBox.tsx`) :
+le client a un abonnement Trustpilot Business. Les widgets s'activent dès
+que `NEXT_PUBLIC_TRUSTPILOT_BUSINESS_UNIT_ID` et les `TPL_*` sont remplis
+(identifiants à copier du code fourni par Trustpilot, jamais devinés).
+Tant qu'ils sont vides, la note maison sert de repli — idem si le script
+est bloqué. `loadFromElement` est rappelé à chaque montage, sinon le
+widget disparaît à la deuxième page visitée.
+
 ⛔ **Jamais de réplique d'une plateforme d'avis** (Trustpilot ou autre) :
 logo, barre de navigation, badge « entreprise vérifiée », nombre d'avis de
 la plateforme. C'est une usurpation de marque et une pratique commerciale

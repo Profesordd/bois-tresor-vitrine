@@ -7,6 +7,7 @@ import UrgencyNote from '@/components/ui/UrgencyNote'
 import SocialProof from '@/components/ui/SocialProof'
 import LivraisonPays from '@/components/ui/LivraisonPays'
 import BandeauAvis from '@/components/avis/BandeauAvis'
+import TrustBox from '@/components/avis/TrustBox'
 import { Truck, ShieldCheck, Building2 } from 'lucide-react'
 import { SIRET } from '@/lib/site'
 
@@ -57,7 +58,9 @@ export default function CollectionView({ categorySlug, allProducts }: Props) {
               {/* La note dès le hero : sur une catégorie où le client ne
                   nous connaît pas encore, elle vient avant le prix. */}
               <div className="mt-4 sm:mt-5 flex justify-center">
-                <span className="w-full max-w-xs"><BandeauAvis tone="dark" /></span>
+                <span className="w-full max-w-xs">
+                  <TrustBox gabarit="bandeau" repli={<BandeauAvis tone="dark" />} />
+                </span>
               </div>
             </>
           ) : (<>
@@ -91,7 +94,7 @@ export default function CollectionView({ categorySlug, allProducts }: Props) {
           </div>
         )}
         <div className="mb-5 sm:mb-8 max-w-md mx-auto">
-          <BandeauAvis />
+          <TrustBox gabarit="bandeau" repli={<BandeauAvis />} />
         </div>
 
         {/* ── Réassurance : qui nous sommes. Le récit du bois n'a rien à faire

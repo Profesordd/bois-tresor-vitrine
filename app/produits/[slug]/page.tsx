@@ -14,6 +14,7 @@ import ProductGrid from '@/components/shop/ProductGrid'
 import ViewContentTracker from '@/components/analytics/ViewContentTracker'
 import LivraisonPays from '@/components/ui/LivraisonPays'
 import StarRating from '@/components/shop/StarRating'
+import TrustBox from '@/components/avis/TrustBox'
 import Testimonials from '@/components/shop/Testimonials'
 import TeamPhoto from '@/components/shop/TeamPhoto'
 import ProductFaq from '@/components/shop/ProductFaq'
@@ -110,7 +111,7 @@ export default async function ProductPage({ params }: Props) {
             {product.name}
           </h1>
 
-          <StarRating className="mb-5" size={17} />
+          <TrustBox gabarit="note" className="mb-5" repli={<StarRating className="mb-5" size={17} />} />
 
           {parLot && (
             <div className="mb-8">
