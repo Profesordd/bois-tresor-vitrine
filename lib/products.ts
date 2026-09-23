@@ -488,9 +488,53 @@ function buildHerbicide(h: HerbicideInput): Product {
 
 const HERBICIDES_PRODUITS: Product[] = (HERBICIDES as HerbicideInput[]).map(buildHerbicide)
 
+/* ─────────────────────────────────────────────
+   TEST A/B PRIX — fiche B des granulés Limouzi (23/09/2026)
+
+   Même produit, mêmes photos, même texte que la fiche A ; seuls les prix
+   et les lots changent. Non listée : accessible par son URL uniquement,
+   elle reçoit sa propre campagne publicitaire. La décision se prendra sur
+   les commandes payées par variante, côté processeur — pas sur les clics.
+
+   Note de méthode : les formats diffèrent entre A (20/30/40 + palette 65)
+   et B (20/30 + demi-palette 45). Le test mesure donc « prix bas + ces
+   formats » contre « prix haut + ces formats », pas le prix seul.
+
+   Prix contrôlés sur la grille, en centimes :
+     89,98 € = 44,99 × 2   119,97 € = 39,99 × 3   149,95 € = 29,99 × 5
+   ───────────────────────────────────────────── */
+const LIMOUZI_B_LOTS: Lot[] = [
+  { id: '20',  sacs: 20, poids: '300 kg', price: 89.98,  variantId: '58545343758680', checkoutMultiplier: 2 },  // 4,50 €/sac
+  { id: '30',  sacs: 30, poids: '450 kg', price: 119.97, variantId: '58545345298776', checkoutMultiplier: 3 },  // 4,00 €/sac
+  { id: 'demi', sacs: 45, poids: '675 kg', price: 149.95, variantId: '58545346675032', checkoutMultiplier: 5, label: 'Demi-palette 45 sacs' },  // 3,33 €/sac
+]
+
+const LIMOUZI_B: Product = {
+  ...LIMOUZI,
+  id: nextId(),
+  slug: 'granules-de-bois-limouzi-sacs-de-15-kg',
+  lots: LIMOUZI_B_LOTS,
+  defaultLotId: '30',
+  price: 89.98,
+  variantId: '58545343758680',
+  checkoutMultiplier: 2,
+  unlisted: true,
+  canonicalOf: LIMOUZI.slug,
+  keyPoints: LIMOUZI.keyPoints.map((l) =>
+    l.startsWith('Par lot de')
+      ? 'Par lot de 20 ou 30 sacs, ou demi-palette de 45 sacs, à partir de 89,98 € — livraison offerte. Plus vous prenez, moins le sac est cher.'
+      : l
+  ),
+  specs: LIMOUZI.specs.map((sp) =>
+    sp.label === 'Formats' ? { ...sp, value: '20 ou 30 sacs, ou demi-palette de 45 sacs (675 kg)' } : sp
+  ),
+  tagline: 'Déstockage — ENplus A1, par lot de 20 sacs ou demi-palette',
+}
+
 /* Le déstockage passe en tête des granulés : il apparaît ainsi parmi les
-   quatre mis en avant sur la page d'accueil. */
-export const PRODUCTS: Product[] = [...MELANGES, ...HETRES, ...DENSIFIES, LIMOUZI, ...GRANULES, ...HERBICIDES_PRODUITS]
+   quatre mis en avant sur la page d'accueil. La fiche B suit, non listée :
+   elle doit exister dans le catalogue pour que sa page soit générée. */
+export const PRODUCTS: Product[] = [...MELANGES, ...HETRES, ...DENSIFIES, LIMOUZI, LIMOUZI_B, ...GRANULES, ...HERBICIDES_PRODUITS]
 
 export const BOIS_CHAUFFAGE_PRODUCTS = PRODUCTS.filter(p => p.family === 'bois-de-chauffage')
 export const DENSIFIE_PRODUCTS        = PRODUCTS.filter(p => p.family === 'bois-densifie')
@@ -511,7 +555,9 @@ export function getRelatedProducts(product: Product, limit = 4, catalogue: Produ
   /* Une catégorie cachée ne s'invite sur aucune autre fiche, et ses propres
      fiches ne proposent qu'elle-même. */
   const cachee = (p: Product) => Boolean(p.category?.hidden)
-  const autres = catalogue.filter(p => p.id !== product.id && p.stock > 0 && cachee(p) === cachee(product))
+  const autres = catalogue.filter(
+    p => p.id !== product.id && p.stock > 0 && !p.unlisted && cachee(p) === cachee(product)
+  )
   const memeFamille = autres.filter(p => p.family === product.family)
   const reste = autres.filter(p => p.family !== product.family)
   return [...memeFamille, ...reste].slice(0, limit)

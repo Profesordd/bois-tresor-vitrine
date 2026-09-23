@@ -45,7 +45,7 @@ export default async function HomePage() {
   /* Seuls les produits en vente sont mis en avant : une rupture sur la
      page d'accueil est une porte fermée, pas une vitrine. S'il en reste
      moins de quatre, la grille se resserre plutôt que de laisser des trous. */
-  const enVente = (f: string) => catalogue.filter((p) => p.family === f && p.stock > 0).slice(0, 4)
+  const enVente = (f: string) => catalogue.filter((p) => p.family === f && p.stock > 0 && !p.unlisted).slice(0, 4)
   const boisChauffageHighlights = enVente('bois-de-chauffage')
   const granulesHighlights      = enVente('granules')
   const colonnes = (n: number) => Math.max(1, Math.min(4, n)) as 1 | 2 | 3 | 4

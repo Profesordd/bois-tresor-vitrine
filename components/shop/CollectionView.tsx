@@ -26,9 +26,10 @@ interface Props {
  */
 export default function CollectionView({ categorySlug, allProducts }: Props) {
   const activeCategory = CATEGORIES.find((c) => c.slug === categorySlug)
+  const listables = allProducts.filter((p) => !p.unlisted)
   const products = activeCategory
-    ? allProducts.filter((p) => p.category_id === activeCategory.id)
-    : allProducts.filter((p) => !p.category?.hidden)
+    ? listables.filter((p) => p.category_id === activeCategory.id)
+    : listables.filter((p) => !p.category?.hidden)
   const jardin = activeCategory?.family === 'jardin'
 
   return (
@@ -171,7 +172,7 @@ export default function CollectionView({ categorySlug, allProducts }: Props) {
              d'aligner 53 produits d'affilée : le persona a besoin de repères. */
           <div className="space-y-14">
             {CATEGORIES_VISIBLES.map((c) => {
-              const list = allProducts.filter((p) => p.category_id === c.id)
+              const list = listables.filter((p) => p.category_id === c.id)
               if (list.length === 0) return null
               return (
                 <section key={c.id}>

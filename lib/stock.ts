@@ -17,6 +17,26 @@ import type { Product } from '@/types/database'
  */
 export const STOCK_TAG = 'stock'
 
+/**
+ * Produits qui partagent le même stock physique — typiquement les deux
+ * fiches d'un test A/B. Marquer l'un en rupture les marque tous : ce sont
+ * les mêmes sacs, il ne peut pas en rester d'un côté et plus de l'autre.
+ */
+const STOCK_PARTAGE: string[][] = [
+  [
+    'granules-de-bois-limouzi-palette-de-134-sacs-de-15-kg',
+    'granules-de-bois-limouzi-sacs-de-15-kg',
+  ],
+]
+
+/** Étend une liste de ruptures aux produits qui partagent leur stock. */
+function etendreAuxLies(ruptures: Set<string>): Set<string> {
+  for (const groupe of STOCK_PARTAGE) {
+    if (groupe.some((s) => ruptures.has(s))) groupe.forEach((s) => ruptures.add(s))
+  }
+  return ruptures
+}
+
 /** Stock catalogue à 1 : le produit est vendu à l'unité, la vente l'épuise. */
 export function estDernierExemplaire(product: Pick<Product, 'stock'>): boolean {
   return product.stock === 1
@@ -41,7 +61,7 @@ export async function getRuptures(): Promise<Set<string>> {
   try {
     const { data, error } = await clientStock().from('stock_epuise').select('slug')
     if (error) return new Set()
-    return new Set((data ?? []).map((r) => r.slug as string))
+    return etendreAuxLies(new Set((data ?? []).map((r) => r.slug as string)))
   } catch {
     return new Set()
   }

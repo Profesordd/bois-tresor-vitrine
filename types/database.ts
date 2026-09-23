@@ -74,6 +74,17 @@ export interface Product {
   /** Sur un produit dérivé d'un lot (panier, checkout) : le lot choisi. */
   lot?: Lot
   /**
+   * Produit accessible par son URL seulement : absent de la collection, de
+   * l'accueil et des produits liés. Sert aux tests A/B — deux fiches du
+   * même produit, chacune avec sa campagne.
+   */
+  unlisted?: boolean
+  /**
+   * Slug de la fiche de référence, pour le lien canonique. Deux fiches au
+   * même contenu se cannibalisent sinon dans les résultats de recherche.
+   */
+  canonicalOf?: string
+  /**
    * Identifiant de variante du checkout. `null` = produit pas encore
    * commandable en ligne (identifiant non fourni).
    */

@@ -40,10 +40,11 @@ ajout ou changement de prix :
 ```bash
 node -e "
 const s=require('fs').readFileSync('lib/products.ts','utf8');
-const grille=[9.99,14.99,19.99,24.99,29.99,34.99,39.99,44.99];
+const grille=[999,1499,1999,2499,2999,3499,3999,4499]; // en centimes
 for(const m of s.matchAll(/price:\s*([0-9.]+),[^}]*?checkoutMultiplier:\s*(\d+)/g)){
-  const u=+(+m[1]/+m[2]).toFixed(2);
-  if(!grille.includes(u)) console.log('HORS GRILLE', m[1], '/', m[2], '=', u);
+  const p=Math.round(+m[1]*100), mult=+m[2];      // jamais de division de flottants
+  if(p % mult !== 0 || !grille.includes(p/mult))
+    console.log('HORS GRILLE', m[1], '×', mult);
 }"
 ```
 
@@ -101,6 +102,23 @@ jusqu'à 60 s avant de la voir sur le site.
 message « Dernier exemplaire en stock — 1 max par commande », et le webhook
 le passe en rupture dès qu'une commande payée le contient. Les autres
 produits ne sont pas suivis par le webhook. Premier cas : Limouzi.
+
+**Test A/B prix sur les granulés** (lancé le 23/09/2026) : deux fiches du
+même produit. A = `granules-de-bois-limouzi-palette-de-134-sacs-de-15-kg`
+(4 lots, prix bas, listée). B = `granules-de-bois-limouzi-sacs-de-15-kg`
+(3 lots, prix hauts, `unlisted: true` + `canonicalOf` vers A, noindex,
+accessible par URL seulement, sa propre campagne). `unlisted` exclut de la
+collection, de l'accueil et des produits liés ; la page reste générée.
+Stock partagé : `STOCK_PARTAGE` dans `lib/stock.ts` fait tomber les deux
+fiches ensemble. Suivi : `node scripts/ab-granules.mjs`. **La décision se
+prend sur les commandes payées par variante, côté processeur — pas sur les
+clics** : un prix plus haut peut augmenter les clics et baisser les
+paiements. Les formats diffèrent entre A et B : le test ne mesure pas le
+prix seul, c'est assumé.
+
+⚠️ **Contrôler la grille en centimes, jamais en flottants** : 119,97 / 29,99
+donne 4,0003, arrondi à 4 — un faux positif. `Math.round(prix*100) % mult`
+puis appartenance à la grille.
 
 **Produits vendus par lot** (`Product.lots`, `lib/lots.ts`, `LotSelector`) :
 une seule fiche, plusieurs formats, chaque lot avec son propre `variantId`
