@@ -107,10 +107,15 @@ export default function LotSelector({ product }: Props) {
           En magasin, le sac de 15 kg est à {formatPrice(PRIX_MARCHE_SAC)} en moyenne ({PRIX_MARCHE_DATE}).
         </p>
         <div className="grid gap-2.5 sm:grid-cols-2" role="radiogroup" aria-label="Quantité">
-          {lots.map((l) => {
+          {lots.map((l, i) => {
             const actif = l.id === lot.id
             const auSac = l.price / l.sacs
             const meilleur = Math.abs(auSac - meilleurAuSac) < 0.001
+            /* Deux colonnes sur ordinateur : en nombre impair, la dernière
+               carte se retrouverait seule avec un trou à côté. Elle prend
+               toute la largeur. Sans effet sur téléphone, où la grille
+               n'a qu'une colonne. */
+            const pleineLargeur = lots.length % 2 === 1 && i === lots.length - 1
             return (
               <button
                 key={l.id}
@@ -119,6 +124,8 @@ export default function LotSelector({ product }: Props) {
                 aria-checked={actif}
                 onClick={() => choisir(l)}
                 className={`relative text-left rounded-lg border-2 px-4 py-3.5 transition-colors ${
+                  pleineLargeur ? 'sm:col-span-2' : ''
+                } ${
                   actif
                     ? 'border-brand-600 bg-brand-50 shadow-sm'
                     : 'border-gray-200 bg-white hover:border-brand-400'
