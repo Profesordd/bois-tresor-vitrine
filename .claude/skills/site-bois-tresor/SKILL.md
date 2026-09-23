@@ -157,6 +157,13 @@ produit. Les champs ville/date/produit/note sont **facultatifs et ne
 s'affichent que s'ils existent** : ne jamais en inventer un.
 `BandeauAvis` tient sur une ligne dès 320 px (le libellé se raccourcit).
 
+**Avis : rien de nouveau sur le site public** (23/09/2026). Le client veut
+valider la présentation avant publication : tout est sur `/apercu-avis/`
+(noindex, liée de nulle part), avec ses 15 avis (`AVIS_FOURNIS`). Le site
+public affiche toujours les 6 avis d'origine (`TESTIMONIALS`), étoiles non
+cliquables, sans bandeau ni widget. Pour remettre en ligne : rebrancher
+`BandeauAvis`/`AvisModal` et basculer `TESTIMONIALS` sur `AVIS_FOURNIS`.
+
 **Widgets Trustpilot officiels** (`lib/trustpilot.ts`, `components/avis/TrustBox.tsx`) :
 le client a un abonnement Trustpilot Business. Les widgets s'activent dès
 que `NEXT_PUBLIC_TRUSTPILOT_BUSINESS_UNIT_ID` et les `TPL_*` sont remplis

@@ -4,7 +4,7 @@ import { useEffect } from 'react'
 import { X, Star, ShieldCheck } from 'lucide-react'
 import { useAvisModal } from '@/stores/avis'
 import {
-  TESTIMONIALS, REVIEW_RATING, REVIEW_COUNT, REVIEW_DISTRIBUTION, AVATAR_COLORS, REVIEWS_SOURCE,
+  AVIS_FOURNIS, REVIEW_RATING, REVIEW_COUNT, REVIEW_DISTRIBUTION, AVATAR_COLORS,
 } from '@/lib/reviews'
 
 /** Les étoiles d'un avis, pleines jusqu'à `note`. */
@@ -70,19 +70,9 @@ export default function AvisModal() {
                 <strong className="font-semibold text-ink">{REVIEW_RATING}/5</strong> · {REVIEW_COUNT} avis
               </span>
             </div>
-            <p className="flex items-center gap-1.5 text-[13px] text-gray-500 mt-1.5 flex-wrap">
+            <p className="flex items-center gap-1.5 text-[13px] text-gray-500 mt-1.5">
               <ShieldCheck size={14} className="text-brand-600 flex-shrink-0" />
-              <span>
-                Avis publiés sur {REVIEWS_SOURCE.nom} —{' '}
-                <a
-                  href={REVIEWS_SOURCE.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-brand-700 underline underline-offset-2"
-                >
-                  voir la page
-                </a>
-              </span>
+              Avis de clients ayant commandé chez nous
             </p>
           </div>
           <button
@@ -119,7 +109,7 @@ export default function AvisModal() {
               Les derniers avis reçus
             </p>
             <div className="space-y-3">
-              {TESTIMONIALS.map((t, i) => (
+              {AVIS_FOURNIS.map((t, i) => (
                 <article key={t.name} className="rounded-lg border border-gray-200 p-4">
                   <div className="flex items-start gap-3">
                     <span

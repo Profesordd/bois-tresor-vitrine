@@ -6,8 +6,6 @@ import FamilyBlock from '@/components/ui/FamilyBlock'
 import UrgencyNote from '@/components/ui/UrgencyNote'
 import SocialProof from '@/components/ui/SocialProof'
 import LivraisonPays from '@/components/ui/LivraisonPays'
-import BandeauAvis from '@/components/avis/BandeauAvis'
-import TrustBox from '@/components/avis/TrustBox'
 import { Truck, ShieldCheck, Building2 } from 'lucide-react'
 import { SIRET } from '@/lib/site'
 
@@ -55,13 +53,6 @@ export default function CollectionView({ categorySlug, allProducts }: Props) {
                 Roundup, Radikal, Tidex, Barbarian : désherbants professionnels en déstockage,
                 jusqu’à −70 %. Livraison offerte.
               </p>
-              {/* La note dès le hero : sur une catégorie où le client ne
-                  nous connaît pas encore, elle vient avant le prix. */}
-              <div className="mt-4 sm:mt-5 flex justify-center">
-                <span className="w-full max-w-xs">
-                  <TrustBox gabarit="bandeau" repli={<BandeauAvis tone="dark" />} />
-                </span>
-              </div>
             </>
           ) : (<>
           {/* Téléphone : l'essentiel en une ligne de moins. */}
@@ -85,17 +76,13 @@ export default function CollectionView({ categorySlug, allProducts }: Props) {
           <LivraisonPays />
         </div>
 
-        {/* ── Preuve sociale, vue dès l'arrivée. La phrase sur le chauffage
-               ne vaut que pour le bois ; la note vaut pour tout le site et
-               reste sur une seule ligne, même à 320 px. ── */}
+        {/* ── Preuve sociale, vue dès l'arrivée (elle parle de chauffage :
+               pas sur le jardin) ── */}
         {!jardin && (
-          <div className="mb-3 sm:mb-4">
+          <div className="mb-5 sm:mb-8">
             <SocialProof />
           </div>
         )}
-        <div className="mb-5 sm:mb-8 max-w-md mx-auto">
-          <TrustBox gabarit="bandeau" repli={<BandeauAvis />} />
-        </div>
 
         {/* ── Réassurance : qui nous sommes. Le récit du bois n'a rien à faire
                sur les désherbants ; on y met ce qui rassure ici : la note, la

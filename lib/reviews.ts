@@ -51,11 +51,24 @@ export interface Testimonial {
   title?: string
 }
 
-/**
- * Avis publiés sur la page Trustpilot de Bois Tresor, fournis par le
- * client le 23/09/2026. Ordre : du plus récent au plus ancien.
- */
+/** Avis affichés sur le site, repris du site en production du client. */
 export const TESTIMONIALS: Testimonial[] = [
+  { initials: 'PL', name: 'Pierre L.',    text: 'Livré en 5 jours, bois très sec et propre. Brûle parfaitement dans ma cheminée. Je recommande Bois Tresor.' },
+  { initials: 'MD', name: 'Marie D.',     text: 'Les granulés sont de très bonne qualité, mon poêle fonctionne au top. Rapport qualité-prix imbattable.' },
+  { initials: 'JB', name: 'Jean-Marc B.', text: 'Commande reçue en 4 jours, palette bien emballée. Le bois est sec et calibré. Deuxième commande chez eux.' },
+  { initials: 'CR', name: 'Catherine R.', text: 'Bûches densifiées de qualité, faciles à stocker. Un peu plus cher qu’en grande surface mais la qualité est là.' },
+  { initials: 'FM', name: 'François M.',  text: '3ème hiver avec Bois Tresor. Toujours la même qualité, toujours ponctuel. Les allume-feux sont top aussi.' },
+  { initials: 'ST', name: 'Sophie T.',    text: 'Enfin un fournisseur sérieux avec du vrai bois français. Pas de surprises, tout est conforme à la description.' },
+]
+
+/**
+ * Avis fournis par le client le 23/09/2026, avec ville, date et titre.
+ *
+ * **Pas affichés sur le site public** : le client veut d'abord valider la
+ * présentation, sans que ses visiteurs la voient. Ils ne servent donc qu'à
+ * la page d'aperçu `/apercu-avis/`, exclue des moteurs de recherche.
+ */
+export const AVIS_FOURNIS: Testimonial[] = [
   { initials: 'JM', name: 'Jean-Pierre M.', city: 'Aix-en-Provence',     date: '18 septembre 2026', rating: 5, title: 'Bois bien sec, livré comme prévu', text: 'Commandé une palette de 45 cm. Livraison le vendredi comme annoncé. Bois vraiment sec, ça prend tout de suite. On peut joindre quelqu’un au téléphone, ça rassure.' },
   { initials: 'MD', name: 'Michel D.',      city: 'Avignon',             date: '12 septembre 2026', rating: 5, title: 'Enfin un vendeur sérieux', text: 'J’avais peur de me faire avoir comme l’année dernière. Ici le bois est arrivé, sec, en palette. Prix correct. Merci.' },
   { initials: 'AB', name: 'André B.',       city: 'Manosque',            date: '8 septembre 2026',  rating: 5, title: 'Livraison avec hayon, nickel', text: 'Accès pas facile chez moi. Le chauffeur a tout déchargé avec le chariot. Hêtre 1,7 stère, bien sec.' },
