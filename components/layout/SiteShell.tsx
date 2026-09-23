@@ -4,6 +4,7 @@ import { usePathname } from 'next/navigation'
 import Header from '@/components/layout/Header'
 import Footer from '@/components/layout/Footer'
 import CartDrawer from '@/components/shop/CartDrawer'
+import AvisModal from '@/components/avis/AvisModal'
 
 /**
  * Habillage du site public.
@@ -24,6 +25,7 @@ export default function SiteShell({ children }: { children: React.ReactNode }) {
     <>
       <Header />
       <CartDrawer />
+      <AvisModal />
       <main>{children}</main>
       <Footer />
     </>

@@ -149,6 +149,20 @@ jardin (« réservé aux professionnels, Certiphyto »), pas de preuve sociale
 produits Shopify n'existent pas et que les prix (64,90, 149,90…) ne sont
 pas ramenés sur la grille du checkout. Prix barrés = ceux du site source.
 
+**Avis clients** (`lib/reviews.ts`, `components/avis/`) : note 4,9/5 · 244
+avis, source unique. Les étoiles sont cliquables partout (`StarRating`,
+`BandeauAvis`) et ouvrent `AvisModal`, montée une fois dans `SiteShell` —
+note, répartition par étoiles, liste des avis avec initiales, ville, date,
+produit. Les champs ville/date/produit/note sont **facultatifs et ne
+s'affichent que s'ils existent** : ne jamais en inventer un.
+`BandeauAvis` tient sur une ligne dès 320 px (le libellé se raccourcit).
+
+⛔ **Jamais de réplique d'une plateforme d'avis** (Trustpilot ou autre) :
+logo, barre de navigation, badge « entreprise vérifiée », nombre d'avis de
+la plateforme. C'est une usurpation de marque et une pratique commerciale
+trompeuse. Les sites Happy Garden / OO Garden en contiennent une : ne pas
+la reprendre ici. Demande refusée le 23/09/2026, motif expliqué au client.
+
 **Livraison offerte partout, sans seuil** (décision du 20/09/2026) : plus
 aucun montant minimum nulle part — `lib/site.ts` n'a plus de
 `FREE_SHIPPING_THRESHOLD`, tiroir et page commande n'ont plus de logique

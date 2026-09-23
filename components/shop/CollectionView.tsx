@@ -6,7 +6,7 @@ import FamilyBlock from '@/components/ui/FamilyBlock'
 import UrgencyNote from '@/components/ui/UrgencyNote'
 import SocialProof from '@/components/ui/SocialProof'
 import LivraisonPays from '@/components/ui/LivraisonPays'
-import StarRating from '@/components/shop/StarRating'
+import BandeauAvis from '@/components/avis/BandeauAvis'
 import { Truck, ShieldCheck, Building2 } from 'lucide-react'
 import { SIRET } from '@/lib/site'
 
@@ -54,10 +54,10 @@ export default function CollectionView({ categorySlug, allProducts }: Props) {
                 Roundup, Radikal, Tidex, Barbarian : désherbants professionnels en déstockage,
                 jusqu’à −70 %. Livraison offerte.
               </p>
-              {/* Les étoiles dès le hero : sur une catégorie où le client ne
-                  nous connaît pas encore, la note vient avant le prix. */}
+              {/* La note dès le hero : sur une catégorie où le client ne
+                  nous connaît pas encore, elle vient avant le prix. */}
               <div className="mt-4 sm:mt-5 flex justify-center">
-                <StarRating tone="dark" size={20} className="text-[16px]" />
+                <span className="w-full max-w-xs"><BandeauAvis tone="dark" /></span>
               </div>
             </>
           ) : (<>
@@ -82,19 +82,23 @@ export default function CollectionView({ categorySlug, allProducts }: Props) {
           <LivraisonPays />
         </div>
 
-        {/* ── Preuve sociale, vue dès l'arrivée (elle parle de chauffage :
-               pas sur le jardin) ── */}
+        {/* ── Preuve sociale, vue dès l'arrivée. La phrase sur le chauffage
+               ne vaut que pour le bois ; la note vaut pour tout le site et
+               reste sur une seule ligne, même à 320 px. ── */}
         {!jardin && (
-          <div className="mb-5 sm:mb-8">
+          <div className="mb-3 sm:mb-4">
             <SocialProof />
           </div>
         )}
+        <div className="mb-5 sm:mb-8 max-w-md mx-auto">
+          <BandeauAvis />
+        </div>
 
         {/* ── Réassurance : qui nous sommes. Le récit du bois n'a rien à faire
                sur les désherbants ; on y met ce qui rassure ici : la note, la
                livraison, le paiement, l'entreprise. ── */}
         {jardin ? (
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
             {[
               { icon: ShieldCheck, titre: 'Paiement sécurisé', texte: '3D-Secure, aucune donnée bancaire conservée' },
               { icon: Truck,       titre: 'Livraison offerte', texte: 'France, Belgique, Suisse, Luxembourg' },
@@ -108,9 +112,6 @@ export default function CollectionView({ categorySlug, allProducts }: Props) {
                 </div>
               </div>
             ))}
-            <div className="flex flex-col justify-center rounded-lg border border-gray-200 bg-white p-3.5 sm:p-4">
-              <StarRating size={17} className="text-[14px] flex-wrap gap-y-1" />
-            </div>
           </div>
         ) : (
           <FamilyBlock />
