@@ -49,6 +49,16 @@ lignes.forEach((ligne, i) => {
   const m = ligne.match(/(?<![A-Za-z])price:\s*([\d.]+)\s*,/)
   if (!m) return
   const centimes = Math.round(Number(m[1]) * 100)
+  /* Le multiplicateur déclaré, s'il y en a un : c'est lui qui décide de ce
+     que le processeur encaisse réellement. */
+  let multiplicateur = null
+  for (let j = i; j < Math.min(lignes.length, i + 5); j++) {
+    /* Un lot tient sur une seule ligne, un produit sur plusieurs. On s'arrête
+       au prix suivant : sinon on attraperait le multiplicateur du voisin. */
+    if (j > i && /(?<![A-Za-z])price:\s*[\d.]+\s*,/.test(lignes[j])) break
+    const mm = lignes[j].match(/checkoutMultiplier:\s*(\d+)\s*,/)
+    if (mm) { multiplicateur = Number(mm[1]); break }
+  }
   /* Le nom du produit ou du lot, cherché au-dessus : c'est ce qui rend le
      rapport lisible quand un prix cloche. */
   let etiquette = `ligne ${i + 1}`
@@ -56,7 +66,7 @@ lignes.forEach((ligne, i) => {
     const n = lignes[j].match(/(?:slug|id):\s*'([^']+)'/)
     if (n) { etiquette = n[1]; break }
   }
-  prix.push({ etiquette, centimes, ligne: i + 1 })
+  prix.push({ etiquette, centimes, multiplicateur, ligne: i + 1 })
 })
 
 const euros = (c) => (c / 100).toFixed(2).replace('.', ',') + ' €'
@@ -65,6 +75,20 @@ let horsGrille = 0
 console.log(`\nGrille du processeur : ${GRILLE.map(euros).join(' · ')}\n`)
 for (const p of prix) {
   const ok = surLaGrille(p.centimes)
+  /* Un multiplicateur déclaré qui ne retombe pas sur le prix affiché ferait
+     payer au client autre chose que ce qu'il a vu. C'est la faute la plus
+     grave possible ici, et elle ne se voit pas à l'œil nu. */
+  if (ok && p.multiplicateur !== null) {
+    const palier = p.centimes % p.multiplicateur === 0 ? p.centimes / p.multiplicateur : null
+    if (palier === null || !GRILLE.includes(palier)) {
+      horsGrille++
+      console.log(`  ✗ ${euros(p.centimes).padStart(10)}  MULTIPLICATEUR FAUX`.padEnd(46) + `${p.etiquette} (ligne ${p.ligne})`)
+      console.log(`      → × ${p.multiplicateur} déclaré, mais ${euros(p.centimes)} ÷ ${p.multiplicateur} ne tombe pas sur la grille`)
+      continue
+    }
+    console.log(`  ✓ ${euros(p.centimes).padStart(10)}  ${euros(palier)} × ${p.multiplicateur}`.padEnd(46) + p.etiquette)
+    continue
+  }
   if (ok) {
     console.log(`  ✓ ${euros(p.centimes).padStart(10)}  ${euros(ok.unitaire)} × ${ok.multiplicateur}`.padEnd(46) + p.etiquette)
   } else {

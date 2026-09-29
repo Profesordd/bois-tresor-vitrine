@@ -505,12 +505,13 @@ const HERBICIDES_PRODUITS: Product[] = (HERBICIDES as HerbicideInput[]).map(buil
    deux objets qui le composent : il n'existe pas tel quel chez un
    fournisseur.
 
-   À COMPLÉTER AVANT TOUTE MISE EN VENTE :
-     - les identifiants de variante Shopify (`variantId: null` = fiche non
-       commandable, elle renvoie vers le contact) ;
-     - les prix : ceux du brief, à caler sur la grille du checkout au
-       centime près quand les produits Shopify existeront ;
-     - le fournisseur retenu pour chaque référence.
+   Prix : celui affiché est celui que le processeur encaisse, soit le palier
+   de la variante Shopify multiplié par `checkoutMultiplier`. Les variantes
+   créées le 29/09/2026 sont aux prix pleins ; il n'y a donc pas de prix
+   barré sur cette collection tant qu'il n'existe pas de variantes aux prix
+   promotionnels. `scripts/verifier-grille.mjs` contrôle l'ensemble.
+
+   À COMPLÉTER : le fournisseur retenu pour chaque référence.
    ───────────────────────────────────────────── */
 interface RangementInput {
   slug: string
@@ -519,6 +520,10 @@ interface RangementInput {
   price: number
   /** Prix barré. Absent = pas de promotion sur cette fiche. */
   originalPrice?: number
+  /** Variante Shopify. Absente = fiche non commandable, elle renvoie au contact. */
+  variantId?: string
+  /** Quantité envoyée au checkout pour une unité : palier × ce nombre = `price`. */
+  checkoutMultiplier?: number
   tagline: string
   /** Contenance en sacs de 15 kg, si l'objet en stocke. */
   sacs?: string
@@ -561,8 +566,8 @@ function buildRangement(r: RangementInput): Product {
     subtype: 'rangement',
     image: images[0],
     images,
-    variantId: null,
-    checkoutMultiplier: null,
+    variantId: r.variantId ?? null,
+    checkoutMultiplier: r.checkoutMultiplier ?? null,
     specs: r.specs,
     category_id: cat('cat-rangement').id,
     category: cat('cat-rangement'),
@@ -578,8 +583,9 @@ const RANGEMENT: Product[] = ([
   {
     slug: 'reservoir-granules-45-kg-roulettes',
     name: 'Réservoir à granulés 45 kg, à roulettes',
-    price: 39.99,
-    originalPrice: 59.99,
+    price: 59.98,
+    variantId: '58592866435416',
+    checkoutMultiplier: 2,
     photos: 6,
     tagline: '3 sacs de 15 kg — métal, se déplace plein',
     sacs: '3 sacs de 15 kg',
@@ -616,8 +622,9 @@ const RANGEMENT: Product[] = ([
   {
     slug: 'pack-reservoir-45-kg-seau-pelle',
     name: 'Pack confort : réservoir 45 kg + seau à cendres',
-    price: 49.98,
-    originalPrice: 79.99,
+    price: 79.98,
+    variantId: '58592870793560',
+    checkoutMultiplier: 2,
     images: [
       '/products/rangement/pack-reservoir-seau-1.jpg',
       '/products/rangement/reservoir-granules-45-kg-roulettes-1.jpg',
@@ -653,8 +660,9 @@ const RANGEMENT: Product[] = ([
   {
     slug: 'coffre-granules-70l-couvercle-bois',
     name: 'Coffre à granulés 70 L, couvercle bois',
-    price: 59.98,
-    originalPrice: 89.99,
+    price: 89.98,
+    variantId: '58592867123544',
+    checkoutMultiplier: 2,
     photos: 6,
     tagline: '3 sacs de 15 kg — fabriqué en France, couvercle bois PEFC',
     sacs: '3 sacs de 15 kg',
@@ -687,7 +695,9 @@ const RANGEMENT: Product[] = ([
   {
     slug: 'reservoir-granules-51l-design',
     name: 'Bac à granulés 51 L, acier et bois, avec pelle et tamis',
-    price: 99.96,
+    price: 119.97,
+    variantId: '58592871055704',
+    checkoutMultiplier: 3,
     photos: 6,
     tagline: 'Un sac entier, dans un objet qu’on laisse dans la pièce',
     sacs: '1 sac de 15 kg',
@@ -721,8 +731,9 @@ const RANGEMENT: Product[] = ([
   {
     slug: 'coffre-granules-38l-roulettes',
     name: 'Coffre à granulés 38 L, à roulettes',
-    price: 29.99,
-    originalPrice: 39.99,
+    price: 39.99,
+    variantId: '58592871285080',
+    checkoutMultiplier: 1,
     photos: 5,
     tagline: '25 kg — le format qui rentre partout',
     sacs: '1 sac et demi de 15 kg',
@@ -749,8 +760,9 @@ const RANGEMENT: Product[] = ([
   {
     slug: 'seau-cendres-19l-pelle',
     name: 'Seau à cendres 19 L en acier, avec couvercle et pelle',
-    price: 19.99,
-    originalPrice: 24.99,
+    price: 24.99,
+    variantId: '58592867647832',
+    checkoutMultiplier: 1,
     photos: 6,
     tagline: '19 L — le seau, son couvercle, sa pelle rangée sur le flanc',
     keyPoints: [
@@ -781,6 +793,8 @@ const RANGEMENT: Product[] = ([
     slug: 'pelle-granules-xl',
     name: 'Pelle à granulés XL 2,4 L, avec tamis',
     price: 9.99,
+    variantId: '58592867877208',
+    checkoutMultiplier: 1,
     photos: 6,
     tagline: '1,5 kg par passage — et les fines restent dans la pelle',
     keyPoints: [
@@ -806,8 +820,9 @@ const RANGEMENT: Product[] = ([
   {
     slug: 'aspirateur-cendres-20l',
     name: 'Aspirateur à cendres 20 L, 1 200 W',
-    price: 44.99,
-    originalPrice: 74.99,
+    price: 49.98,
+    variantId: '58592871448920',
+    checkoutMultiplier: 2,
     photos: 6,
     tagline: 'Le cendrier vidé en deux minutes, sans un nuage',
     keyPoints: [
