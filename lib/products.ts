@@ -505,13 +505,19 @@ const HERBICIDES_PRODUITS: Product[] = (HERBICIDES as HerbicideInput[]).map(buil
    deux objets qui le composent : il n'existe pas tel quel chez un
    fournisseur.
 
-   Prix : celui affiché est celui que le processeur encaisse, soit le palier
-   de la variante Shopify multiplié par `checkoutMultiplier`. Les variantes
-   créées le 29/09/2026 sont aux prix pleins ; il n'y a donc pas de prix
-   barré sur cette collection tant qu'il n'existe pas de variantes aux prix
-   promotionnels. `scripts/verifier-grille.mjs` contrôle l'ensemble.
+   Prix : celui affiché doit être exactement celui que le processeur
+   encaisse, soit le palier de la variante Shopify multiplié par
+   `checkoutMultiplier`. `scripts/verifier-grille.mjs` le contrôle.
 
-   À COMPLÉTER : le fournisseur retenu pour chaque référence.
+   Les variantes créées le 29/09/2026 l'ont été aux prix pleins, alors que
+   la collection est lancée en promotion. Elles sont donc notées en
+   commentaire sur chaque fiche mais débranchées : afficher un prix
+   promotionnel et en encaisser un autre n'est pas une option. Seule la
+   pelle XL, dont le prix promotionnel est aussi son prix plein, est
+   commandable. Les sept autres attendent une variante au bon palier.
+
+   À COMPLÉTER : les sept variantes promotionnelles, et le fournisseur
+   retenu pour chaque référence.
    ───────────────────────────────────────────── */
 interface RangementInput {
   slug: string
@@ -583,9 +589,12 @@ const RANGEMENT: Product[] = ([
   {
     slug: 'reservoir-granules-45-kg-roulettes',
     name: 'Réservoir à granulés 45 kg, à roulettes',
-    price: 59.98,
-    variantId: '58592866435416',
-    checkoutMultiplier: 2,
+    price: 39.99,
+    originalPrice: 59.99,
+    /* Variante 58592866435416 débranchée : elle encaisse le prix plein, pas le
+       prix promotionnel affiché. À rebrancher avec une variante au palier
+       39,99 × 1. Tant qu'elle n'existe pas, la fiche renvoie au contact
+       plutôt que de faire payer autre chose que ce qui est montré. */
     photos: 6,
     tagline: '3 sacs de 15 kg — métal, se déplace plein',
     sacs: '3 sacs de 15 kg',
@@ -622,9 +631,12 @@ const RANGEMENT: Product[] = ([
   {
     slug: 'pack-reservoir-45-kg-seau-pelle',
     name: 'Pack confort : réservoir 45 kg + seau à cendres',
-    price: 79.98,
-    variantId: '58592870793560',
-    checkoutMultiplier: 2,
+    price: 49.98,
+    originalPrice: 79.99,
+    /* Variante 58592870793560 débranchée : elle encaisse le prix plein, pas le
+       prix promotionnel affiché. À rebrancher avec une variante au palier
+       24,99 × 2. Tant qu'elle n'existe pas, la fiche renvoie au contact
+       plutôt que de faire payer autre chose que ce qui est montré. */
     images: [
       '/products/rangement/pack-reservoir-seau-1.jpg',
       '/products/rangement/reservoir-granules-45-kg-roulettes-1.jpg',
@@ -660,9 +672,12 @@ const RANGEMENT: Product[] = ([
   {
     slug: 'coffre-granules-70l-couvercle-bois',
     name: 'Coffre à granulés 70 L, couvercle bois',
-    price: 89.98,
-    variantId: '58592867123544',
-    checkoutMultiplier: 2,
+    price: 59.98,
+    originalPrice: 89.99,
+    /* Variante 58592867123544 débranchée : elle encaisse le prix plein, pas le
+       prix promotionnel affiché. À rebrancher avec une variante au palier
+       29,99 × 2. Tant qu'elle n'existe pas, la fiche renvoie au contact
+       plutôt que de faire payer autre chose que ce qui est montré. */
     photos: 6,
     tagline: '3 sacs de 15 kg — fabriqué en France, couvercle bois PEFC',
     sacs: '3 sacs de 15 kg',
@@ -695,9 +710,11 @@ const RANGEMENT: Product[] = ([
   {
     slug: 'reservoir-granules-51l-design',
     name: 'Bac à granulés 51 L, acier et bois, avec pelle et tamis',
-    price: 119.97,
-    variantId: '58592871055704',
-    checkoutMultiplier: 3,
+    price: 99.96,
+    /* Variante 58592871055704 débranchée : elle encaisse le prix plein, pas le
+       prix promotionnel affiché. À rebrancher avec une variante au palier
+       24,99 × 4. Tant qu'elle n'existe pas, la fiche renvoie au contact
+       plutôt que de faire payer autre chose que ce qui est montré. */
     photos: 6,
     tagline: 'Un sac entier, dans un objet qu’on laisse dans la pièce',
     sacs: '1 sac de 15 kg',
@@ -731,9 +748,12 @@ const RANGEMENT: Product[] = ([
   {
     slug: 'coffre-granules-38l-roulettes',
     name: 'Coffre à granulés 38 L, à roulettes',
-    price: 39.99,
-    variantId: '58592871285080',
-    checkoutMultiplier: 1,
+    price: 29.99,
+    originalPrice: 39.99,
+    /* Variante 58592871285080 débranchée : elle encaisse le prix plein, pas le
+       prix promotionnel affiché. À rebrancher avec une variante au palier
+       29,99 × 1. Tant qu'elle n'existe pas, la fiche renvoie au contact
+       plutôt que de faire payer autre chose que ce qui est montré. */
     photos: 5,
     tagline: '25 kg — le format qui rentre partout',
     sacs: '1 sac et demi de 15 kg',
@@ -760,9 +780,12 @@ const RANGEMENT: Product[] = ([
   {
     slug: 'seau-cendres-19l-pelle',
     name: 'Seau à cendres 19 L en acier, avec couvercle et pelle',
-    price: 24.99,
-    variantId: '58592867647832',
-    checkoutMultiplier: 1,
+    price: 19.99,
+    originalPrice: 24.99,
+    /* Variante 58592867647832 débranchée : elle encaisse le prix plein, pas le
+       prix promotionnel affiché. À rebrancher avec une variante au palier
+       19,99 × 1. Tant qu'elle n'existe pas, la fiche renvoie au contact
+       plutôt que de faire payer autre chose que ce qui est montré. */
     photos: 6,
     tagline: '19 L — le seau, son couvercle, sa pelle rangée sur le flanc',
     keyPoints: [
@@ -820,9 +843,12 @@ const RANGEMENT: Product[] = ([
   {
     slug: 'aspirateur-cendres-20l',
     name: 'Aspirateur à cendres 20 L, 1 200 W',
-    price: 49.98,
-    variantId: '58592871448920',
-    checkoutMultiplier: 2,
+    price: 44.99,
+    originalPrice: 74.99,
+    /* Variante 58592871448920 débranchée : elle encaisse le prix plein, pas le
+       prix promotionnel affiché. À rebrancher avec une variante au palier
+       44,99 × 1. Tant qu'elle n'existe pas, la fiche renvoie au contact
+       plutôt que de faire payer autre chose que ce qui est montré. */
     photos: 6,
     tagline: 'Le cendrier vidé en deux minutes, sans un nuage',
     keyPoints: [
