@@ -59,6 +59,11 @@ export interface Product {
   family: ProductFamily
   subtype: ProductSubtype
   image: string
+  /**
+   * Photos supplémentaires, dans l'ordre d'affichage, `image` comprise.
+   * Absent = une seule photo, la galerie n'affiche alors aucune vignette.
+   */
+  images?: string[]
   /** Points clés courts, un sujet par ligne, dans l'ordre de priorité du persona. */
   keyPoints: string[]
   /**

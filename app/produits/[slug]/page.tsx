@@ -77,7 +77,7 @@ export default async function ProductPage({ params }: Props) {
 
         {/* ── Colonne visuelle : photo produit + photo de l'équipe ── */}
         <div className="space-y-5">
-          <ProductGallery image={product.image} name={product.name} fit={product.family === 'jardin' || product.family === 'rangement' ? 'contain' : 'cover'} />
+          <ProductGallery image={product.image} images={product.images} name={product.name} fit={product.family === 'jardin' || product.family === 'rangement' ? 'contain' : 'cover'} />
           {/* Sur mobile, ces blocs passent après le prix et le bouton. */}
           <div className="hidden lg:block space-y-5">
             <TeamPhoto />
