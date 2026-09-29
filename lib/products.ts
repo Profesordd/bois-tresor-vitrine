@@ -516,7 +516,10 @@ const HERBICIDES_PRODUITS: Product[] = (HERBICIDES as HerbicideInput[]).map(buil
 interface RangementInput {
   slug: string
   name: string
+  /** Prix payé. Doit tomber sur la grille du processeur (`scripts/verifier-grille.mjs`). */
   price: number
+  /** Prix barré. Absent = pas de promotion sur cette fiche. */
+  originalPrice?: number
   tagline: string
   /** Contenance en sacs de 15 kg, si l'objet en stocke. */
   sacs?: string
@@ -552,7 +555,7 @@ function buildRangement(r: RangementInput): Product {
     description: r.description,
     richDescription: true,
     price: r.price,
-    original_price: null,
+    original_price: r.originalPrice ?? null,
     pricePerStere: null,
     stock: 20,
     family: 'rangement',
@@ -576,7 +579,8 @@ const RANGEMENT: Product[] = ([
   {
     slug: 'reservoir-granules-45-kg-roulettes',
     name: 'Réservoir à granulés 45 kg, à roulettes',
-    price: 59.99,
+    price: 39.99,
+    originalPrice: 59.99,
     photos: 6,
     tagline: '3 sacs de 15 kg — métal, se déplace plein',
     sacs: '3 sacs de 15 kg',
@@ -613,7 +617,8 @@ const RANGEMENT: Product[] = ([
   {
     slug: 'pack-reservoir-45-kg-seau-pelle',
     name: 'Pack confort : réservoir 45 kg + seau à cendres',
-    price: 79.99,
+    price: 49.98,
+    originalPrice: 79.99,
     images: [
       '/products/rangement/pack-reservoir-seau-1.jpg',
       '/products/rangement/reservoir-granules-45-kg-roulettes-1.jpg',
@@ -649,7 +654,8 @@ const RANGEMENT: Product[] = ([
   {
     slug: 'coffre-granules-70l-couvercle-bois',
     name: 'Coffre à granulés 70 L, couvercle bois',
-    price: 89.99,
+    price: 59.98,
+    originalPrice: 89.99,
     photos: 6,
     tagline: '3 sacs de 15 kg — fabriqué en France, couvercle bois PEFC',
     sacs: '3 sacs de 15 kg',
@@ -682,7 +688,7 @@ const RANGEMENT: Product[] = ([
   {
     slug: 'reservoir-granules-51l-design',
     name: 'Bac à granulés 51 L, acier et bois, avec pelle et tamis',
-    price: 119.99,
+    price: 99.96,
     photos: 6,
     tagline: 'Un sac entier, dans un objet qu’on laisse dans la pièce',
     sacs: '1 sac de 15 kg',
@@ -716,7 +722,8 @@ const RANGEMENT: Product[] = ([
   {
     slug: 'coffre-granules-38l-roulettes',
     name: 'Coffre à granulés 38 L, à roulettes',
-    price: 39.99,
+    price: 29.99,
+    originalPrice: 39.99,
     photos: 5,
     tagline: '25 kg — le format qui rentre partout',
     sacs: '1 sac et demi de 15 kg',
@@ -743,7 +750,8 @@ const RANGEMENT: Product[] = ([
   {
     slug: 'seau-cendres-19l-pelle',
     name: 'Seau à cendres 19 L en acier, avec couvercle et pelle',
-    price: 24.99,
+    price: 19.99,
+    originalPrice: 24.99,
     photos: 6,
     tagline: '19 L — le seau, son couvercle, sa pelle rangée sur le flanc',
     keyPoints: [
@@ -799,7 +807,8 @@ const RANGEMENT: Product[] = ([
   {
     slug: 'aspirateur-cendres-20l',
     name: 'Aspirateur à cendres 20 L, 1 200 W',
-    price: 49.99,
+    price: 44.99,
+    originalPrice: 74.99,
     photos: 6,
     tagline: 'Le cendrier vidé en deux minutes, sans un nuage',
     keyPoints: [
