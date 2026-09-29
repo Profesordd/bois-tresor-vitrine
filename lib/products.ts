@@ -20,9 +20,8 @@ export const CATEGORIES: Category[] = [
      /product-category/desherbants-herbicides/. Jamais dans le menu ni sur
      l'accueil. */
   { id: 'cat-herbicides', slug: 'desherbants-herbicides', name: 'Désherbants & herbicides', shortName: 'Désherbants', family: 'jardin', hidden: true, created_at: '' },
-  /* Catégorie cachée (29/09/2026), en préparation : accessible par son URL
-     seulement, /product-category/rangement-granules/. */
-  { id: 'cat-rangement', slug: 'rangement-granules', name: 'Rangement granulés', shortName: 'Rangement', family: 'rangement', hidden: true, created_at: '' },
+  /* Ouverte au public le 29/09/2026 : menu, page d'accueil et catalogue. */
+  { id: 'cat-rangement', slug: 'rangement-granules', name: 'Rangement granulés', shortName: 'Rangement', family: 'rangement', created_at: '' },
 ]
 
 /** Catégories visibles dans la navigation, les filtres et le « tout voir ». */
@@ -493,7 +492,7 @@ const HERBICIDES_PRODUITS: Product[] = (HERBICIDES as HerbicideInput[]).map(buil
 
 
 /* ─────────────────────────────────────────────
-   RANGEMENT GRANULÉS — collection cachée, en préparation (29/09/2026)
+   RANGEMENT GRANULÉS — ouverte au public le 29/09/2026
 
    Accessoires pour le client qui chauffe aux granulés. Chaque fiche est
    adossée à un produit réellement en vente, dont les caractéristiques et

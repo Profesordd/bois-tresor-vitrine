@@ -84,13 +84,17 @@ export default function ProductCard({ product }: ProductCardProps) {
       </div>
 
       <div className="p-3 sm:p-5 flex flex-col flex-1 gap-2 sm:gap-3">
-        <h3 className="text-[15px] sm:text-lg font-bold text-ink group-hover:text-brand-700 transition-colors leading-snug">
+        {/* Deux lignes réservées au titre : sans ça, une carte au nom court
+            laisse un trou avant le prix, puisque `mt-auto` pousse le bloc
+            prix en bas pour aligner les cartes d'une même rangée. */}
+        <h3 className="text-[15px] sm:text-lg font-bold text-ink group-hover:text-brand-700 transition-colors leading-snug min-h-[2.75rem] sm:min-h-[3.25rem]">
           {name}
         </h3>
 
-        {/* Étoiles sur les cartes de la catégorie jardin : le visiteur y
-            arrive sans connaître la maison, la note doit être sur la carte. */}
-        {family === 'jardin' && (
+        {/* Étoiles sur les cartes jardin et rangement : le visiteur y arrive
+            sans connaître la maison, la note doit être sur la carte. Sur le
+            bois, elle est déjà donnée plus haut dans la page. */}
+        {(family === 'jardin' || family === 'rangement') && (
           <p className="flex items-center gap-1 sm:gap-1.5 text-[11px] sm:text-[13px] text-gray-600 whitespace-nowrap">
             <span className="flex gap-px">
               {[1, 2, 3, 4, 5].map((i) => <Star key={i} size={12} className="fill-brand-500 text-brand-500 sm:hidden" />)}

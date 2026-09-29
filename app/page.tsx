@@ -47,7 +47,7 @@ export default async function HomePage() {
      moins de quatre, la grille se resserre plutôt que de laisser des trous. */
   const enVente = (f: string) => catalogue.filter((p) => p.family === f && p.stock > 0 && !p.unlisted).slice(0, 4)
   const boisChauffageHighlights = enVente('bois-de-chauffage')
-  const granulesHighlights      = enVente('granules')
+  const rangementHighlights     = enVente('rangement')
   const colonnes = (n: number) => Math.max(1, Math.min(4, n)) as 1 | 2 | 3 | 4
 
   return (
@@ -151,18 +151,18 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* ── GRANULÉS & PELLETS ── */}
+      {/* ── RANGEMENT GRANULÉS ── */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         <div className="flex items-end justify-between mb-10 gap-4">
           <div>
-            <h2 className="font-serif text-3xl font-bold text-ink">Granulés & pellets</h2>
-            <p className="text-gray-500 mt-1">Certifiés EN+ A1 ou DINplus selon les marques</p>
+            <h2 className="font-serif text-3xl font-bold text-ink">Rangement granulés</h2>
+            <p className="text-gray-500 mt-1">Réservoirs, coffres, seau, pelle : vos granulés à portée de main</p>
           </div>
-          <Link href="/product-category/granules-et-pellets/" className="text-brand-600 hover:text-brand-700 font-medium text-sm hidden sm:block whitespace-nowrap">
+          <Link href="/product-category/rangement-granules/" className="text-brand-600 hover:text-brand-700 font-medium text-sm hidden sm:block whitespace-nowrap">
             Voir tout →
           </Link>
         </div>
-        <ProductGrid products={granulesHighlights} columns={colonnes(granulesHighlights.length)} />
+        <ProductGrid products={rangementHighlights} columns={colonnes(rangementHighlights.length)} />
       </section>
 
       {/* ── URGENCE CRÉDIBLE ── */}

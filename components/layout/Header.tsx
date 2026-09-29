@@ -7,9 +7,9 @@ import { useCartStore } from '@/stores/cart'
 import PromoBar from '@/components/ui/PromoBar'
 
 const categories = [
-  { label: 'Bois de chauffage',  href: '/product-category/bois-de-chauffage/' },
-  { label: 'Bois densifié',      href: '/product-category/bois-densifie/' },
-  { label: 'Granulés & pellets', href: '/product-category/granules-et-pellets/' },
+  { label: 'Bois de chauffage',   href: '/product-category/bois-de-chauffage/' },
+  { label: 'Granulés & pellets',  href: '/product-category/granules-et-pellets/' },
+  { label: 'Rangement granulés',  href: '/product-category/rangement-granules/' },
 ]
 
 function Logo() {
