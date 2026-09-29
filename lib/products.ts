@@ -509,10 +509,8 @@ const HERBICIDES_PRODUITS: Product[] = (HERBICIDES as HerbicideInput[]).map(buil
    encaisse, soit le palier de la variante Shopify multiplié par
    `checkoutMultiplier`. `scripts/verifier-grille.mjs` le contrôle.
 
-   Les huit variantes Shopify existent et leurs paliers sont justes, mais le
-   processeur refuse leurs liens de paiement : la collection n'est pas
-   encore commandable. Chaque fiche porte sa variante en commentaire, prête
-   à être rebranchée dès que le lien répondra.
+   Les huit variantes ont été recalées sur les prix promotionnels le
+   30/09/2026 : la collection est commandable.
 
    À COMPLÉTER : le fournisseur retenu pour chaque référence.
    ───────────────────────────────────────────── */
@@ -588,11 +586,8 @@ const RANGEMENT: Product[] = ([
     name: 'Réservoir à granulés 45 kg, à roulettes',
     price: 39.99,
     originalPrice: 59.99,
-    /* Variante 58592866435416, quantité 1 (39,99 × 1) : arithmétique juste, mais
-       le processeur refuse le lien (« Ce lien n'est plus valide »), vérifié au
-       navigateur le 30/09/2026 sur les huit. Les variantes granulés répondent
-       normalement au même moment : le problème est côté catalogue du
-       processeur, pas côté prix. Débranchée tant que le lien ne répond pas. */
+    variantId: '58592866435416',
+    checkoutMultiplier: 1,
     photos: 6,
     tagline: '3 sacs de 15 kg — métal, se déplace plein',
     sacs: '3 sacs de 15 kg',
@@ -631,11 +626,8 @@ const RANGEMENT: Product[] = ([
     name: 'Pack confort : réservoir 45 kg + seau à cendres',
     price: 49.98,
     originalPrice: 79.99,
-    /* Variante 58592870793560, quantité 2 (24,99 × 2) : arithmétique juste, mais
-       le processeur refuse le lien (« Ce lien n'est plus valide »), vérifié au
-       navigateur le 30/09/2026 sur les huit. Les variantes granulés répondent
-       normalement au même moment : le problème est côté catalogue du
-       processeur, pas côté prix. Débranchée tant que le lien ne répond pas. */
+    variantId: '58592870793560',
+    checkoutMultiplier: 2,
     images: [
       '/products/rangement/pack-reservoir-seau-1.jpg',
       '/products/rangement/reservoir-granules-45-kg-roulettes-1.jpg',
@@ -673,11 +665,8 @@ const RANGEMENT: Product[] = ([
     name: 'Coffre à granulés 70 L, couvercle bois',
     price: 59.98,
     originalPrice: 89.99,
-    /* Variante 58592867123544, quantité 2 (29,99 × 2) : arithmétique juste, mais
-       le processeur refuse le lien (« Ce lien n'est plus valide »), vérifié au
-       navigateur le 30/09/2026 sur les huit. Les variantes granulés répondent
-       normalement au même moment : le problème est côté catalogue du
-       processeur, pas côté prix. Débranchée tant que le lien ne répond pas. */
+    variantId: '58592867123544',
+    checkoutMultiplier: 2,
     photos: 6,
     tagline: '3 sacs de 15 kg — fabriqué en France, couvercle bois PEFC',
     sacs: '3 sacs de 15 kg',
@@ -711,11 +700,8 @@ const RANGEMENT: Product[] = ([
     slug: 'reservoir-granules-51l-design',
     name: 'Bac à granulés 51 L, acier et bois, avec pelle et tamis',
     price: 99.96,
-    /* Variante 58593052098904, quantité 4 (24,99 × 4) : arithmétique juste, mais
-       le processeur refuse le lien (« Ce lien n'est plus valide »), vérifié au
-       navigateur le 30/09/2026 sur les huit. Les variantes granulés répondent
-       normalement au même moment : le problème est côté catalogue du
-       processeur, pas côté prix. Débranchée tant que le lien ne répond pas. */
+    variantId: '58593052098904',
+    checkoutMultiplier: 4,
     photos: 6,
     tagline: 'Un sac entier, dans un objet qu’on laisse dans la pièce',
     sacs: '1 sac de 15 kg',
@@ -751,11 +737,8 @@ const RANGEMENT: Product[] = ([
     name: 'Coffre à granulés 38 L, à roulettes',
     price: 29.99,
     originalPrice: 39.99,
-    /* Variante 58592871285080, quantité 1 (29,99 × 1) : arithmétique juste, mais
-       le processeur refuse le lien (« Ce lien n'est plus valide »), vérifié au
-       navigateur le 30/09/2026 sur les huit. Les variantes granulés répondent
-       normalement au même moment : le problème est côté catalogue du
-       processeur, pas côté prix. Débranchée tant que le lien ne répond pas. */
+    variantId: '58592871285080',
+    checkoutMultiplier: 1,
     photos: 5,
     tagline: '25 kg — le format qui rentre partout',
     sacs: '1 sac et demi de 15 kg',
@@ -784,11 +767,8 @@ const RANGEMENT: Product[] = ([
     name: 'Seau à cendres 19 L en acier, avec couvercle et pelle',
     price: 19.99,
     originalPrice: 24.99,
-    /* Variante 58592867647832, quantité 1 (19,99 × 1) : arithmétique juste, mais
-       le processeur refuse le lien (« Ce lien n'est plus valide »), vérifié au
-       navigateur le 30/09/2026 sur les huit. Les variantes granulés répondent
-       normalement au même moment : le problème est côté catalogue du
-       processeur, pas côté prix. Débranchée tant que le lien ne répond pas. */
+    variantId: '58592867647832',
+    checkoutMultiplier: 1,
     photos: 6,
     tagline: '19 L — le seau, son couvercle, sa pelle rangée sur le flanc',
     keyPoints: [
@@ -819,11 +799,8 @@ const RANGEMENT: Product[] = ([
     slug: 'pelle-granules-xl',
     name: 'Pelle à granulés XL 2,4 L, avec tamis',
     price: 9.99,
-    /* Variante 58592867877208, quantité 1 (9,99 × 1) : arithmétique juste, mais
-       le processeur refuse le lien (« Ce lien n'est plus valide »), vérifié au
-       navigateur le 30/09/2026 sur les huit. Les variantes granulés répondent
-       normalement au même moment : le problème est côté catalogue du
-       processeur, pas côté prix. Débranchée tant que le lien ne répond pas. */
+    variantId: '58592867877208',
+    checkoutMultiplier: 1,
     photos: 6,
     tagline: '1,5 kg par passage — et les fines restent dans la pelle',
     keyPoints: [
@@ -851,11 +828,8 @@ const RANGEMENT: Product[] = ([
     name: 'Aspirateur à cendres 20 L, 1 200 W',
     price: 44.99,
     originalPrice: 74.99,
-    /* Variante 58592871448920, quantité 1 (44,99 × 1) : arithmétique juste, mais
-       le processeur refuse le lien (« Ce lien n'est plus valide »), vérifié au
-       navigateur le 30/09/2026 sur les huit. Les variantes granulés répondent
-       normalement au même moment : le problème est côté catalogue du
-       processeur, pas côté prix. Débranchée tant que le lien ne répond pas. */
+    variantId: '58592871448920',
+    checkoutMultiplier: 1,
     photos: 6,
     tagline: 'Le cendrier vidé en deux minutes, sans un nuage',
     keyPoints: [
