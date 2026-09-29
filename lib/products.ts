@@ -20,6 +20,9 @@ export const CATEGORIES: Category[] = [
      /product-category/desherbants-herbicides/. Jamais dans le menu ni sur
      l'accueil. */
   { id: 'cat-herbicides', slug: 'desherbants-herbicides', name: 'Désherbants & herbicides', shortName: 'Désherbants', family: 'jardin', hidden: true, created_at: '' },
+  /* Catégorie cachée (29/09/2026), en préparation : accessible par son URL
+     seulement, /product-category/rangement-granules/. */
+  { id: 'cat-rangement', slug: 'rangement-granules', name: 'Rangement granulés', shortName: 'Rangement', family: 'rangement', hidden: true, created_at: '' },
 ]
 
 /** Catégories visibles dans la navigation, les filtres et le « tout voir ». */
@@ -488,6 +491,239 @@ function buildHerbicide(h: HerbicideInput): Product {
 
 const HERBICIDES_PRODUITS: Product[] = (HERBICIDES as HerbicideInput[]).map(buildHerbicide)
 
+
+/* ─────────────────────────────────────────────
+   RANGEMENT GRANULÉS — collection cachée, en préparation (29/09/2026)
+
+   Accessoires pour le client qui chauffe aux granulés : réservoirs, coffres,
+   seau, pelle, aspirateur à cendres. Caractéristiques relevées sur les
+   modèles réellement vendus en France (Leroy Merlin, EDA, Le Marquier,
+   Truffaut, Dexter) ; conversions litres → sacs faites à 0,65 kg/L, densité
+   en vrac des granulés ENplus.
+
+   À COMPLÉTER AVANT TOUTE MISE EN VENTE :
+     - les photos : `/products/rangement/a-venir.svg` partout, en attente des
+       liens fournisseur (pas de photo de concurrent sur le site) ;
+     - les identifiants de variante Shopify (`variantId: null` = fiche non
+       commandable, elle renvoie vers le contact) ;
+     - les prix : ceux du brief, à caler sur la grille du checkout au
+       centime près quand les produits Shopify existeront.
+   ───────────────────────────────────────────── */
+interface RangementInput {
+  slug: string
+  name: string
+  price: number
+  tagline: string
+  /** Contenance en sacs de 15 kg, si l'objet en stocke. */
+  sacs?: string
+  keyPoints: string[]
+  specs: Spec[]
+  description: string
+}
+
+const PHOTO_RANGEMENT = '/products/rangement/a-venir.svg'
+
+function buildRangement(r: RangementInput): Product {
+  return {
+    id: nextId(),
+    slug: r.slug,
+    name: r.name,
+    tagline: r.tagline,
+    keyPoints: [
+      ...r.keyPoints,
+      'Livraison offerte, en France métropolitaine, en Belgique, en Suisse et au Luxembourg.',
+      'Paiement sécurisé en ligne. E-mail de confirmation avec votre numéro de commande.',
+    ],
+    description: r.description,
+    richDescription: true,
+    price: r.price,
+    original_price: null,
+    pricePerStere: null,
+    stock: 20,
+    family: 'rangement',
+    subtype: 'rangement',
+    image: PHOTO_RANGEMENT,
+    variantId: null,
+    checkoutMultiplier: null,
+    specs: r.specs,
+    category_id: cat('cat-rangement').id,
+    category: cat('cat-rangement'),
+    badge: null,
+    rating: null,
+    review_count: 0,
+    created_at: '',
+  }
+}
+
+const RANGEMENT: Product[] = ([
+  {
+    slug: 'reservoir-granules-45-kg-roulettes',
+    name: 'Réservoir à granulés 45 kg, à roulettes',
+    price: 59.99,
+    tagline: '3 sacs de 15 kg — se déplace plein, d’une main',
+    keyPoints: [
+      'Contient 3 sacs de 15 kg : de quoi tenir plusieurs jours sans retourner au garage.',
+      'Quatre roulettes multidirectionnelles : vous le déplacez plein, sans le porter.',
+      'Couvercle avec poignée : plus de poussière de granulés dans la pièce.',
+      'Jauge transparente pour voir ce qu’il reste, et tamis au fond qui retient les fines.',
+      'Encombrement au sol : 36 × 36 cm — la place d’une petite poubelle, à côté du poêle.',
+    ],
+    specs: [
+      { label: 'Contenance',    value: '70 L — 45 kg, soit 3 sacs de 15 kg' },
+      { label: 'Dimensions',    value: '36 × 36 × 76 cm (l × P × H)' },
+      { label: 'Matière',       value: 'Plastique recyclé' },
+      { label: 'Roulettes',     value: '4 roulettes multidirectionnelles' },
+      { label: 'Couvercle',     value: 'Oui, avec poignée' },
+      { label: 'Particularité', value: 'Jauge de niveau et tamis anti-poussière' },
+    ],
+    description: `<p>Le réservoir que l’on remplit une fois et qu’on oublie pendant une semaine. Trois sacs de 15 kg tiennent dedans, et il se déplace plein grâce à ses quatre roulettes : plus besoin de porter les sacs du garage au salon.</p>
+<h3>Pourquoi celui-ci</h3>
+<ul>
+<li><strong>Il roule.</strong> Quatre roulettes multidirectionnelles, y compris chargé à 45 kg.</li>
+<li><strong>Il ne salit pas.</strong> Couvercle à poignée, et un tamis au fond qui retient les fines de granulés.</li>
+<li><strong>Vous voyez ce qu’il reste.</strong> Une jauge transparente sur le côté.</li>
+<li><strong>Il tient à côté du poêle.</strong> 36 cm sur 36 cm au sol.</li>
+</ul>`,
+  },
+  {
+    slug: 'pack-reservoir-45-kg-seau-pelle',
+    name: 'Pack confort : réservoir 45 kg + seau + pelle',
+    price: 79.99,
+    tagline: 'Tout ce qu’il faut pour alimenter le poêle, d’un coup',
+    keyPoints: [
+      'Le réservoir 45 kg à roulettes, le seau en acier et la pelle : l’équipement complet.',
+      'Moins cher que les trois articles pris séparément.',
+      'Le réservoir stocke près du poêle, le seau sert au remplissage quotidien.',
+      'Rien à porter : le réservoir roule, le seau se remplit à la pelle.',
+    ],
+    specs: [
+      { label: 'Composition',  value: 'Réservoir 45 kg à roulettes + seau acier + pelle' },
+      { label: 'Contenance',   value: '70 L — 45 kg, soit 3 sacs de 15 kg' },
+      { label: 'Dimensions',   value: 'Réservoir : 36 × 36 × 76 cm' },
+      { label: 'Matière',      value: 'Réservoir plastique recyclé, seau et pelle en acier' },
+    ],
+    description: `<p>Le nécessaire complet pour un poêle à granulés : le réservoir qui stocke trois sacs près du poêle, le seau en acier pour le service quotidien, et la pelle. Acheté ensemble, l’ensemble revient moins cher que les trois articles pris à l’unité.</p>`,
+  },
+  {
+    slug: 'coffre-granules-acier-noir-roulettes',
+    name: 'Coffre à granulés en acier noir, à roulettes',
+    price: 89.99,
+    tagline: '2 sacs de 15 kg — acier peint, fabrication soignée',
+    keyPoints: [
+      'Contient 2 sacs de 15 kg, soit environ 30 kg de granulés.',
+      'Acier peint noir : il ne se déforme pas et vieillit bien à côté d’un poêle.',
+      'Quatre roulettes pour le déplacer chargé, couvercle plein contre la poussière.',
+      'Format bas et large : passe sous un plan ou contre un mur sans gêner.',
+    ],
+    specs: [
+      { label: 'Contenance', value: 'Environ 40 L — 30 kg, soit 2 sacs de 15 kg' },
+      { label: 'Dimensions', value: '40 × 35 × 45 cm (l × P × H)' },
+      { label: 'Matière',    value: 'Acier peint noir' },
+      { label: 'Roulettes',  value: '4 roulettes' },
+      { label: 'Couvercle',  value: 'Oui, acier' },
+    ],
+    description: `<p>Un coffre en acier peint, plus bas et plus large qu’un réservoir : il se glisse contre un mur ou sous un plan de travail. Deux sacs de 15 kg tiennent dedans, et les quatre roulettes permettent de le sortir pour le remplir.</p>
+<h3>Acier ou plastique ?</h3>
+<p>L’acier résiste mieux à la chaleur d’un poêle tout proche et ne se déforme pas avec le temps. Il est aussi plus lourd à vide — sans importance, puisqu’il roule.</p>`,
+  },
+  {
+    slug: 'reservoir-granules-acier-tiroir',
+    name: 'Réservoir à granulés en acier, avec tiroir de service',
+    price: 119.99,
+    tagline: '2 à 3 sacs — on prélève au tiroir, sans ouvrir le couvercle',
+    keyPoints: [
+      'Contient 2 à 3 sacs de 15 kg selon le remplissage.',
+      'Tiroir de prélèvement en bas : vous servez le poêle sans soulever le couvercle.',
+      'Acier, finition soignée : conçu pour rester visible dans une pièce de vie.',
+      'Couvercle plein : aucune poussière ne sort, même en remplissant.',
+    ],
+    specs: [
+      { label: 'Contenance',    value: '2 à 3 sacs de 15 kg (30 à 45 kg)' },
+      { label: 'Matière',       value: 'Acier' },
+      { label: 'Particularité', value: 'Tiroir de prélèvement en partie basse' },
+      { label: 'Couvercle',     value: 'Oui' },
+    ],
+    description: `<p>Le modèle pensé pour rester dans le salon. Un tiroir en partie basse permet de prélever les granulés sans ouvrir le couvercle ni plonger la main dedans : on tire, on remplit le seau, on referme.</p>
+<h3>Pour qui</h3>
+<p>Pour ceux qui ont le poêle dans la pièce de vie et qui ne veulent ni sac en plastique apparent, ni poussière au moment du remplissage.</p>`,
+  },
+  {
+    slug: 'coffre-granules-plastique-38l-pelle',
+    name: 'Coffre à granulés 38 L avec pelle',
+    price: 39.99,
+    tagline: '1 sac et demi — le premier prix qui tient la route',
+    keyPoints: [
+      'Contient environ 1 sac et demi de 15 kg (25 kg de granulés).',
+      'Livré avec sa pelle : rien d’autre à acheter.',
+      'Roulettes pivotantes à 360° : il suit le poêle où vous le mettez.',
+      'Le format d’entrée, pour essayer sans y mettre cher.',
+    ],
+    specs: [
+      { label: 'Contenance', value: '38 L — environ 25 kg, soit 1,5 sac de 15 kg' },
+      { label: 'Dimensions', value: '40 × 40 × 60 cm (l × P × H)' },
+      { label: 'Matière',    value: 'Plastique' },
+      { label: 'Roulettes',  value: 'Roulettes pivotantes 360°' },
+      { label: 'Fourni avec', value: 'Une pelle à granulés' },
+    ],
+    description: `<p>Le coffre d’entrée de gamme, livré avec sa pelle. Un sac et demi de granulés à portée de main, des roulettes pour le déplacer, un couvercle pour la poussière. De quoi voir si le rangement près du poêle change votre quotidien avant d’investir davantage.</p>`,
+  },
+  {
+    slug: 'seau-granules-acier-pelle',
+    name: 'Seau à granulés en acier avec pelle',
+    price: 24.99,
+    tagline: 'Le geste quotidien : on remplit, on verse',
+    keyPoints: [
+      'Acier : il ne se fendra pas, même en le posant chaud à côté du poêle.',
+      'Anse de transport et pelle assortie.',
+      'La bonne contenance pour un remplissage de poêle, sans être trop lourd à porter.',
+    ],
+    specs: [
+      { label: 'Matière',     value: 'Acier' },
+      { label: 'Fourni avec', value: 'Une pelle assortie' },
+      { label: 'Usage',       value: 'Remplissage quotidien du poêle' },
+    ],
+    description: `<p>Le seau que l’on garde à côté du poêle. En acier, avec son anse et sa pelle : on le remplit au réservoir, on verse dans le poêle, on le repose. Rien à laver, rien à ranger.</p>`,
+  },
+  {
+    slug: 'pelle-granules-xl',
+    name: 'Pelle à granulés XL',
+    price: 9.99,
+    tagline: 'Grande contenance — deux fois moins d’allers-retours',
+    keyPoints: [
+      'Large contenance : moins de gestes pour remplir le poêle.',
+      'Manche long : la main ne touche pas les granulés.',
+      'Se range dans le seau ou le réservoir.',
+    ],
+    specs: [
+      { label: 'Format', value: 'XL, grande contenance' },
+      { label: 'Usage',  value: 'Remplissage du réservoir ou du poêle' },
+    ],
+    description: `<p>Une pelle large, avec un manche assez long pour ne pas mettre la main dans les granulés. Deux fois moins d’allers-retours qu’avec une pelle standard.</p>`,
+  },
+  {
+    slug: 'aspirateur-cendres-20l',
+    name: 'Aspirateur à cendres 20 L',
+    price: 49.99,
+    tagline: 'Cuve métal, filtre HEPA — le creuset propre en deux minutes',
+    keyPoints: [
+      'Cuve de 20 L en métal : la bonne taille pour un nettoyage par semaine, voire par jour.',
+      'Filtre HEPA et préfiltre : les cendres fines restent dedans, pas dans la pièce.',
+      'Moteur 1 000 W, conçu pour les cendres froides d’un poêle à granulés.',
+      'Embout métal pour le creuset : un aspirateur de maison ne tient pas ce travail.',
+    ],
+    specs: [
+      { label: 'Capacité',  value: '20 L' },
+      { label: 'Puissance', value: '1 000 W' },
+      { label: 'Filtration', value: 'Filtre HEPA + préfiltre' },
+      { label: 'Cuve',      value: 'Métal' },
+      { label: 'Usage',     value: 'Cendres froides de poêle à granulés et de cheminée' },
+    ],
+    description: `<p>Un aspirateur de maison ne convient pas aux cendres : les fines traversent le filtre et ressortent dans la pièce. Celui-ci a une cuve métal de 20 litres, un filtre HEPA doublé d’un préfiltre, et un embout métal pour le creuset.</p>
+<h3>À savoir</h3>
+<p>Les cendres doivent être <strong>froides</strong>. Comptez 20 litres pour un nettoyage hebdomadaire d’un poêle à granulés, ou quotidien en pleine saison.</p>`,
+  },
+] as RangementInput[]).map(buildRangement)
+
 /* ─────────────────────────────────────────────
    TEST A/B PRIX — fiche B des granulés Limouzi (23/09/2026)
 
@@ -523,7 +759,7 @@ const LIMOUZI_B: Product = {
   /* Arrivage limité, d'un autre fournisseur : quantité et date réelles,
      à tenir à jour. Le compte à rebours vise cette date exacte et la fiche
      cesse de vendre une fois passée. */
-  offre: { finAt: '2026-09-30T23:59:00+02:00', lotsRestants: 3 },
+  offre: { finAt: '2026-09-27T23:59:00+02:00', lotsRestants: 3 },
   keyPoints: LIMOUZI.keyPoints.map((l) =>
     l.startsWith('Par lot de')
       ? 'Par lot de 20 ou 30 sacs, ou demi-palette de 45 sacs, à partir de 89,98 € — livraison offerte. Plus vous prenez, moins le sac est cher.'
@@ -538,7 +774,7 @@ const LIMOUZI_B: Product = {
 /* Le déstockage passe en tête des granulés : il apparaît ainsi parmi les
    quatre mis en avant sur la page d'accueil. La fiche B suit, non listée :
    elle doit exister dans le catalogue pour que sa page soit générée. */
-export const PRODUCTS: Product[] = [...MELANGES, ...HETRES, ...DENSIFIES, LIMOUZI, LIMOUZI_B, ...GRANULES, ...HERBICIDES_PRODUITS]
+export const PRODUCTS: Product[] = [...MELANGES, ...HETRES, ...DENSIFIES, LIMOUZI, LIMOUZI_B, ...GRANULES, ...HERBICIDES_PRODUITS, ...RANGEMENT]
 
 export const BOIS_CHAUFFAGE_PRODUCTS = PRODUCTS.filter(p => p.family === 'bois-de-chauffage')
 export const DENSIFIE_PRODUCTS        = PRODUCTS.filter(p => p.family === 'bois-densifie')

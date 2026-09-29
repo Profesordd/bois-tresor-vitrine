@@ -23,7 +23,7 @@ const FAQ: Item[] = [
   {
     q: 'Livrez-vous partout en France, en Belgique, en Suisse et au Luxembourg ?',
     a: 'Oui, partout en France métropolitaine, en Belgique, en Suisse et au Luxembourg, en colis, livraison offerte.',
-    familles: ['jardin'],
+    familles: ['jardin', 'rangement'],
   },
   {
     q: 'Puis-je acheter ce produit en tant que particulier ?',

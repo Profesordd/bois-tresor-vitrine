@@ -28,7 +28,7 @@ const PAYMENT = [
 
 /** Détails produit : rien n'est masqué derrière un accordéon, le persona ne clique pas. */
 export default function ProductDetails({ specs, family }: Props) {
-  const livraison = family === 'jardin' ? DELIVERY_COLIS : DELIVERY
+  const livraison = family === 'jardin' || family === 'rangement' ? DELIVERY_COLIS : DELIVERY
   return (
     <div className="grid md:grid-cols-3 gap-6 items-start">
       <section className="border-2 border-gray-100 rounded-lg p-5">

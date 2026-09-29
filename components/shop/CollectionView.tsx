@@ -31,6 +31,10 @@ export default function CollectionView({ categorySlug, allProducts }: Props) {
     ? listables.filter((p) => p.category_id === activeCategory.id)
     : listables.filter((p) => !p.category?.hidden)
   const jardin = activeCategory?.family === 'jardin'
+  const rangement = activeCategory?.family === 'rangement'
+  /* Catégories hors bois : ni pastilles de filtre (elles renvoient au bois),
+     ni rappel saisonnier sur le bois sec. */
+  const horsBois = jardin || rangement
 
   return (
     <div>
@@ -48,7 +52,12 @@ export default function CollectionView({ categorySlug, allProducts }: Props) {
             {activeCategory ? activeCategory.name : 'Bois de chauffage sec, prêt à brûler'}
           </h1>
 
-          {jardin ? (
+          {rangement ? (
+            <p className="text-brand-50 text-[17px] sm:text-xl max-w-2xl mx-auto leading-snug">
+              Réservoirs, coffres, seau, pelle : de quoi garder vos granulés à portée de main,
+              au propre, sans porter les sacs. Livraison offerte.
+            </p>
+          ) : jardin ? (
             <>
               <p className="text-brand-50 text-[17px] sm:text-xl max-w-2xl mx-auto leading-snug">
                 Roundup, Radikal, Tidex, Barbarian : désherbants professionnels en déstockage,
@@ -114,9 +123,11 @@ export default function CollectionView({ categorySlug, allProducts }: Props) {
              écran entier, alors qu'elle se lit très bien une fois le choix
              fait — le client vient de voir les palettes, on l'incite à ne
              pas attendre. ── */}
-        <div className="mt-6 hidden sm:block">
-          <UrgencyNote variant={jardin ? 'jardin' : 'saison'} />
-        </div>
+        {!rangement && (
+          <div className="mt-6 hidden sm:block">
+            <UrgencyNote variant={jardin ? 'jardin' : 'saison'} />
+          </div>
+        )}
 
         {/* ── Filtres ──
              Sur téléphone : une seule ligne qui défile latéralement. En
@@ -125,7 +136,7 @@ export default function CollectionView({ categorySlug, allProducts }: Props) {
              visiteur vient d'abord voir des palettes.
              Les marges négatives laissent le défilement atteindre les bords
              de l'écran, sinon la dernière pastille semble coupée net. ── */}
-        {!jardin && (
+        {!horsBois && (
         <div
           className="flex gap-2 sm:gap-3 mt-5 mb-4 sm:mt-10 sm:mb-8
                      overflow-x-auto sm:overflow-visible sm:flex-wrap
@@ -163,7 +174,7 @@ export default function CollectionView({ categorySlug, allProducts }: Props) {
         </div>
         )}
 
-        {jardin && <div className="mt-6 sm:mt-10" />}
+        {horsBois && <div className="mt-6 sm:mt-10" />}
 
         {activeCategory ? (
           <ProductGrid products={products} />
@@ -188,9 +199,11 @@ export default function CollectionView({ categorySlug, allProducts }: Props) {
         )}
 
         {/* Sur téléphone uniquement : l'urgence arrive après les produits. */}
-        <div className="mt-10 sm:hidden">
-          <UrgencyNote variant={jardin ? 'jardin' : 'saison'} />
-        </div>
+        {!rangement && (
+          <div className="mt-10 sm:hidden">
+            <UrgencyNote variant={jardin ? 'jardin' : 'saison'} />
+          </div>
+        )}
       </div>
     </div>
   )

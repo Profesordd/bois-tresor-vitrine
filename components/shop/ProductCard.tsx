@@ -43,7 +43,7 @@ export default function ProductCard({ product }: ProductCardProps) {
       className="group bg-white rounded-lg border-2 border-gray-100 hover:border-brand-400 hover:shadow-lg transition-all duration-300 overflow-hidden flex flex-col focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
     >
       <div className="relative aspect-[4/3] overflow-hidden flex-shrink-0 bg-gray-50">
-        <ProductVisual image={image} name={name} fit={family === 'jardin' ? 'contain' : 'cover'} className="group-hover:scale-105 transition-transform duration-500" />
+        <ProductVisual image={image} name={name} fit={family === 'jardin' || family === 'rangement' ? 'contain' : 'cover'} className="group-hover:scale-105 transition-transform duration-500" />
 
         {/* Un seul repère dans toute la collection : face à neuf palettes qui
             se ressemblent, il indique par où commencer. Pas un argument de
@@ -107,7 +107,10 @@ export default function ProductCard({ product }: ProductCardProps) {
           <Flame size={14} className="text-brand-600 flex-shrink-0 sm:hidden" />
           <Flame size={16} className="text-brand-600 flex-shrink-0 hidden sm:block" />
           </>)}
-          {family === 'granules' ? 'Granulés prêts à l’emploi' : family === 'jardin' ? 'Usage professionnel' : 'Bois sec, prêt à brûler'}
+          {family === 'granules' ? 'Granulés prêts à l’emploi'
+            : family === 'jardin' ? 'Usage professionnel'
+            : family === 'rangement' ? 'Pour votre poêle à granulés'
+            : 'Bois sec, prêt à brûler'}
         </p>
 
         <div className="mt-auto pt-1">

@@ -76,7 +76,7 @@ export default async function ProductPage({ params }: Props) {
 
         {/* ── Colonne visuelle : photo produit + photo de l'équipe ── */}
         <div className="space-y-5">
-          <ProductGallery image={product.image} name={product.name} fit={product.family === 'jardin' ? 'contain' : 'cover'} />
+          <ProductGallery image={product.image} name={product.name} fit={product.family === 'jardin' || product.family === 'rangement' ? 'contain' : 'cover'} />
           {/* Sur mobile, ces blocs passent après le prix et le bouton. */}
           <div className="hidden lg:block space-y-5">
             <TeamPhoto />
@@ -220,9 +220,12 @@ export default async function ProductPage({ params }: Props) {
         />
       </div>
 
-      <div className="mt-10">
-        <UrgencyNote variant={product.family === 'jardin' ? 'jardin' : product.badge === 'destockage' ? 'destockage' : 'saison'} />
-      </div>
+      {/* Le rappel saisonnier parle du bois : sans objet sur un accessoire. */}
+      {product.family !== 'rangement' && (
+        <div className="mt-10">
+          <UrgencyNote variant={product.family === 'jardin' ? 'jardin' : product.badge === 'destockage' ? 'destockage' : 'saison'} />
+        </div>
+      )}
 
       <div className="mt-12 max-w-3xl">
         <ProductFaq family={product.family} parLot={parLot} />

@@ -103,6 +103,18 @@ message « Dernier exemplaire en stock — 1 max par commande », et le webhook
 le passe en rupture dès qu'une commande payée le contient. Les autres
 produits ne sont pas suivis par le webhook. Premier cas : Limouzi.
 
+**Collection cachée « Rangement granulés »** (29/09/2026, en préparation) :
+8 accessoires (réservoirs, coffres, seau, pelle, aspirateur à cendres),
+famille `rangement`, catégorie `hidden: true` →
+`/product-category/rangement-granules/` seulement. Caractéristiques
+relevées sur les modèles réellement vendus en France ; conversions
+litres → sacs à 0,65 kg/L (densité vrac ENplus).
+**Trois choses manquent avant toute vente** : les photos
+(`/products/rangement/a-venir.svg` partout, en attente des liens
+fournisseur), les `variantId` Shopify (`null` = fiche non commandable,
+renvoie au contact), et l'alignement des prix sur la grille du checkout
+(59,99 affiché ≠ 29,99 × 2 = 59,98 facturé).
+
 **Test A/B prix sur les granulés** (lancé le 23/09/2026) : deux fiches du
 même produit. A = `granules-de-bois-limouzi-palette-de-134-sacs-de-15-kg`
 (4 lots, prix bas, listée). B = `granules-de-bois-limouzi-sacs-de-15-kg`
