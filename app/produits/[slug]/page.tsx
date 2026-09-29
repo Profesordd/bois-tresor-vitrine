@@ -35,10 +35,11 @@ export async function generateMetadata({ params }: Props) {
   return {
     title: product?.name ?? 'Produit',
     description: product?.keyPoints[0],
-    /* Une fiche non listée duplique le contenu de sa fiche de référence :
-       sans ces deux lignes, les deux se cannibaliseraient dans les
-       résultats de recherche. */
-    ...(product?.unlisted && {
+    /* Hors des moteurs de recherche dans deux cas : une fiche non listée
+       duplique le contenu de sa fiche de référence (sans le canonique, les
+       deux se cannibaliseraient), et une fiche d'une collection cachée n'est
+       pas encore en vente — elle ne s'atteint que par son adresse. */
+    ...((product?.unlisted || product?.category?.hidden) && {
       robots: { index: false, follow: false },
       alternates: product.canonicalOf
         ? { canonical: `/produits/${product.canonicalOf}/` }

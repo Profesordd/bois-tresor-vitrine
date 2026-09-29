@@ -30,6 +30,9 @@ export async function generateMetadata({ params }: Props) {
     description:
       'Entreprise familiale française. Bois de chauffage sec prêt à brûler (moins de 20 % d’humidité) et granulés certifiés. Livraison offerte, paiement sécurisé.',
     alternates: { canonical: `/product-category/${category.slug}/` },
+    /* Une collection cachée ne s'atteint que par son adresse : elle n'a
+       rien à faire dans les résultats de recherche. */
+    ...(category.hidden && { robots: { index: false, follow: false } }),
   }
 }
 
