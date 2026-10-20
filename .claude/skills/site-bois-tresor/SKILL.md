@@ -88,6 +88,42 @@ Les trois chemins vers le paiement passent par cette fenêtre :
 `QuantitySelector`, `LotSelector` et la page `/panier`. En ajouter un
 quatrième sans la fenêtre rouvrirait la fuite.
 
+**Séquence de relance** (20/10/2026, `lib/emails/`, `/api/relances/`) :
+cinq messages à qui n'est pas allé au bout du paiement, à 1 h, 6 h, J+1,
+J+3 et J+7. Deux le premier jour, parce que l'essentiel d'un panier
+abandonné se récupère dans les premières heures. Déclenchée toutes les
+heures par le planificateur Vercel (`vercel.json`, en-tête `CRON_SECRET`),
+et à la main depuis `/admin/leads/`. Les cinq messages sont lisibles dans
+`/admin/relances/`.
+
+Points à ne pas défaire :
+- **Le créneau est réservé en base avant l'envoi**, pas après. La
+  contrainte `relances (lead_id, etape)` empêche deux exécutions qui se
+  chevauchent d'envoyer le même message deux fois.
+- **Une étape en échec n'est jamais retentée.** Sa ligne existe, avec
+  l'erreur. Sans cela, une adresse invalide serait réessayée chaque heure.
+- **Envoi par appel HTTP direct à Resend, pas par le SDK.** Le SDK range
+  l'erreur dans `{ error }` au lieu de la lever, et c'est précisément ce
+  qui avait fait croire pendant des semaines que le formulaire de contact
+  envoyait des messages.
+- **La désinscription est en POST seulement** (`/api/desinscription/`,
+  jeton HMAC de l'identifiant du lead). Un lien de désinscription qui agit
+  en GET se déclenche tout seul : les filtres de messagerie ouvrent les
+  liens pour les inspecter. L'en-tête `List-Unsubscribe` pointe vers cette
+  route, la page `/desinscription/` demande une confirmation.
+- **Les arrêts** : commande payée, désinscription, tentative de plus de
+  12 jours. Les rebonds et la rupture de stock ne sont pas encore traités.
+- **Aucun chiffre inventé dans les messages.** Les deux arguments de rareté
+  utilisés sont vrais et vérifiables : la saison, et le fait qu'il ne reste
+  qu'une référence de granulés en vente. Si cela change, les textes
+  changent aussi.
+
+Reste à faire : `RESEND_API_KEY` et `EMAIL_FROM` sont vides, rien ne part
+tant qu'ils le sont. L'envoi se fait depuis le domaine principal, sans
+sous-domaine dédié, sur décision du client pour la phase de test : des
+signalements en spam abîmeraient la réputation du domaine, donc la
+distribution des confirmations de commande.
+
 Les adresses sont lues dans `/admin/leads/` (onglets « À rappeler », « Ont
 commandé », « Tous »), exportables en CSV, et le webhook `orders/paid`
 marque `a_commande` dès qu'une commande payée porte la même adresse — pour
@@ -415,6 +451,7 @@ supabase-analytics-geo-filters.sql  filtrage zone commerciale
 supabase-analytics-produits-fix.sql calcul de taux corrigé
 supabase-analytics-dates.sql     requêtes par plage de dates, heure de Paris
 supabase-leads.sql               adresses laissées avant le paiement
+supabase-relances.sql            séquence de relance, désinscription
 ```
 
 **Toutes les tables ont le RLS actif sans aucune policy publique.** Rien

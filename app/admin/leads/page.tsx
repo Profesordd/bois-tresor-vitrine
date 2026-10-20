@@ -1,8 +1,9 @@
 import Link from 'next/link'
 import { ArrowLeft, UserPlus } from 'lucide-react'
 import { createAdminClient } from '@/lib/supabase/server'
-import LeadCard, { type Lead } from '@/components/admin/LeadCard'
+import LeadCard, { type Lead, type Relance } from '@/components/admin/LeadCard'
 import RefreshButton from '@/components/admin/RefreshButton'
+import BoutonRelances from '@/components/admin/BoutonRelances'
 
 export const dynamic = 'force-dynamic'
 export const metadata = { title: 'Adresses à rappeler' }
@@ -28,6 +29,24 @@ async function getLeads(filtre: Filtre): Promise<Lead[]> {
   return data as Lead[]
 }
 
+/** Les relances déjà parties, regroupées par lead. */
+async function getRelances(ids: string[]): Promise<Map<string, Relance[]>> {
+  if (ids.length === 0) return new Map()
+  const supabase = createAdminClient()
+  const { data, error } = await supabase
+    .from('relances')
+    .select('lead_id, etape, envoye_a, erreur')
+    .in('lead_id', ids)
+    .order('etape', { ascending: true })
+  if (error || !data) return new Map()
+  const parLead = new Map<string, Relance[]>()
+  for (const r of data) {
+    const id = r.lead_id as string
+    parLead.set(id, [...(parLead.get(id) ?? []), r as unknown as Relance])
+  }
+  return parLead
+}
+
 interface Props {
   searchParams: Promise<{ filtre?: string }>
 }
@@ -37,6 +56,7 @@ export default async function AdminLeadsPage({ searchParams }: Props) {
   const actif: Filtre = ONGLETS.some((o) => o.cle === filtre) ? (filtre as Filtre) : 'a-rappeler'
 
   const leads = await getLeads(actif)
+  const relances = await getRelances(leads.map((l) => l.id))
   const avecTelephone = leads.filter((l) => l.telephone).length
 
   return (
@@ -56,7 +76,15 @@ export default async function AdminLeadsPage({ searchParams }: Props) {
             une commande sont des clients à relancer.
           </p>
         </div>
-        <RefreshButton label="Voir les nouvelles" />
+        <div className="space-y-2">
+          <RefreshButton label="Voir les nouvelles" />
+          <BoutonRelances />
+          <p className="text-right">
+            <Link href="/admin/relances/" className="text-[13px] text-gray-500 hover:text-brand-700 underline">
+              Voir les 5 messages
+            </Link>
+          </p>
+        </div>
       </div>
 
       <div className="flex gap-2 mb-6 flex-wrap">
@@ -90,7 +118,7 @@ export default async function AdminLeadsPage({ searchParams }: Props) {
             {avecTelephone > 0 && `, dont ${avecTelephone} avec un téléphone`}.
           </p>
           <div className="space-y-3">
-            {leads.map((l) => <LeadCard key={l.id} l={l} />)}
+            {leads.map((l) => <LeadCard key={l.id} l={l} relances={relances.get(l.id)} />)}
           </div>
         </>
       )}

@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
-import { Mail, Phone, Copy, CheckCheck, Check, Undo2, BadgeCheck, MailCheck } from 'lucide-react'
+import { Mail, Phone, Copy, CheckCheck, Check, Undo2, BadgeCheck, MailCheck, MailX, Send } from 'lucide-react'
 import { formatPrice } from '@/lib/utils'
 
 export interface Lead {
@@ -21,9 +21,24 @@ export interface Lead {
   pays: string | null
   appareil: string | null
   a_commande: boolean
+  desinscrit: boolean
   traite: boolean
   note: string | null
 }
+
+export interface Relance {
+  etape: number
+  envoye_a: string
+  erreur: string | null
+}
+
+const SUJETS = [
+  'commande non aboutie',
+  'souci de paiement',
+  'qui nous sommes',
+  'ce qu’il reste',
+  'dernier message',
+]
 
 const APPAREIL: Record<string, string> = { mobile: 'téléphone', tablet: 'tablette', desktop: 'ordinateur' }
 
@@ -40,7 +55,7 @@ function quand(iso: string): string {
  * que la personne s'apprêtait à payer. Le gérant appelle ou écrit depuis
  * ses propres outils, comme pour les demandes de contact.
  */
-export default function LeadCard({ l }: { l: Lead }) {
+export default function LeadCard({ l, relances = [] }: { l: Lead; relances?: Relance[] }) {
   const router = useRouter()
   const [, startTransition] = useTransition()
   const [copie, setCopie] = useState<'email' | 'tel' | null>(null)
@@ -90,6 +105,11 @@ export default function LeadCard({ l }: { l: Lead }) {
               <BadgeCheck size={13} /> A commandé
             </span>
           )}
+          {l.desinscrit && (
+            <span className="inline-flex items-center gap-1 rounded-md bg-gray-200 text-gray-700 text-xs font-semibold px-2 py-1">
+              <MailX size={13} /> Désinscrit
+            </span>
+          )}
           {l.consent && (
             <span className="inline-flex items-center gap-1 rounded-md bg-gray-100 text-gray-700 text-xs font-semibold px-2 py-1">
               <MailCheck size={13} /> Accepte les offres
@@ -104,6 +124,26 @@ export default function LeadCard({ l }: { l: Lead }) {
           {l.lot && ` · lot ${l.lot}`}
           {montant !== null && <strong className="font-semibold text-ink"> — {formatPrice(montant)}</strong>}
         </p>
+      )}
+
+      {/* Les relances déjà parties, dans l'ordre. Une étape en échec est
+          montrée en rouge avec son motif : sans ça, une adresse invalide
+          passerait inaperçue et le client croirait avoir relancé. */}
+      {relances.length > 0 && (
+        <div className="flex flex-wrap items-center gap-1.5 mt-3">
+          <Send size={13} className="text-gray-400" />
+          {relances.map((r) => (
+            <span
+              key={r.etape}
+              title={`${SUJETS[r.etape - 1] ?? ''} · ${quand(r.envoye_a)}${r.erreur ? ` · ${r.erreur}` : ''}`}
+              className={`inline-flex items-center rounded-md text-xs font-semibold px-2 py-0.5 ${
+                r.erreur ? 'bg-red-100 text-red-800' : 'bg-brand-50 text-brand-800'
+              }`}
+            >
+              {r.etape}. {SUJETS[r.etape - 1] ?? `étape ${r.etape}`}
+            </span>
+          ))}
+        </div>
       )}
 
       <div className="flex flex-wrap items-center gap-2 mt-3.5">
