@@ -120,8 +120,10 @@ export default function QuantitySelector({ product }: Props) {
   }
 
   /* Pas d'identifiant de checkout : le produit n'est pas encore payable en
-     ligne, on oriente vers le contact au lieu d'un panier sans issue. */
-  if (!product.variantId) {
+     ligne, on oriente vers le contact au lieu d'un panier sans issue.
+     Une fiche réglée sur le site n'a pas besoin de cet identifiant, qui
+     n'appartient qu'au prestataire externe : elle est payable quand même. */
+  if (!product.variantId && !product.checkoutInterne) {
     return (
       <div className="space-y-3">
         <Link
