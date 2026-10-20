@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { ArrowLeft, CreditCard, AlertTriangle, Check, X } from 'lucide-react'
 import { cawlConfigure, cawlEnvironnement } from '@/lib/cawl'
 import CawlEssai, { type ArticleEssai } from '@/components/admin/CawlEssai'
+import CawlPing from '@/components/admin/CawlPing'
 import { PRODUCTS } from '@/lib/products'
 import { lotsDisponibles, libelleLot } from '@/lib/lots'
 
@@ -82,6 +83,7 @@ export default function PaiementCawlPage() {
             ? <strong className="text-red-700"> — réel, les cartes sont débitées</strong>
             : <span className="text-brand-700"> — préprod, aucun débit</span>}
         </p>
+        <CawlPing />
       </div>
 
       <div className="mt-6">
