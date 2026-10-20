@@ -27,6 +27,21 @@ export function emailConfigure(): boolean {
   return Boolean(process.env.RESEND_API_KEY && process.env.EMAIL_FROM)
 }
 
+/**
+ * Présence des variables nécessaires, sans jamais révéler leur valeur.
+ *
+ * Affiché dans l'administration : une variable ajoutée sur Vercel n'entre
+ * en vigueur qu'au déploiement suivant, et rien ne le signale. Ce voyant
+ * évite de chercher longtemps pourquoi aucun message ne part.
+ */
+export function diagnosticConfig(): { cle: string; present: boolean; role: string }[] {
+  return [
+    { cle: 'RESEND_API_KEY', present: Boolean(process.env.RESEND_API_KEY), role: 'envoi des messages' },
+    { cle: 'EMAIL_FROM', present: Boolean(process.env.EMAIL_FROM), role: 'adresse d’expéditeur' },
+    { cle: 'CRON_SECRET', present: Boolean(process.env.CRON_SECRET), role: 'déclenchement automatique toutes les heures' },
+  ]
+}
+
 export async function envoyer(e: Envoi): Promise<Resultat> {
   const cle = process.env.RESEND_API_KEY
   const expediteur = process.env.EMAIL_FROM

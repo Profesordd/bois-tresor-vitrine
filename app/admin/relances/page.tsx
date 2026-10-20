@@ -1,7 +1,7 @@
 import Link from 'next/link'
-import { ArrowLeft, Send, AlertTriangle } from 'lucide-react'
+import { ArrowLeft, Send, AlertTriangle, Check, X } from 'lucide-react'
 import { composer, DELAIS_HEURES, NB_ETAPES, type LeadRelance } from '@/lib/emails/relances'
-import { emailConfigure } from '@/lib/emails/envoi'
+import { emailConfigure, diagnosticConfig } from '@/lib/emails/envoi'
 import { createAdminClient } from '@/lib/supabase/server'
 import EnvoiApercu from '@/components/admin/EnvoiApercu'
 import { lienPaiement } from '@/lib/emails/relances'
@@ -42,6 +42,8 @@ async function compter(): Promise<{ parEtape: Map<number, number>; echecs: numbe
 
 export default async function AdminRelancesPage() {
   const configure = emailConfigure()
+  const diagnostic = diagnosticConfig()
+  const manquantes = diagnostic.filter((d) => !d.present)
   const { parEtape, echecs } = await compter()
 
   return (
@@ -59,16 +61,34 @@ export default async function AdminRelancesPage() {
         dès que la personne commande ou se désinscrit.
       </p>
 
-      {!configure && (
-        <p className="flex items-start gap-2 rounded-lg border border-amber-300 bg-amber-50 p-4 mt-5 text-[15px] text-amber-900">
-          <AlertTriangle size={18} className="flex-shrink-0 mt-0.5" />
-          <span>
-            L’envoi n’est pas encore branché : il manque <code>RESEND_API_KEY</code> et{' '}
-            <code>EMAIL_FROM</code> dans la configuration. Les messages ci-dessous sont prêts,
-            rien ne part tant que ces deux valeurs sont vides.
-          </span>
+      {/* Voyant de configuration. Une variable ajoutée sur Vercel n'entre en
+          vigueur qu'au déploiement suivant, et rien ne le signale : sans ce
+          bloc, on cherche longtemps pourquoi aucun message ne part. */}
+      <div className={`rounded-lg border p-4 mt-5 ${manquantes.length > 0 ? 'border-amber-300 bg-amber-50' : 'border-brand-200 bg-brand-50'}`}>
+        <p className={`flex items-center gap-2 font-semibold ${manquantes.length > 0 ? 'text-amber-900' : 'text-brand-800'}`}>
+          {manquantes.length > 0 ? <AlertTriangle size={18} /> : <Check size={18} className="text-brand-600" />}
+          {manquantes.length > 0
+            ? `${manquantes.length} réglage${manquantes.length > 1 ? 's' : ''} manquant${manquantes.length > 1 ? 's' : ''}`
+            : 'Tout est branché, les envois peuvent partir'}
         </p>
-      )}
+        <ul className="mt-2.5 space-y-1 text-[15px]">
+          {diagnostic.map((d) => (
+            <li key={d.cle} className="flex items-center gap-2">
+              {d.present
+                ? <Check size={15} className="text-brand-600 flex-shrink-0" />
+                : <X size={15} className="text-amber-700 flex-shrink-0" />}
+              <code className="text-[13px]">{d.cle}</code>
+              <span className="text-gray-500 text-[14px]">· {d.role}</span>
+            </li>
+          ))}
+        </ul>
+        {manquantes.length > 0 && (
+          <p className="text-[14px] text-amber-900 mt-3">
+            À ajouter sur Vercel, dans Settings puis Environment Variables. Une variable
+            n’entre en vigueur qu’après un nouveau déploiement : pensez à redéployer ensuite.
+          </p>
+        )}
+      </div>
 
       {echecs > 0 && (
         <p className="rounded-lg border border-red-300 bg-red-50 p-4 mt-5 text-[15px] text-red-800">
