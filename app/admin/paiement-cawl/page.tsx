@@ -1,7 +1,29 @@
 import Link from 'next/link'
 import { ArrowLeft, CreditCard, AlertTriangle, Check, X } from 'lucide-react'
 import { cawlConfigure, cawlEnvironnement } from '@/lib/cawl'
-import CawlEssai from '@/components/admin/CawlEssai'
+import CawlEssai, { type ArticleEssai } from '@/components/admin/CawlEssai'
+import { PRODUCTS } from '@/lib/products'
+import { lotsDisponibles, libelleLot } from '@/lib/lots'
+
+/**
+ * Les montants réels du catalogue, pour essayer sur de vrais prix plutôt
+ * que sur un chiffre rond. Un produit vendu par lot en fournit un par lot.
+ */
+function articlesDuCatalogue(): ArticleEssai[] {
+  const out: ArticleEssai[] = [{ libelle: 'Essai à 1 €', montantCents: 100 }]
+  for (const p of PRODUCTS) {
+    if (p.unlisted) continue
+    const lots = lotsDisponibles(p)
+    if (lots.length > 0) {
+      for (const l of lots) {
+        out.push({ libelle: `${p.name} · ${libelleLot(l)}`, montantCents: Math.round(l.price * 100) })
+      }
+    } else if (p.variantId) {
+      out.push({ libelle: p.name, montantCents: Math.round(p.price * 100) })
+    }
+  }
+  return out
+}
 
 export const dynamic = 'force-dynamic'
 export const metadata = { title: 'Paiement CAWL', robots: { index: false, follow: false } }
@@ -64,7 +86,7 @@ export default function PaiementCawlPage() {
 
       <div className="mt-6">
         {configure
-          ? <CawlEssai reel={env.reel} />
+          ? <CawlEssai reel={env.reel} articles={articlesDuCatalogue()} />
           : <p className="rounded-lg border border-gray-200 bg-white p-8 text-center text-gray-500">
               Renseignez les clés dans la configuration pour lancer un essai.
             </p>}

@@ -387,6 +387,12 @@ l'inverse débite vraiment la carte. `CAWL_API_URL` pointe sur la préprod
 par défaut, et l'écran d'administration affiche la plateforme visée en
 toutes lettres.
 
+Le plugin officiel WooCommerce 2.5.32 règle `authorizationMode` sur
+`SALE`, qui autorise et encaisse en une fois ; l'ancienne intégration
+Next.js utilisait `FINAL_AUTHORIZATION` avec une capture séparée. Le banc
+d'essai laisse choisir, `SALE` par défaut : tous les comptes n'acceptent
+pas les deux, et c'est à la capture que ça se voit.
+
 Trois réglages de l'intégration de référence sont **non négociables**, ils
 ont été validés en production ailleurs et toute variation fait échouer le
 3-D Secure : `javaScriptEnabled: false`, les dimensions d'écran transmises

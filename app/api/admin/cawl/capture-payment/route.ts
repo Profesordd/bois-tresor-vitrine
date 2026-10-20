@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { ADMIN_COOKIE, verifyToken } from '@/lib/admin/session'
-import { lirePaiement, capturerPaiement, cawlConfigure, STATUTS_REFUS } from '@/lib/cawl'
+import { lirePaiement, capturerPaiement, cawlConfigure, STATUTS_REFUS, STATUTS_DEJA_ENCAISSES } from '@/lib/cawl'
 
 /**
  * Lecture du statut puis capture, banc d'essai.
@@ -35,7 +35,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ ok: true, statut: 'CAPTURED', montantCents: paiement.montantCents, paymentId })
     }
 
-    if (paiement.statut === 'CAPTURED' || paiement.statut === 'CAPTURE_REQUESTED') {
+    if (STATUTS_DEJA_ENCAISSES.includes(paiement.statut)) {
       return NextResponse.json({ ok: true, statut: paiement.statut, montantCents: paiement.montantCents, paymentId })
     }
 

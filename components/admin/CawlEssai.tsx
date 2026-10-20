@@ -37,7 +37,12 @@ function luhn(n: string): boolean {
 
 const NOM_PRODUIT: Record<number, string> = { 1: 'Visa', 3: 'Mastercard', 130: 'CB' }
 
-export default function CawlEssai({ reel }: { reel: boolean }) {
+export interface ArticleEssai {
+  libelle: string
+  montantCents: number
+}
+
+export default function CawlEssai({ reel, articles }: { reel: boolean; articles: ArticleEssai[] }) {
   const [etape, setEtape] = useState<Etape>('saisie')
   const [erreur, setErreur] = useState('')
   const [journal, setJournal] = useState<string[]>([])
@@ -45,6 +50,7 @@ export default function CawlEssai({ reel }: { reel: boolean }) {
   const paymentIdRef = useRef<string | null>(null)
 
   const [montant, setMontant] = useState('1.00')
+  const [mode, setMode] = useState<'SALE' | 'FINAL_AUTHORIZATION'>('SALE')
   const [carte, setCarte] = useState({
     numero: '',
     mois: String(new Date().getMonth() + 1).padStart(2, '0'),
@@ -109,6 +115,7 @@ export default function CawlEssai({ reel }: { reel: boolean }) {
           titulaire: carte.titulaire,
           produitId: produit,
           essai: `bt-${Date.now()}`,
+          modeAutorisation: mode,
           navigateur: {
             screenWidth: window.screen.width,
             screenHeight: window.screen.height,
@@ -190,6 +197,28 @@ export default function CawlEssai({ reel }: { reel: boolean }) {
       ) : (
         <form onSubmit={envoyer} className="rounded-lg border border-gray-200 bg-white p-5 space-y-4">
           <div>
+            <label htmlFor="cawl-article" className="block text-[15px] font-semibold text-ink mb-1.5">
+              Produit à tester
+            </label>
+            <select
+              id="cawl-article"
+              onChange={(e) => { if (e.target.value) setMontant((Number(e.target.value) / 100).toFixed(2)) }}
+              defaultValue=""
+              className="w-full rounded-lg border-2 border-gray-300 px-3 py-2.5 text-[16px] focus:outline-none focus:border-brand-600"
+            >
+              <option value="">Montant libre</option>
+              {articles.map((a) => (
+                <option key={a.libelle} value={a.montantCents}>
+                  {a.libelle} — {(a.montantCents / 100).toFixed(2).replace('.', ',')} €
+                </option>
+              ))}
+            </select>
+            <p className="text-[13px] text-gray-500 mt-1">
+              Les prix réels du catalogue. Choisir un produit remplit le montant ci-dessous.
+            </p>
+          </div>
+
+          <div>
             <label htmlFor="cawl-montant" className="block text-[15px] font-semibold text-ink mb-1.5">
               Montant à débiter
             </label>
@@ -203,6 +232,30 @@ export default function CawlEssai({ reel }: { reel: boolean }) {
               />
               <span className="text-[17px] text-gray-600">€</span>
             </div>
+          </div>
+
+          <div>
+            <span className="block text-[15px] font-semibold text-ink mb-1.5">Mode d’autorisation</span>
+            <div className="flex flex-wrap gap-4">
+              {([
+                ['SALE', 'SALE — encaissé en une fois (réglage du plugin officiel)'],
+                ['FINAL_AUTHORIZATION', 'FINAL_AUTHORIZATION — capture séparée'],
+              ] as const).map(([v, libelle]) => (
+                <label key={v} className="flex items-center gap-2 text-[14px] text-gray-700 cursor-pointer">
+                  <input
+                    type="radio"
+                    name="cawl-mode"
+                    checked={mode === v}
+                    onChange={() => setMode(v)}
+                    className="w-4 h-4 text-brand-600 focus:ring-brand-500"
+                  />
+                  {libelle}
+                </label>
+              ))}
+            </div>
+            <p className="text-[13px] text-gray-500 mt-1">
+              Tous les comptes n’acceptent pas les deux. Si l’un échoue, essayez l’autre.
+            </p>
           </div>
 
           <div>

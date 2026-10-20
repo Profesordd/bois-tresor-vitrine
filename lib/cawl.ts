@@ -131,7 +131,16 @@ export interface Paiement {
   navigateur?: InfosNavigateur
   ipClient?: string
   cleIdempotence?: string
+  /**
+   * `SALE` autorise et encaisse en une fois : c'est le réglage du plugin
+   * officiel CAWL 2.5.32, et il n'y a alors rien à capturer ensuite.
+   * `FINAL_AUTHORIZATION` autorise seulement, la capture se demande après.
+   * Tous les comptes n'acceptent pas les deux, d'où le choix.
+   */
+  modeAutorisation?: 'SALE' | 'FINAL_AUTHORIZATION'
 }
+
+export const MODES_AUTORISATION = ['SALE', 'FINAL_AUTHORIZATION'] as const
 
 /**
  * Identifiant du moyen de paiement CAWL, déduit des premiers chiffres.
@@ -182,7 +191,7 @@ export async function creerPaiement(p: Paiement): Promise<ReponsePaiement> {
         cardholderName: p.titulaire,
       },
       paymentProductId: p.produitId,
-      authorizationMode: 'FINAL_AUTHORIZATION',
+      authorizationMode: p.modeAutorisation ?? 'SALE',
       transactionChannel: 'ECOMMERCE',
       returnUrl: p.returnUrl,
       threeDSecure: { skipAuthentication: false, redirectionData: { returnUrl: p.returnUrl } },
@@ -199,6 +208,9 @@ export async function lirePaiement(id: string): Promise<{ id: string; statut: st
 
 /** Statuts qui signent un refus. Il n'existe pas de statut « FAILED » chez CAWL. */
 export const STATUTS_REFUS = ['REJECTED', 'REJECTED_CAPTURE', 'CANCELLED', 'CREATED', 'REDIRECTED']
+
+/** En mode SALE, le paiement est déjà encaissé : plus rien à capturer. */
+export const STATUTS_DEJA_ENCAISSES = ['CAPTURED', 'CAPTURE_REQUESTED', 'PAID']
 
 export async function capturerPaiement(id: string, montantCents: number): Promise<boolean> {
   try {

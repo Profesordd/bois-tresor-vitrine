@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { ADMIN_COOKIE, verifyToken } from '@/lib/admin/session'
-import { creerPaiement, cawlConfigure, cawlEnvironnement } from '@/lib/cawl'
+import { creerPaiement, cawlConfigure, cawlEnvironnement, MODES_AUTORISATION } from '@/lib/cawl'
 
 /**
  * Création d'un paiement CAWL, banc d'essai.
@@ -40,6 +40,7 @@ export async function POST(req: NextRequest) {
       produitId: Number(b.produitId),
       returnUrl: `${base}/admin/paiement-cawl/retour/?essai=${encodeURIComponent(essai)}`,
       navigateur: b.navigateur,
+      modeAutorisation: MODES_AUTORISATION.includes(b?.modeAutorisation) ? b.modeAutorisation : 'SALE',
       ipClient: req.headers.get('x-forwarded-for')?.split(',')[0].trim()
         ?? req.headers.get('x-real-ip') ?? undefined,
       cleIdempotence: essai,
