@@ -165,25 +165,33 @@ export function composer(etape: number, lead: LeadRelance, desinscription: strin
        supprimée. Elle supposait que la personne avait sorti sa carte et que
        le paiement avait planté ; or la plupart repartent du paiement sans
        rien saisir. On lui parlait donc d'un problème qu'elle n'a pas eu, et
-       on allongeait le seul message qui tire sa force d'être court. */
+       on allongeait le seul message qui tire sa force d'être court.
+
+       Un seul passage en gras, celui qui fait décider. Tout mettre en gras
+       revient à ne rien mettre en gras. Et aucune phrase de remplissage :
+       « il vous reste une minute à faire », « nous ne reconstituons pas
+       avant l'hiver prochain », tout cela a été retiré le 20/10/2026, ça ne
+       disait rien et ça diluait la seule information utile. */
     case 1:
       return {
         sujet: 'Votre commande vous attend, plus qu’une référence en stock',
         html: gabarit(
           'Votre commande vous attend',
           p('Bonjour,') +
-          p('<strong>Votre commande n’est pas validée.</strong> Elle le sera dès que le paiement sera passé.') +
-          p('<strong>Sur nos vingt références de granulés, il n’en reste qu’une seule en vente. C’est la vôtre.</strong> Les dix-neuf autres sont parties, et nous ne reconstituons pas avant l’hiver prochain.') +
-          p('Le bouton ci-dessous vous ramène <strong>directement au paiement</strong>, votre commande déjà prête. Il vous reste une minute à faire.'),
+          p('Votre commande n’est pas validée : le paiement n’est pas allé au bout.') +
+          p('<strong>Sur nos vingt références de granulés, il n’en reste qu’une seule en vente. C’est la vôtre.</strong>') +
+          p('Quand elle sera partie, il n’y aura plus de granulés sur le site.'),
           { texte: 'Payer ma commande maintenant', url },
           desinscription,
           rappel
         ),
         texte: pied(`Bonjour,
 
-Votre commande n'est pas validée. Elle le sera dès que le paiement sera passé.
+Votre commande n'est pas validée : le paiement n'est pas allé au bout.
 
-Sur nos vingt références de granulés, il n'en reste qu'une seule en vente. C'est la vôtre : ${nom}${prix ? ` (${prix})` : ''}. Les dix-neuf autres sont parties, et nous ne reconstituons pas avant l'hiver prochain.
+Sur nos vingt références de granulés, il n'en reste qu'une seule en vente. C'est la vôtre : ${nom}${prix ? ` (${prix})` : ''}.
+
+Quand elle sera partie, il n'y aura plus de granulés sur le site.
 
 Payer ma commande maintenant : ${url}`),
       }
