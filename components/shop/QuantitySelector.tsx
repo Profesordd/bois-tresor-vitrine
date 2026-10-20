@@ -87,6 +87,17 @@ export default function QuantitySelector({ product }: Props) {
   /** Le clic mène au paiement, sans étape intermédiaire à comprendre. */
   function handleBuy() {
     if (isOutOfStock) return
+
+    /* Fiche réglée sur le site : on va au checkout maison, qui recueille
+       l'adresse de livraison et la carte. Pas de collecte d'e-mail
+       intermédiaire, le formulaire la demande déjà. */
+    if (product.checkoutInterne) {
+      trackAddToCart(product, qty)
+      setRedirecting(true)
+      window.location.href = `/commande/${product.slug}/`
+      return
+    }
+
     /* Ce qui a déjà été retenu part avec : l'ignorer reviendrait à effacer
        sans prévenir une commande que le client croit constituée. */
     const autresProduits = items.filter((i) => i.product.id !== product.id)

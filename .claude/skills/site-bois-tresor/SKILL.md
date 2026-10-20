@@ -367,6 +367,31 @@ pendant un temps, sans aucune erreur visible.
 La loi l'exige là, et nulle part ailleurs. Partout sur le site, seul le
 prénom est utilisé. Ne pas diffuser le nom complet dans un autre contexte.
 
+### Checkout maison, paiement sur le site (20/10/2026)
+
+Une fiche qui porte `checkoutInterne` ne va plus chez le prestataire
+externe : « Commander » mène à `/commande/<slug>/`, où le client saisit
+son adresse de livraison puis sa carte, et où le paiement se règle par
+CAWL. Toutes les autres fiches passent toujours par l'ancien chemin et sa
+grille de huit prix. **Avec CAWL, cette grille n'existe plus** : n'importe
+quel montant est encaissable.
+
+Première et seule fiche concernée : `essai-paiement`, à 1 €, `unlisted`,
+invisible du catalogue, de l'accueil et des produits liés. Une adresse
+`/commande/<slug>/` sur un produit ordinaire renvoie une page introuvable.
+
+Table `commandes` (`supabase-commandes.sql`), RLS sans policy.
+
+⚠️ **Le montant ne vient jamais du navigateur.** `/api/commande/` le
+recalcule depuis le catalogue, et `/api/commande/payer/` le relit en base
+avant d'appeler CAWL. Vérifié : une requête qui annonce 1 centime crée une
+commande à 1 €. De même, `/api/commande/confirmer/` relit le statut chez
+CAWL ; appeler cette route à la main ne peut pas faire passer une commande
+en « payee ».
+
+Les coordonnées de carte traversent `/api/commande/payer/` sans jamais
+être enregistrées ni journalisées.
+
 ### Banc d'essai CAWL (20/10/2026)
 
 CAWL est le module de paiement du Crédit Agricole, bâti sur Worldline.

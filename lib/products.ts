@@ -912,7 +912,52 @@ const LIMOUZI_B: Product = {
 /* Le déstockage passe en tête des granulés : il apparaît ainsi parmi les
    quatre mis en avant sur la page d'accueil. La fiche B suit, non listée :
    elle doit exister dans le catalogue pour que sa page soit générée. */
-export const PRODUCTS: Product[] = [...MELANGES, ...HETRES, ...DENSIFIES, LIMOUZI, LIMOUZI_B, ...GRANULES, ...HERBICIDES_PRODUITS, ...RANGEMENT]
+/* ─────────────────────────────────────────────
+   PRODUIT D'ESSAI DU CHECKOUT MAISON (20/10/2026)
+
+   Sert à éprouver le paiement par carte sur le site, de bout en bout, avec
+   un vrai débit d'un euro. `unlisted` le tient hors de la collection, de
+   l'accueil, du catalogue et des produits liés : il ne s'atteint que par
+   son adresse, et aucun client ne tombe dessus.
+
+   C'est la seule fiche qui porte `checkoutInterne`. Toutes les autres
+   continuent de passer par le prestataire externe.
+
+   À retirer une fois le checkout éprouvé.
+   ───────────────────────────────────────────── */
+const ESSAI_CHECKOUT: Product = {
+  id: nextId(),
+  slug: 'essai-paiement',
+  name: 'Essai de paiement',
+  tagline: 'Fiche de test, un euro, non destinée à la vente',
+  keyPoints: [
+    'Cette fiche sert à vérifier le paiement par carte sur le site.',
+    'Le montant est d’un euro et le débit est réel.',
+    'Elle n’apparaît ni dans le catalogue ni dans les collections.',
+  ],
+  description: '<p>Fiche d’essai du paiement. Elle n’est pas destinée à la vente.</p>',
+  richDescription: false,
+  price: 1,
+  original_price: null,
+  pricePerStere: null,
+  stock: 99,
+  family: 'granules',
+  subtype: 'granule',
+  image: '/products/rangement/a-venir.svg',
+  variantId: null,
+  checkoutMultiplier: null,
+  checkoutInterne: true,
+  unlisted: true,
+  specs: [{ label: 'Nature', value: 'Fiche d’essai' }],
+  category_id: cat('cat-granules').id,
+  category: cat('cat-granules'),
+  badge: null,
+  rating: null,
+  review_count: 0,
+  created_at: '',
+}
+
+export const PRODUCTS: Product[] = [...MELANGES, ...HETRES, ...DENSIFIES, LIMOUZI, LIMOUZI_B, ...GRANULES, ...HERBICIDES_PRODUITS, ...RANGEMENT, ESSAI_CHECKOUT]
 
 export const BOIS_CHAUFFAGE_PRODUCTS = PRODUCTS.filter(p => p.family === 'bois-de-chauffage')
 export const DENSIFIE_PRODUCTS        = PRODUCTS.filter(p => p.family === 'bois-densifie')

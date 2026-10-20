@@ -90,6 +90,14 @@ export interface Product {
    */
   canonicalOf?: string
   /**
+   * Paiement sur le site, par CAWL, au lieu du prestataire externe.
+   *
+   * Tant que ce drapeau n'est pas posé, « Commander » mène au prestataire
+   * historique et à sa grille de huit prix. Avec CAWL, cette grille
+   * disparaît : n'importe quel montant est encaissable.
+   */
+  checkoutInterne?: boolean
+  /**
    * Offre à durée et quantité limitées.
    *
    * Les deux valeurs doivent être vraies : le compte à rebours vise une

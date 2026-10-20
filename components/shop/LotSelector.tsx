@@ -83,6 +83,15 @@ export default function LotSelector({ product }: Props) {
 
   function handleBuy() {
     if (offreTerminee) return
+
+    /* Fiche réglée sur le site : le lot choisi part dans l'adresse. */
+    if (product.checkoutInterne) {
+      trackAddToCart(article, 1)
+      setRedirecting(true)
+      window.location.href = `/commande/${product.slug}/?lot=${encodeURIComponent(lot.id)}`
+      return
+    }
+
     /* Un autre lot du même produit, resté d'un clic précédent, ne part pas
        avec : changer d'avis entre 30 et 40 sacs ne doit pas faire payer les
        deux. Les autres produits, eux, suivent comme d'habitude. */
