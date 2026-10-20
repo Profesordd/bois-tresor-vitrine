@@ -93,9 +93,7 @@ function gabarit(
   corps: string,
   bouton: { texte: string; url: string },
   desinscription: string,
-  rappel?: { produit: string; prix: string | null },
-  /** Bloc discret sous le bouton, pour ce qui ne doit pas retarder le clic. */
-  apresBouton?: string
+  rappel?: { produit: string; prix: string | null }
 ): string {
   const encart = rappel
     ? `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 20px;background:#f2f7f3;border-radius:8px;">
@@ -127,8 +125,7 @@ function gabarit(
         <a href="${bouton.url}" style="display:inline-block;padding:16px 32px;font:700 18px -apple-system,Segoe UI,Arial,sans-serif;color:#ffffff;text-decoration:none;">${echapper(bouton.texte)}</a>
       </td>
     </tr></table>
-    <p style="margin:0 0 ${apresBouton ? '14px' : '22px'};font:400 13px -apple-system,Segoe UI,Arial,sans-serif;color:#767c77;">Paiement sécurisé. Livraison offerte.</p>
-    ${apresBouton ?? ''}
+    <p style="margin:0 0 22px;font:400 13px -apple-system,Segoe UI,Arial,sans-serif;color:#767c77;">Paiement sécurisé. Livraison offerte.</p>
   </td></tr>
   <tr><td style="padding:18px 28px 24px;border-top:1px solid #eceeec;font:400 13px/1.6 -apple-system,Segoe UI,Arial,sans-serif;color:#767c77;">
     <p style="margin:0 0 6px;">Bois Tresor, ${ADRESSE_SIEGE.rue}, ${ADRESSE_SIEGE.ville}, ${ADRESSE_SIEGE.pays}</p>
@@ -165,8 +162,10 @@ export function composer(etape: number, lead: LeadRelance, desinscription: strin
        clic, quand la personne a encore son produit en tête. On ne lui
        explique rien, on lui rappelle ce qu'elle voulait, ce qu'il en reste,
        et on lui donne le bouton. L'explication du refus de carte est
-       descendue sous le bouton : utile à qui se pose la question, mais elle
-       ne doit pas retarder le clic de ceux qui sont décidés. */
+       supprimée. Elle supposait que la personne avait sorti sa carte et que
+       le paiement avait planté ; or la plupart repartent du paiement sans
+       rien saisir. On lui parlait donc d'un problème qu'elle n'a pas eu, et
+       on allongeait le seul message qui tire sa force d'être court. */
     case 1:
       return {
         sujet: 'Votre commande vous attend, plus qu’une référence en stock',
@@ -178,8 +177,7 @@ export function composer(etape: number, lead: LeadRelance, desinscription: strin
           p('Le bouton ci-dessous vous ramène <strong>directement au paiement</strong>, votre commande déjà prête. Il vous reste une minute à faire.'),
           { texte: 'Payer ma commande maintenant', url },
           desinscription,
-          rappel,
-          `<p style="margin:0 0 22px;font:400 14px/1.5 -apple-system,Segoe UI,Arial,sans-serif;color:#767c77;">Si le paiement a échoué tout à l’heure, c’est presque toujours la banque qui a demandé une confirmation sur votre téléphone, ou la page qui s’est fermée trop tôt. Gardez votre téléphone à portée de main et ça passera.</p>`
+          rappel
         ),
         texte: pied(`Bonjour,
 
@@ -187,9 +185,7 @@ Votre commande n'est pas validée. Elle le sera dès que le paiement sera passé
 
 Sur nos vingt références de granulés, il n'en reste qu'une seule en vente. C'est la vôtre : ${nom}${prix ? ` (${prix})` : ''}. Les dix-neuf autres sont parties, et nous ne reconstituons pas avant l'hiver prochain.
 
-Payer ma commande maintenant : ${url}
-
-Si le paiement a échoué tout à l'heure, c'est presque toujours la banque qui a demandé une confirmation sur votre téléphone. Gardez-le à portée de main et ça passera.`),
+Payer ma commande maintenant : ${url}`),
       }
     case 2:
       return {

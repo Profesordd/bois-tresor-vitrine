@@ -110,6 +110,13 @@ Points à ne pas défaire :
   site). Renvoyer vers la fiche produit obligerait à refaire tout le
   parcours, et c'est précisément là qu'on a déjà perdu la personne une
   fois. Repli sur la fiche si le produit n'a plus de variante.
+- **Rien sous le bouton du premier message.** Une explication du refus de
+  carte y figurait ; elle a été retirée le 20/10/2026, le client constatant
+  que la plupart des visiteurs repartent du paiement *sans rien saisir*. On
+  leur parlait donc d'un problème qu'ils n'avaient pas eu. Et nommer le
+  prestataire de paiement pour rassurer attire l'œil sur le seul moment du
+  parcours où la marque disparaît : ça installe le doute au lieu de le
+  lever. Ce message tire sa force d'être court.
 - **Chaque message porte la réassurance avant la rareté** : SIRET, lien
   vers l'annuaire officiel, paiement sécurisé, livraison offerte. La
   première crainte de ce public n'est pas le prix.
