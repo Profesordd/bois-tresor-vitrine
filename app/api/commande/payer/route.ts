@@ -28,9 +28,12 @@ export async function POST(req: NextRequest) {
   }
 
   const supabase = createAdminClient()
+  /* On relit tout ce que CAWL attend : montant ET coordonnées. Les deux
+     viennent de la base, jamais de la requête. Les coordonnées comptent
+     autant que le montant : sans elles, la banque refuse l'authentification. */
   const { data: commande } = await supabase
     .from('commandes')
-    .select('id, reference, montant_cents, statut')
+    .select('id, reference, montant_cents, statut, prenom, nom, email, telephone, adresse, complement, code_postal, ville, pays')
     .eq('id', commandeId)
     .maybeSingle()
 
@@ -55,7 +58,19 @@ export async function POST(req: NextRequest) {
       cvv: String(b.cvv),
       titulaire: String(b.titulaire),
       produitId,
+      reference: commande.reference as string,
       returnUrl: `${base}/commande/retour/?c=${encodeURIComponent(commande.id as string)}`,
+      client: {
+        prenom: commande.prenom as string,
+        nom: commande.nom as string,
+        email: commande.email as string,
+        telephone: commande.telephone as string,
+        adresse: commande.adresse as string,
+        complement: (commande.complement as string | null) ?? null,
+        codePostal: commande.code_postal as string,
+        ville: commande.ville as string,
+        pays: commande.pays as string,
+      },
       navigateur: b.navigateur,
       ipClient: req.headers.get('x-forwarded-for')?.split(',')[0].trim()
         ?? req.headers.get('x-real-ip') ?? undefined,

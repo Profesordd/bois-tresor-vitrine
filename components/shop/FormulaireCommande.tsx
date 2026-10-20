@@ -135,12 +135,16 @@ export default function FormulaireCommande({ product, lot, montant }: Props) {
           anneeExpiration: carte.annee,
           cvv: carte.cvv,
           titulaire: carte.titulaire,
+          /* Empreinte du navigateur, telle que le plugin officiel la
+             recueille. `javaEnabled` et non `javaScriptEnabled` : ce sont
+             deux champs distincts côté Worldline, et c'est le premier que
+             le plugin transmet. */
           navigateur: {
             screenWidth: window.screen.width,
             screenHeight: window.screen.height,
             colorDepth: window.screen.colorDepth,
+            javaEnabled: typeof navigator.javaEnabled === 'function' ? navigator.javaEnabled() : false,
             userAgent: navigator.userAgent,
-            language: navigator.language,
             timezoneOffsetUtcMinutes: new Date().getTimezoneOffset() * -1,
           },
         }),

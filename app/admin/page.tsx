@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { Users, Clock, FileText, LogOut, TrendingDown, MousePointerClick, AlertTriangle, Inbox, Package, Globe, Download, FileDown, PackageX, UserPlus, CreditCard } from 'lucide-react'
+import { Users, Clock, FileText, LogOut, TrendingDown, MousePointerClick, AlertTriangle, Inbox, Package, Globe, Download, FileDown, PackageX, UserPlus, CreditCard, Receipt } from 'lucide-react'
 import { formatPrice } from '@/lib/utils'
 import { NOM_PAYS } from '@/lib/analytics/geo'
 import {
@@ -27,6 +27,21 @@ async function countPendingMessages(): Promise<number> {
     .select('id', { count: 'exact', head: true })
     .eq('handled', false)
   return error ? 0 : (count ?? 0)
+}
+
+/** Commandes payées sur le checkout maison, et leur montant. */
+async function bilanCommandes(): Promise<{ payees: number; recette: number }> {
+  const supabase = createAdminClient()
+  const { data, error } = await supabase
+    .from('commandes')
+    .select('montant_cents')
+    .eq('statut', 'payee')
+    .limit(5000)
+  if (error || !data) return { payees: 0, recette: 0 }
+  return {
+    payees: data.length,
+    recette: data.reduce((s, l) => s + Number(l.montant_cents), 0),
+  }
 }
 
 /** Adresses laissées avant le paiement, sans commande et pas encore traitées. */
@@ -107,11 +122,12 @@ export default async function AdminDashboard({ searchParams }: Props) {
     { label: '90 jours', du: decalerJours(today, -89), au: today },
   ]
 
-  const [overview, sessions, pendingMessages, leadsARappeler, byDevice, products, ruptures] = await Promise.all([
+  const [overview, sessions, pendingMessages, leadsARappeler, commandes, byDevice, products, ruptures] = await Promise.all([
     getOverview(du, au),
     getRecentSessions(du, au, 200),
     countPendingMessages(),
     countLeadsARappeler(),
+    bilanCommandes(),
     getFunnelByDevice(du, au),
     getProductPerformance(du, au),
     getRupturesAdmin(),
@@ -265,6 +281,34 @@ export default async function AdminDashboard({ searchParams }: Props) {
           </div>
         </section>
       )}
+
+      {/* ── Commandes encaissées sur le site. Placé en tête : c'est la
+             seule ligne de cet écran qui parle d'argent réellement reçu. ── */}
+      <Link
+        href="/admin/commandes/"
+        className={`flex items-center justify-between gap-4 rounded-lg border p-5 transition-colors ${
+          commandes.payees > 0
+            ? 'border-brand-300 bg-brand-50 hover:border-brand-500'
+            : 'border-gray-200 bg-white hover:border-brand-400'
+        }`}
+      >
+        <span className="flex items-center gap-3">
+          <Receipt size={22} className="text-brand-600 flex-shrink-0" />
+          <span>
+            <span className="block font-semibold text-ink">
+              {commandes.payees > 0
+                ? `${commandes.payees} commande${commandes.payees > 1 ? 's' : ''} payée${commandes.payees > 1 ? 's' : ''} sur le site`
+                : 'Commandes payées sur le site'}
+            </span>
+            <span className="block text-sm text-gray-500">
+              {commandes.payees > 0
+                ? `${formatPrice(commandes.recette / 100)} encaissés par carte.`
+                : 'Aucune commande encaissée par carte pour l’instant.'}
+            </span>
+          </span>
+        </span>
+        <span className="text-brand-700 font-semibold text-sm whitespace-nowrap">Ouvrir →</span>
+      </Link>
 
       {/* ── Banc d'essai CAWL : hors parcours client, le site encaisse
              toujours par le prestataire actuel. Discret, c'est un outil de

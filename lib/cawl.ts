@@ -3,20 +3,34 @@ import { createHmac } from 'crypto'
 /**
  * CAWL, le module de paiement du Crédit Agricole, bâti sur Worldline.
  *
- * Banc d'essai uniquement pour l'instant : rien de tout ceci n'est branché
- * sur le parcours d'achat, qui passe toujours par le prestataire externe.
- * L'accès se fait par /admin/paiement-cawl/, invisible des clients.
+ * Cette version est calquée sur le plugin officiel WooCommerce 2.5.32,
+ * fichier par fichier, et non plus sur le portage Next.js d'un autre site.
+ * La version précédente est conservée dans `lib/cawl-archive/`.
  *
- * ⚠️ DEUX ENVIRONNEMENTS, DEUX JEUX DE CLÉS.
+ * ⚠️ POURQUOI CETTE RÉÉCRITURE. Le premier paiement réel a échoué sur
+ * « Authentication failed », c'est-à-dire un refus à l'authentification
+ * 3-D Secure et non un refus de la carte. La demande que nous envoyions
+ * était presque nue : ni nom du porteur, ni e-mail, ni téléphone, ni
+ * adresse de facturation. Le plugin officiel transmet tout cela, et les
+ * banques s'en servent pour décider. Une demande sans ces éléments est
+ * refusée par la plupart des banques françaises.
+ *
+ * Correspondance avec le plugin, pour qui voudra vérifier :
+ *   WcOrderBasedOrderFactory::create          → objet `order`
+ *   wc-order-to-wlop-order.php (Customer)     → `order.customer`
+ *   wc-order-to-wlop-order.php (Shipping)     → `order.shipping`
+ *   CardThreeDSecureFactory::create           → `threeDSecure`
+ *
+ * ⚠️ DEUX PLATEFORMES, DEUX JEUX DE CLÉS.
  *   préprod : https://payment.preprod.cawl-solutions.fr  (cartes de test)
  *   réel    : https://payment.cawl-solutions.fr          (vrais débits)
- * `CAWL_API_URL` pointe sur la préprod par défaut. Une clé réelle utilisée
- * sur la préprod échoue à l'authentification ; l'inverse débite vraiment.
+ * Une clé de production employée sur la préprod est refusée ; l'inverse
+ * débite vraiment.
  *
  * Authentification « GCS v1HMAC » : signature HMAC-SHA256 d'une chaîne
- * reconstituée à partir de la méthode, du type de contenu, de la date, des
- * en-têtes X-GCS triés, et du chemin complet. Chaque élément compte, y
- * compris les retours à la ligne.
+ * faite de la méthode, du type de contenu, de la date, des en-têtes X-GCS
+ * en minuscules et triés, puis du chemin complet, chacun suivi d'un retour
+ * à la ligne.
  */
 
 const API_URL    = (process.env.CAWL_API_URL ?? 'https://payment.preprod.cawl-solutions.fr').replace(/\/$/, '')
@@ -25,11 +39,15 @@ const API_KEY    = process.env.CAWL_API_KEY ?? ''
 const SECRET_KEY = process.env.CAWL_SECRET_KEY ?? ''
 const INTEGRATOR = process.env.CAWL_COMPANY_NAME ?? 'BoisTresor'
 
+const LOCALE = 'fr_FR'
+/* Repris tel quel du plugin : c'est l'en-tête qu'un navigateur annonce, et
+   la banque le compare à ce qu'elle voit. */
+const ACCEPT_PAR_DEFAUT = 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8'
+
 export function cawlConfigure(): boolean {
   return Boolean(MERCHANT && API_KEY && SECRET_KEY)
 }
 
-/** Environnement visé, pour l'afficher sans ambiguïté dans l'administration. */
 export function cawlEnvironnement(): { url: string; reel: boolean } {
   return { url: API_URL, reel: !API_URL.includes('preprod') }
 }
@@ -48,8 +66,6 @@ function signature(method: string, entetes: Record<string, string>, chemin: stri
   aSigner += (entetes['Content-Type'] ?? '') + '\n'
   aSigner += (entetes['Date'] ?? '') + '\n'
 
-  /* Les en-têtes X-GCS entrent dans la signature, en minuscules et triés.
-     Un tri différent et la signature est refusée sans explication. */
   const gcs = Object.entries(entetes)
     .filter(([k]) => /^X-GCS/i.test(k))
     .sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0))
@@ -81,16 +97,17 @@ async function appel<T>(method: string, chemin: string, corps?: unknown, cleIdem
     })
     const json = await reponse.json().catch(() => ({}))
 
-    /* 409 : une requête idempotente identique est encore en cours chez
-       CAWL. On patiente plutôt que de la déclarer en échec. */
     if (reponse.status === 409 && essai < MAX_RETENTATIVES_409) {
       await new Promise((r) => setTimeout(r, 1000))
       continue
     }
 
     if (!reponse.ok) {
-      const message = json?.errors?.[0]?.message ?? json?.errors?.[0]?.code ?? json?.errorId ?? `CAWL ${reponse.status}`
-      throw new Error(`${message} (réf. ${json?.errorId ?? reponse.status})`)
+      const e = json?.errors?.[0]
+      const message = e?.message ?? e?.code ?? json?.errorId ?? `CAWL ${reponse.status}`
+      /* Le code et l'identifiant sont ce que le support CAWL demande pour
+         retrouver la transaction. On les garde dans le message. */
+      throw new Error(`${message}${e?.code ? ` [${e.code}]` : ''} (réf. ${json?.errorId ?? reponse.status})`)
     }
     return json as T
   }
@@ -110,17 +127,40 @@ export interface ReponsePaiement {
   } | null
 }
 
+/**
+ * Empreinte du navigateur, telle que le plugin la recueille.
+ *
+ * ⚠️ `screenHeight`, `screenWidth` et `timezoneOffsetUtcMinutes` partent en
+ * CHAÎNES de caractères : c'est ce que fait le plugin (`(string)` dans
+ * `wc-order-to-wlop-order.php`), et l'API les refuse en nombres.
+ */
 export interface InfosNavigateur {
   screenWidth: number
   screenHeight: number
   colorDepth: number
+  javaEnabled: boolean
   userAgent: string
-  language: string
+  acceptHeader?: string
   timezoneOffsetUtcMinutes: number
+}
+
+/** Les coordonnées du client. C'est ce qui manquait et faisait échouer le 3-D Secure. */
+export interface ClientPaiement {
+  prenom: string
+  nom: string
+  email: string
+  telephone: string
+  adresse: string
+  complement?: string | null
+  codePostal: string
+  ville: string
+  pays: string
 }
 
 export interface Paiement {
   montantCents: number
+  /** Référence de commande, transmise à CAWL et visible dans leur back-office. */
+  reference?: string
   numeroCarte: string
   moisExpiration: string
   anneeExpiration: string
@@ -128,14 +168,20 @@ export interface Paiement {
   titulaire: string
   produitId: number
   returnUrl: string
+  /**
+   * Coordonnées du client. Absentes, on n'envoie que l'appareil, comme la
+   * version d'avant : c'est le cas du banc d'essai, qui n'a pas de
+   * commande derrière lui. Pour un vrai paiement elles sont obligatoires,
+   * c'est leur absence qui faisait refuser l'authentification.
+   */
+  client?: ClientPaiement
   navigateur?: InfosNavigateur
   ipClient?: string
   cleIdempotence?: string
   /**
-   * `SALE` autorise et encaisse en une fois : c'est le réglage du plugin
-   * officiel CAWL 2.5.32, et il n'y a alors rien à capturer ensuite.
-   * `FINAL_AUTHORIZATION` autorise seulement, la capture se demande après.
-   * Tous les comptes n'acceptent pas les deux, d'où le choix.
+   * `SALE` autorise et encaisse en une fois : c'est le réglage par défaut
+   * du plugin officiel, et il n'y a alors rien à capturer ensuite.
+   * `FINAL_AUTHORIZATION` autorise seulement.
    */
   modeAutorisation?: 'SALE' | 'FINAL_AUTHORIZATION'
 }
@@ -143,12 +189,11 @@ export interface Paiement {
 export const MODES_AUTORISATION = ['SALE', 'FINAL_AUTHORIZATION'] as const
 
 /**
- * Identifiant du moyen de paiement CAWL, déduit des premiers chiffres.
+ * Identifiant du moyen de paiement, déduit des premiers chiffres.
  *
- * L'ordre compte : une carte CB co-badgée Visa commence par 4 et doit être
- * traitée en Visa. Les préfixes CB sont limités à 50, 56, 58 et 67, comme
- * dans l'intégration de référence ; en ajouter d'autres fait refuser des
- * cartes parfaitement valides.
+ * L'ordre compte : une carte CB co-badgée Visa commence par 4 et doit
+ * partir en Visa. Les préfixes CB se limitent à 50, 56, 58 et 67 ; en
+ * ajouter fait refuser des cartes valides.
  */
 export function produitCawl(numeroCarte: string): number | null {
   const bin = numeroCarte.replace(/\D/g, '').slice(0, 8)
@@ -158,30 +203,71 @@ export function produitCawl(numeroCarte: string): number | null {
   return null
 }
 
+function sansVide<T extends Record<string, unknown>>(o: T): Partial<T> {
+  return Object.fromEntries(
+    Object.entries(o).filter(([, v]) => v !== undefined && v !== null && v !== '')
+  ) as Partial<T>
+}
+
 /* ── Opérations ────────────────────────────────────────── */
 
 export async function creerPaiement(p: Paiement): Promise<ReponsePaiement> {
   const n = p.navigateur
+  const c = p.client
+
+  /* `order.customer`, calqué sur le transformateur du plugin. Chaque champ
+     y est posé seulement s'il est renseigné, d'où le filtrage. */
+  const adresseFacturation = c
+    ? sansVide({
+        countryCode: c.pays,
+        city: c.ville,
+        zip: c.codePostal,
+        street: c.adresse,
+        additionalInfo: c.complement ?? undefined,
+      })
+    : null
+
+  const customer = {
+    locale: LOCALE,
+    ...(c
+      ? {
+          personalInformation: { name: { firstName: c.prenom, surname: c.nom } },
+          contactDetails: sansVide({ emailAddress: c.email, phoneNumber: c.telephone }),
+          billingAddress: adresseFacturation,
+        }
+      : {}),
+    device: sansVide({
+      locale: LOCALE,
+      acceptHeader: n?.acceptHeader ?? ACCEPT_PAR_DEFAUT,
+      ipAddress: p.ipClient,
+      userAgent: n?.userAgent,
+      timezoneOffsetUtcMinutes: n ? String(n.timezoneOffsetUtcMinutes) : undefined,
+      browserData: n
+        ? {
+            screenHeight: String(n.screenHeight),
+            screenWidth: String(n.screenWidth),
+            colorDepth: n.colorDepth,
+            javaEnabled: n.javaEnabled,
+          }
+        : undefined,
+    }),
+  }
+
   return appel<ReponsePaiement>('POST', '/payments', {
     order: {
       amountOfMoney: { currencyCode: 'EUR', amount: p.montantCents },
-      customer: {
-        device: {
-          acceptHeader: 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
-          userAgent: n?.userAgent ?? 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.0.0 Safari/537.36',
-          locale: 'fr_FR',
-          ...(p.ipClient ? { ipAddress: p.ipClient } : {}),
-          /* `javaScriptEnabled: false` et les dimensions en chaîne de
-             caractères : non négociable, l'intégration de référence a été
-             validée ainsi et toute variation fait échouer le 3-D Secure. */
-          browserData: {
-            colorDepth: n?.colorDepth ?? 24,
-            javaScriptEnabled: false,
-            screenHeight: String(n?.screenHeight ?? 1080),
-            screenWidth: String(n?.screenWidth ?? 1920),
-          },
-        },
-      },
+      ...(p.reference ? { references: { merchantReference: p.reference } } : {}),
+      customer,
+      /* La livraison, que le plugin envoie aussi. Même adresse chez nous :
+         le checkout n'en demande qu'une. */
+      ...(c && adresseFacturation
+        ? {
+            shipping: {
+              emailAddress: c.email,
+              address: { ...adresseFacturation, name: { firstName: c.prenom, surname: c.nom } },
+            },
+          }
+        : {}),
     },
     cardPaymentMethodSpecificInput: {
       card: {
@@ -194,7 +280,11 @@ export async function creerPaiement(p: Paiement): Promise<ReponsePaiement> {
       authorizationMode: p.modeAutorisation ?? 'SALE',
       transactionChannel: 'ECOMMERCE',
       returnUrl: p.returnUrl,
-      threeDSecure: { skipAuthentication: false, redirectionData: { returnUrl: p.returnUrl } },
+      /* Dans son cas par défaut, le plugin ne pose QUE l'adresse de retour :
+         ni `skipAuthentication`, ni `challengeIndicator`. Laisser la banque
+         décider donne plus d'authentifications réussies que d'imposer un
+         comportement. Voir CardThreeDSecureFactory::create. */
+      threeDSecure: { redirectionData: { returnUrl: p.returnUrl } },
     },
   }, p.cleIdempotence)
 }
@@ -206,7 +296,7 @@ export async function lirePaiement(id: string): Promise<{ id: string; statut: st
   return { id: d.id, statut: d.status, montantCents: d.paymentOutput?.amountOfMoney?.amount ?? 0 }
 }
 
-/** Statuts qui signent un refus. Il n'existe pas de statut « FAILED » chez CAWL. */
+/** Statuts de refus. Il n'existe pas de statut « FAILED » chez CAWL. */
 export const STATUTS_REFUS = ['REJECTED', 'REJECTED_CAPTURE', 'CANCELLED', 'CREATED', 'REDIRECTED']
 
 /** En mode SALE, le paiement est déjà encaissé : plus rien à capturer. */
@@ -221,8 +311,7 @@ export async function capturerPaiement(id: string, montantCents: number): Promis
       || r.status === 'CAPTURE_REQUESTED'
       || r.status === 'CAPTURED'
   } catch (err) {
-    /* ACTION_NOT_ALLOWED : le compte CAWL est en capture automatique, le
-       paiement est déjà pris. Ce n'est pas un échec. */
+    /* ACTION_NOT_ALLOWED : compte en capture automatique, déjà encaissé. */
     if (err instanceof Error && err.message.includes('ACTION_NOT_ALLOWED')) return true
     throw err
   }
