@@ -55,8 +55,38 @@ méfiant.
 
 ### 1.2 Le parcours d'achat est linéaire, sans étape de panier
 
-`collection → fiche produit → paiement`. Cliquer « Commander maintenant »
-mène **directement** au paiement externe.
+`collection → fiche produit → adresse e-mail → paiement`. Cliquer
+« Commander maintenant » ouvre une seule fenêtre, qui demande l'adresse, et
+redirige vers le paiement externe (`CollecteEmail.tsx`, 20/10/2026).
+
+**Pourquoi cette étape existe** : le paiement est sur un domaine tiers où
+nous n'exécutons aucun code. Une fois le visiteur parti, il est hors de
+portée. Sur deux jours de publicité, 70 personnes ont atteint le paiement
+et 3 ont commandé ; sans adresse, les 67 autres étaient perdues. C'est le
+dernier endroit où on peut encore les joindre.
+
+Trois règles à ne pas casser dans cette fenêtre :
+- **`AddToCart` part au clic, avant la fenêtre.** Le mesurer après ferait
+  disparaître de Meta tous ceux qui renoncent devant le formulaire,
+  c'est-à-dire précisément l'audience « panier abandonné ».
+- **Rien n'attend l'enregistrement.** Le lead part en `sendBeacon`, qui
+  survit au changement de page, et la redirection suit immédiatement. La
+  route `/api/leads/` répond toujours 204, même en erreur. Un lead perdu
+  coûte un lead ; une redirection bloquée coûte une commande.
+- **La case « recevoir vos offres » est décochée.** En France, prospecter
+  par e-mail quelqu'un qui n'a jamais acheté suppose son accord préalable.
+  Sans la case cochée, pas de relance commerciale : seul le suivi de sa
+  commande est permis.
+
+Les trois chemins vers le paiement passent par cette fenêtre :
+`QuantitySelector`, `LotSelector` et la page `/panier`. En ajouter un
+quatrième sans la fenêtre rouvrirait la fuite.
+
+Les adresses sont lues dans `/admin/leads/` (onglets « À rappeler », « Ont
+commandé », « Tous »), exportables en CSV, et le webhook `orders/paid`
+marque `a_commande` dès qu'une commande payée porte la même adresse — pour
+ne jamais relancer quelqu'un qui a déjà payé. Table `leads`, RLS sans
+policy, `supabase-leads.sql`.
 
 Il n'y a **aucun bouton d'achat sur les cartes de collection** : la carte
 entière est un lien vers la fiche. C'est délibéré — les données montraient
@@ -378,6 +408,7 @@ supabase-analytics-geo.sql       colonne pays
 supabase-analytics-geo-filters.sql  filtrage zone commerciale
 supabase-analytics-produits-fix.sql calcul de taux corrigé
 supabase-analytics-dates.sql     requêtes par plage de dates, heure de Paris
+supabase-leads.sql               adresses laissées avant le paiement
 ```
 
 **Toutes les tables ont le RLS actif sans aucune policy publique.** Rien

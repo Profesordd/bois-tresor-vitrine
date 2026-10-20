@@ -7,15 +7,20 @@ import { useCartStore } from '@/stores/cart'
 import { formatPrice } from '@/lib/utils'
 import { buildCheckoutUrl, getUnavailableItems, maxParCommande, messageLimite } from '@/lib/checkout'
 import ProductVisual from '@/components/shop/ProductVisual'
+import CollecteEmail from '@/components/shop/CollecteEmail'
 
 export default function PanierPage() {
   const { items, removeItem, updateQuantity, getTotalPrice, getTotalItems } = useCartStore()
   const [redirecting, setRedirecting] = useState(false)
+  /* Adresse de paiement figée au clic : la collecte d'e-mail s'intercale,
+     comme sur les fiches produit. Sans ça, cette page resterait une sortie
+     vers le paiement sans aucun moyen de recontacter la personne. */
+  const [collecte, setCollecte] = useState<string | null>(null)
 
   /* Retour depuis le paiement : la page est restaurée avec le bouton en
      « Redirection… ». `pageshow` remet l'état à zéro. */
   useEffect(() => {
-    const retour = () => setRedirecting(false)
+    const retour = () => { setRedirecting(false); setCollecte(null) }
     window.addEventListener('pageshow', retour)
     return () => window.removeEventListener('pageshow', retour)
   }, [])
@@ -28,7 +33,12 @@ export default function PanierPage() {
   function handleCheckout() {
     const url = buildCheckoutUrl(items)
     if (!url) return
+    setCollecte(url)
+  }
+
+  function partirAuPaiement(url: string) {
     setRedirecting(true)
+    setCollecte(null)
     window.location.href = url
   }
 
@@ -154,6 +164,13 @@ export default function PanierPage() {
                 </p>
               </div>
             )}
+
+            <CollecteEmail
+              product={collecte ? items[0]?.product ?? null : null}
+              montant={total}
+              onFermer={() => setCollecte(null)}
+              onValide={() => collecte && partirAuPaiement(collecte)}
+            />
 
             <button
               onClick={handleCheckout}

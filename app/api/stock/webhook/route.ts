@@ -6,9 +6,11 @@ import { estDernierExemplaire, invaliderStock } from '@/lib/stock'
 /**
  * Webhook Shopify « orders/paid ».
  *
- * Dès qu'une commande payée contient un produit vendu à l'unité (stock
- * catalogue = 1), le produit passe en rupture sur le site. Les autres
- * produits ne sont pas concernés : leur stock n'est pas suivi ici.
+ * Deux effets. Dès qu'une commande payée contient un produit vendu à
+ * l'unité (stock catalogue = 1), le produit passe en rupture sur le site ;
+ * les autres produits ne sont pas concernés, leur stock n'est pas suivi
+ * ici. Et l'adresse de l'acheteur est marquée comme ayant commandé dans la
+ * table `leads`, pour ne jamais relancer quelqu'un qui a déjà payé.
  *
  * Shopify signe chaque envoi (HMAC-SHA256 du corps brut, en base64, en-tête
  * X-Shopify-Hmac-Sha256). Sans signature valide, rien n'est écrit : sinon
@@ -47,7 +49,12 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Signature invalide' }, { status: 401 })
   }
 
-  let commande: { line_items?: Array<{ variant_id?: number | string }> } = {}
+  let commande: {
+    line_items?: Array<{ variant_id?: number | string }>
+    email?: string | null
+    contact_email?: string | null
+    customer?: { email?: string | null } | null
+  } = {}
   try { commande = JSON.parse(corps) } catch { return NextResponse.json({ ok: true }) }
 
   const variantes = new Set((commande.line_items ?? []).map((l) => String(l.variant_id ?? '')))
@@ -62,6 +69,22 @@ export async function POST(req: NextRequest) {
       { onConflict: 'slug' }
     )
     invaliderStock()
+  }
+
+  /* L'acheteur sort de la liste des adresses à rappeler. Shopify place
+     l'adresse à trois endroits selon l'origine de la commande, on prend le
+     premier renseigné. Toutes ses tentatives sont marquées : la même
+     personne a souvent cliqué plusieurs fois avant d'aboutir. */
+  const acheteur = (commande.email || commande.contact_email || commande.customer?.email || '')
+    .trim().toLowerCase()
+  if (acheteur) {
+    const supabase = createAdminClient()
+    const { error } = await supabase
+      .from('leads')
+      .update({ a_commande: true, commande_a: new Date().toISOString() })
+      .eq('email', acheteur)
+      .eq('a_commande', false)
+    if (error) console.error('[webhook] marquage du lead impossible', error.message)
   }
 
   /* Toujours 200 une fois la signature vérifiée : Shopify réessaie sinon,

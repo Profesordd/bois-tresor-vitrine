@@ -8,7 +8,8 @@ import { buildCheckoutUrl, messageLimite } from '@/lib/checkout'
 import { lotsDisponibles, lotParDefaut, libelleLot, produitDuLot, PRIX_MARCHE_SAC, PRIX_MARCHE_DATE } from '@/lib/lots'
 import { formatPrice } from '@/lib/utils'
 import BarreAchatMobile from '@/components/shop/BarreAchatMobile'
-import { trackAddToCartThenRedirect } from '@/lib/analytics/meta'
+import { trackAddToCart, REDIRECT_DELAY_MS } from '@/lib/analytics/meta'
+import CollecteEmail from '@/components/shop/CollecteEmail'
 import OffreLimitee from '@/components/shop/OffreLimitee'
 
 interface Props {
@@ -30,6 +31,9 @@ export default function LotSelector({ product }: Props) {
   const lots = lotsDisponibles(product)
   const [lotId, setLotId] = useState<string | undefined>(lotParDefaut(product)?.id)
   const [redirecting, setRedirecting] = useState(false)
+  /* Produit et adresse de paiement figés au clic : la fenêtre de collecte
+     s'ouvre, la redirection n'attend plus que l'adresse e-mail. */
+  const [collecte, setCollecte] = useState<{ article: Product; url: string } | null>(null)
   /* Offre échue : plus aucun achat possible à ce prix. */
   const [offreTerminee, setOffreTerminee] = useState(false)
   const { items, addItem, removeItem } = useCartStore()
@@ -48,7 +52,7 @@ export default function LotSelector({ product }: Props) {
   /* Retour depuis le paiement : la page est restaurée telle quelle, on
      remet le bouton en état. */
   useEffect(() => {
-    const retour = () => setRedirecting(false)
+    const retour = () => { setRedirecting(false); setCollecte(null) }
     window.addEventListener('pageshow', retour)
     return () => window.removeEventListener('pageshow', retour)
   }, [])
@@ -88,8 +92,20 @@ export default function LotSelector({ product }: Props) {
     items.filter((i) => i.product.slug === product.slug && i.product.id !== article.id)
       .forEach((i) => removeItem(i.product.id))
     addItem(article, 1)
+    /* AddToCart part dès le clic, avant la demande d'adresse : c'est là
+       qu'est l'intention. Le mesurer après ferait disparaître de Meta tous
+       ceux qui renoncent devant le formulaire, c'est-à-dire précisément
+       l'audience « panier abandonné ». */
+    trackAddToCart(article, 1)
+    setCollecte({ article, url })
+  }
+
+  /* L'adresse est partie en sendBeacon, qui survit au changement de page :
+     on peut rediriger sans rien attendre. */
+  function partirAuPaiement(url: string) {
     setRedirecting(true)
-    trackAddToCartThenRedirect(article, 1, url)
+    setCollecte(null)
+    window.setTimeout(() => { window.location.href = url }, REDIRECT_DELAY_MS)
   }
 
   const attributs = {
@@ -218,6 +234,13 @@ export default function LotSelector({ product }: Props) {
           Vous passez directement au paiement sécurisé.
         </p>
       )}
+
+      <CollecteEmail
+        product={collecte?.article ?? null}
+        montant={lot.price}
+        onFermer={() => setCollecte(null)}
+        onValide={() => collecte && partirAuPaiement(collecte.url)}
+      />
 
       <BarreAchatMobile
         visible={barreVisible && !offreTerminee}

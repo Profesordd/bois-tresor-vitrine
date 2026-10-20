@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { Users, Clock, FileText, LogOut, TrendingDown, MousePointerClick, AlertTriangle, Inbox, Package, Globe, Download, FileDown, PackageX } from 'lucide-react'
+import { Users, Clock, FileText, LogOut, TrendingDown, MousePointerClick, AlertTriangle, Inbox, Package, Globe, Download, FileDown, PackageX, UserPlus } from 'lucide-react'
 import { formatPrice } from '@/lib/utils'
 import { NOM_PAYS } from '@/lib/analytics/geo'
 import {
@@ -29,6 +29,17 @@ async function countPendingMessages(): Promise<number> {
   return error ? 0 : (count ?? 0)
 }
 
+/** Adresses laissées avant le paiement, sans commande et pas encore traitées. */
+async function countLeadsARappeler(): Promise<number> {
+  const supabase = createAdminClient()
+  const { count, error } = await supabase
+    .from('leads')
+    .select('id', { count: 'exact', head: true })
+    .eq('a_commande', false)
+    .eq('traite', false)
+  return error ? 0 : (count ?? 0)
+}
+
 /** Produits épuisés, lus sans cache : l'admin doit voir l'état exact. */
 async function getRupturesAdmin(): Promise<Map<string, string>> {
   const supabase = createAdminClient()
@@ -47,6 +58,7 @@ const JEUX_EXPORT = [
   { cle: 'appareils', label: 'Appareils' },
   { cle: 'pages',     label: 'Pages' },
   { cle: 'contacts',  label: 'Demandes de contact' },
+  { cle: 'leads',     label: 'Adresses à rappeler' },
 ]
 
 function Card({ icon: Icon, label, value, hint }: {
@@ -95,10 +107,11 @@ export default async function AdminDashboard({ searchParams }: Props) {
     { label: '90 jours', du: decalerJours(today, -89), au: today },
   ]
 
-  const [overview, sessions, pendingMessages, byDevice, products, ruptures] = await Promise.all([
+  const [overview, sessions, pendingMessages, leadsARappeler, byDevice, products, ruptures] = await Promise.all([
     getOverview(du, au),
     getRecentSessions(du, au, 200),
     countPendingMessages(),
+    countLeadsARappeler(),
     getFunnelByDevice(du, au),
     getProductPerformance(du, au),
     getRupturesAdmin(),
@@ -252,6 +265,35 @@ export default async function AdminDashboard({ searchParams }: Props) {
           </div>
         </section>
       )}
+
+      {/* ── Adresses à rappeler : placé avant les statistiques, comme les
+             demandes de contact. Ce sont des gens qui ont voulu payer et
+             qui ne l'ont pas fait ; les rappeler est l'action du jour. ── */}
+      <Link
+        href="/admin/leads/"
+        className={`flex items-center justify-between gap-4 rounded-lg border p-5 transition-colors ${
+          leadsARappeler > 0
+            ? 'border-brand-300 bg-brand-50 hover:border-brand-500'
+            : 'border-gray-200 bg-white hover:border-brand-400'
+        }`}
+      >
+        <span className="flex items-center gap-3">
+          <UserPlus size={22} className="text-brand-600 flex-shrink-0" />
+          <span>
+            <span className="block font-semibold text-ink">
+              {leadsARappeler > 0
+                ? `${leadsARappeler} adresse${leadsARappeler > 1 ? 's' : ''} à rappeler`
+                : 'Adresses à rappeler'}
+            </span>
+            <span className="block text-sm text-gray-500">
+              {leadsARappeler > 0
+                ? 'Ces personnes sont allées jusqu’au paiement sans commander.'
+                : 'Aucune adresse en attente.'}
+            </span>
+          </span>
+        </span>
+        <span className="text-brand-700 font-semibold text-sm whitespace-nowrap">Ouvrir →</span>
+      </Link>
 
       {/* ── Demandes de contact : mis en tête, c'est ce qui appelle une
              action immédiate, au contraire des statistiques. ── */}

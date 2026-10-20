@@ -7,7 +7,8 @@ import { useCartStore } from '@/stores/cart'
 import type { Product } from '@/types/database'
 import { buildCheckoutUrl, maxParCommande, messageLimite } from '@/lib/checkout'
 import BarreAchatMobile from '@/components/shop/BarreAchatMobile'
-import { trackAddToCartThenRedirect } from '@/lib/analytics/meta'
+import { trackAddToCart, REDIRECT_DELAY_MS } from '@/lib/analytics/meta'
+import CollecteEmail from '@/components/shop/CollecteEmail'
 
 interface Props {
   product: Product
@@ -31,12 +32,15 @@ interface Props {
 export default function QuantitySelector({ product }: Props) {
   const [qty, setQty] = useState(1)
   const [redirecting, setRedirecting] = useState(false)
+  /* Adresse de paiement figée au clic : la fenêtre de collecte s'ouvre, la
+     redirection n'attend plus que l'adresse e-mail. */
+  const [collecte, setCollecte] = useState<string | null>(null)
 
   /* Retour depuis le paiement : le navigateur restaure la page telle qu'elle
      était au départ, bouton encore sur « Redirection… ». `pageshow` est
      déclenché à ce retour (persisted), on remet le bouton en état. */
   useEffect(() => {
-    const retour = () => setRedirecting(false)
+    const retour = () => { setRedirecting(false); setCollecte(null) }
     window.addEventListener('pageshow', retour)
     return () => window.removeEventListener('pageshow', retour)
   }, [])
@@ -89,10 +93,19 @@ export default function QuantitySelector({ product }: Props) {
     const url = buildCheckoutUrl([...autresProduits, { product, quantity: qty }])
     if (!url) return
     addItem(product, qty)
+    /* AddToCart part dès le clic, avant la demande d'adresse : sans ce
+       signal, aucune audience « panier abandonné » ne peut être constituée
+       côté Meta, et ceux qui renoncent devant le formulaire en sortiraient. */
+    trackAddToCart(product, qty)
+    setCollecte(url)
+  }
+
+  /* L'adresse est partie en sendBeacon, qui survit au changement de page :
+     on peut rediriger sans rien attendre. */
+  function partirAuPaiement(url: string) {
     setRedirecting(true)
-    /* AddToCart part avant la redirection : sans ce signal, aucune audience
-       « panier abandonné » ne peut être constituée côté Meta. */
-    trackAddToCartThenRedirect(product, qty, url)
+    setCollecte(null)
+    window.setTimeout(() => { window.location.href = url }, REDIRECT_DELAY_MS)
   }
 
   /* Pas d'identifiant de checkout : le produit n'est pas encore payable en
@@ -184,6 +197,13 @@ export default function QuantitySelector({ product }: Props) {
           <p className="text-center text-sm text-gray-500">
             Vous passez directement au paiement sécurisé.
           </p>
+
+          <CollecteEmail
+            product={collecte ? product : null}
+            montant={product.price * qty}
+            onFermer={() => setCollecte(null)}
+            onValide={() => collecte && partirAuPaiement(collecte)}
+          />
 
           <BarreAchatMobile
             visible={barreVisible}

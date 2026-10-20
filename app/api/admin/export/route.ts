@@ -16,7 +16,7 @@ import { construireRapport } from '@/lib/analytics/rapport'
  * Le middleware ne protège que les pages : l'autorisation est vérifiée ici.
  */
 
-const JEUX = ['rapport', 'visites', 'parcours', 'produits', 'appareils', 'pages', 'contacts'] as const
+const JEUX = ['rapport', 'visites', 'parcours', 'produits', 'appareils', 'pages', 'contacts', 'leads'] as const
 type Jeu = (typeof JEUX)[number]
 
 /** Excel francophone attend le point-virgule ; le BOM préserve les accents. */
@@ -139,6 +139,33 @@ export async function GET(req: NextRequest) {
       'Scroll moyen (%)': p.scroll_moyen,
       Sorties: p.sorties,
       'Taux de sortie (%)': Number(p.vues) ? Math.round((Number(p.sorties) * 100) / Number(p.vues)) : 0,
+    }))
+  } else if (jeu === 'leads') {
+    /* Adresses laissées avant la redirection vers le paiement. Export
+       destiné à un outil d'emailing : l'accord explicite y figure, c'est
+       lui qui dit à qui on a le droit d'écrire. */
+    const { data } = await supabase
+      .from('leads')
+      .select('*')
+      .gte('created_at', `${du}T00:00:00+02:00`)
+      .lt('created_at', `${au}T23:59:59+02:00`)
+      .order('created_at', { ascending: false })
+    lignes = (data ?? []).map((l: Record<string, unknown>) => ({
+      'Laissee le': heureFr(l.created_at as string),
+      'E-mail': l.email,
+      Telephone: l.telephone ?? '',
+      'Accepte les offres': l.consent ? 'oui' : 'non',
+      Produit: l.produit_nom ?? '',
+      Lot: l.lot ?? '',
+      'Montant (EUR)': l.montant ?? '',
+      'A commande': l.a_commande ? 'oui' : 'non',
+      Traite: l.traite ? 'oui' : 'non',
+      Note: l.note ?? '',
+      Campagne: l.utm_campaign ?? '',
+      Source: l.utm_source ?? '',
+      Pays: l.pays ?? '',
+      Appareil: l.appareil ?? '',
+      'Identifiant visite': l.session_id ?? '',
     }))
   } else {
     /* Les demandes de contact ne dépendent d'aucun pays : elles viennent
