@@ -60,7 +60,7 @@ async function traiter(): Promise<Bilan | { erreur: string }> {
      tentative assez récente pour que la relance ait du sens. */
   const { data: leads, error } = await supabase
     .from('leads')
-    .select('id, email, created_at, produit_slug, produit_nom, montant')
+    .select('id, email, created_at, produit_slug, produit_nom, lot, montant')
     .eq('a_commande', false)
     .eq('desinscrit', false)
     .gte('created_at', depuis)

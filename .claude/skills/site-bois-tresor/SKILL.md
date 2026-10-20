@@ -97,6 +97,18 @@ et à la main depuis `/admin/leads/`. Les cinq messages sont lisibles dans
 `/admin/relances/`.
 
 Points à ne pas défaire :
+- **Le bouton mène directement à la page de paiement**, avec la variante et
+  la quantité reconstruites depuis le produit et le lot enregistrés au clic
+  (`lienPaiement()` passe par `buildCheckoutUrl`, la même fonction que le
+  site). Renvoyer vers la fiche produit obligerait à refaire tout le
+  parcours, et c'est précisément là qu'on a déjà perdu la personne une
+  fois. Repli sur la fiche si le produit n'a plus de variante.
+- **Chaque message porte la réassurance avant la rareté** : SIRET, lien
+  vers l'annuaire officiel, paiement sécurisé, livraison offerte. La
+  première crainte de ce public n'est pas le prix.
+- `/api/relances/apercu/` envoie les cinq messages à une adresse choisie,
+  sans rien écrire dans `relances` : un essai ne doit pas priver un vrai
+  prospect de son message.
 - **Le créneau est réservé en base avant l'envoi**, pas après. La
   contrainte `relances (lead_id, etape)` empêche deux exécutions qui se
   chevauchent d'envoyer le même message deux fois.

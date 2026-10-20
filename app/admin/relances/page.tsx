@@ -3,6 +3,8 @@ import { ArrowLeft, Send, AlertTriangle } from 'lucide-react'
 import { composer, DELAIS_HEURES, NB_ETAPES, type LeadRelance } from '@/lib/emails/relances'
 import { emailConfigure } from '@/lib/emails/envoi'
 import { createAdminClient } from '@/lib/supabase/server'
+import EnvoiApercu from '@/components/admin/EnvoiApercu'
+import { lienPaiement } from '@/lib/emails/relances'
 
 export const dynamic = 'force-dynamic'
 export const metadata = { title: 'Les relances' }
@@ -13,6 +15,7 @@ const EXEMPLE: LeadRelance = {
   email: 'client@exemple.fr',
   produit_slug: 'granules-de-bois-limouzi-palette-de-134-sacs-de-15-kg',
   produit_nom: 'Granulés de bois Limouzi – sacs de 15 kg — 30 sacs (450 kg)',
+  lot: '30',
   montant: 59.97,
 }
 
@@ -73,6 +76,15 @@ export default async function AdminRelancesPage() {
           l’étiquette rouge, sur la fiche de l’adresse concernée.
         </p>
       )}
+
+      <EnvoiApercu />
+
+      {/* L'adresse exacte du bouton, en clair : c'est elle qu'il faut
+          pouvoir vérifier, pas la page produit. */}
+      <p className="text-[13px] text-gray-500 mt-4 break-all">
+        Le bouton de chaque message mène directement au paiement. Pour la commande donnée
+        en exemple ici : <span className="text-gray-700">{lienPaiement(EXEMPLE)}</span>
+      </p>
 
       <div className="space-y-6 mt-8">
         {Array.from({ length: NB_ETAPES }, (_, i) => i + 1).map((etape) => {
