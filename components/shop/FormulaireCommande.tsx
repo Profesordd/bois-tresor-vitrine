@@ -2,11 +2,10 @@
 
 import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
-import { Lock, Shield, Truck, AlertTriangle, Loader2, CreditCard, Star, Mail, Check } from 'lucide-react'
+import { Lock, Shield, Truck, AlertTriangle, Loader2, CreditCard, Star, Check } from 'lucide-react'
 import type { Product, Lot } from '@/types/database'
 import { formatPrice } from '@/lib/utils'
-import { SIRET, SHIPPING_ZONE, CONTACT_EMAIL } from '@/lib/site'
-import { REVIEW_RATING, REVIEW_COUNT, TESTIMONIALS } from '@/lib/reviews'
+import { REVIEW_RATING, REVIEW_COUNT } from '@/lib/reviews'
 import ProductVisual from '@/components/shop/ProductVisual'
 import { getSession } from '@/lib/analytics/track'
 
@@ -180,9 +179,12 @@ export default function FormulaireCommande({ product, lot, montant }: Props) {
     }
   }
 
-  const champ = 'w-full rounded-lg border border-gray-300 px-3.5 py-3 text-[16px] text-ink placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500'
-  const etiquette = 'block text-[14px] font-medium text-gray-700 mb-1.5'
-  const bloc = 'bg-white rounded-xl p-5 sm:p-6 shadow-sm border border-gray-100'
+  const champ = 'w-full rounded-lg border border-gray-300 px-3.5 py-2.5 text-[16px] text-ink placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500'
+  /* Noir et gras, jamais gris : la moyenne d'âge de cette clientèle est de
+     soixante ans, un libellé gris clair y devient illisible. */
+  const etiquette = 'block text-[15px] font-bold text-ink mb-1'
+  const titre = 'text-[15px] font-bold text-ink mb-3'
+  const bloc = 'bg-white rounded-xl p-4 sm:p-5 shadow-sm border border-gray-100'
 
   /* ── Pendant le 3-D Secure, la banque occupe tout l'écran ── */
   if (etape === '3ds' && iframeUrl) {
@@ -212,15 +214,15 @@ export default function FormulaireCommande({ product, lot, montant }: Props) {
   }
 
   const GARANTIES = [
-    { icon: Truck, titre: 'Livraison offerte', detail: 'Sans minimum' },
-    { icon: Lock, titre: 'Paiement sécurisé', detail: '3-D Secure' },
-    { icon: Shield, titre: 'Entreprise française', detail: `SIRET ${SIRET.slice(0, 11)}` },
+    { icon: Truck, libelle: 'Livraison offerte' },
+    { icon: Lock, libelle: 'Paiement sécurisé' },
+    { icon: Shield, libelle: 'Entreprise française' },
   ]
 
   return (
     <>
       {/* ── Barre de progression ── */}
-      <div className="flex items-center justify-center gap-2 mb-7">
+      <div className="flex items-center justify-center gap-2 mb-5">
         <div className="flex items-center gap-1.5">
           <span className="w-6 h-6 rounded-full bg-brand-600 text-white text-xs flex items-center justify-center font-bold">
             <Check size={13} strokeWidth={3} />
@@ -239,14 +241,12 @@ export default function FormulaireCommande({ product, lot, montant }: Props) {
         </div>
       </div>
 
-      <h1 className="font-serif text-2xl sm:text-3xl font-bold text-ink mb-1.5">Finaliser ma commande</h1>
-      <p className="text-sm text-gray-500 mb-7">
-        Commande sécurisée. Livraison offerte, {SHIPPING_ZONE}.
-      </p>
+      <h1 className="font-serif text-2xl sm:text-3xl font-bold text-ink mb-1">Finaliser ma commande</h1>
+      <p className="text-sm text-gray-500 mb-5">Commande sécurisée. Livraison offerte.</p>
 
       <div className="grid lg:grid-cols-3 gap-6 lg:gap-8 items-start">
         {/* ── Le formulaire ── */}
-        <form onSubmit={envoyer} className="lg:col-span-2 space-y-5 order-last lg:order-first">
+        <form onSubmit={envoyer} className="lg:col-span-2 space-y-4 order-last lg:order-first">
           {erreur && (
             <p className="flex items-start gap-2.5 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-[15px] text-red-800">
               <AlertTriangle size={19} className="flex-shrink-0 mt-0.5" />
@@ -255,8 +255,8 @@ export default function FormulaireCommande({ product, lot, montant }: Props) {
           )}
 
           <section className={bloc}>
-            <h2 className="font-semibold text-ink mb-4">Vos coordonnées</h2>
-            <div className="grid grid-cols-2 gap-4 mb-4">
+            <h2 className={titre}>Vos coordonnées</h2>
+            <div className="grid grid-cols-2 gap-3 mb-3">
               <div>
                 <label htmlFor="prenom" className={etiquette}>Prénom *</label>
                 <input id="prenom" autoComplete="given-name" className={champ}
@@ -268,7 +268,7 @@ export default function FormulaireCommande({ product, lot, montant }: Props) {
                   value={client.nom} onChange={(e) => setClient({ ...client, nom: e.target.value })} />
               </div>
             </div>
-            <div className="mb-4">
+            <div className="mb-3">
               <label htmlFor="email" className={etiquette}>E-mail *</label>
               <input id="email" type="email" inputMode="email" autoComplete="email" className={champ}
                 value={client.email} onChange={(e) => setClient({ ...client, email: e.target.value })} />
@@ -284,28 +284,28 @@ export default function FormulaireCommande({ product, lot, montant }: Props) {
           </section>
 
           <section className={bloc}>
-            <h2 className="font-semibold text-ink mb-4">Adresse de livraison</h2>
-            <div className="mb-4">
+            <h2 className={titre}>Adresse de livraison</h2>
+            <div className="mb-3">
               <label htmlFor="adresse" className={etiquette}>Adresse *</label>
               <input id="adresse" autoComplete="street-address" className={champ}
                 placeholder="12 route des Chênes"
                 value={client.adresse} onChange={(e) => setClient({ ...client, adresse: e.target.value })} />
             </div>
-            <div className="mb-4">
+            <div className="mb-3">
               <label htmlFor="complement" className={etiquette}>
                 Complément <span className="font-normal text-gray-400">(facultatif)</span>
               </label>
               <input id="complement" className={champ} placeholder="Lieu-dit, bâtiment, code du portail"
                 value={client.complement} onChange={(e) => setClient({ ...client, complement: e.target.value })} />
             </div>
-            <div className="grid grid-cols-3 gap-4 mb-4">
-              <div>
+            <div className="grid grid-cols-5 gap-3 mb-3">
+              <div className="col-span-2">
                 <label htmlFor="cp" className={etiquette}>Code postal *</label>
                 <input id="cp" inputMode="numeric" autoComplete="postal-code" className={champ}
                   placeholder="39000"
                   value={client.codePostal} onChange={(e) => setClient({ ...client, codePostal: e.target.value })} />
               </div>
-              <div className="col-span-2">
+              <div className="col-span-3">
                 <label htmlFor="ville" className={etiquette}>Ville *</label>
                 <input id="ville" autoComplete="address-level2" className={champ}
                   value={client.ville} onChange={(e) => setClient({ ...client, ville: e.target.value })} />
@@ -321,17 +321,17 @@ export default function FormulaireCommande({ product, lot, montant }: Props) {
           </section>
 
           <section className={`${bloc} ring-2 ring-brand-100`}>
-            <h2 className="font-semibold text-ink mb-4 flex items-center gap-2">
-              <CreditCard size={19} className="text-brand-600" /> Votre carte bancaire
+            <h2 className={`${titre} flex items-center gap-2`}>
+              <CreditCard size={18} className="text-brand-600" /> Votre carte bancaire
             </h2>
-            <div className="mb-4">
+            <div className="mb-3">
               <label htmlFor="carte" className={etiquette}>Numéro de carte *</label>
               <input id="carte" inputMode="numeric" autoComplete="cc-number" className={`${champ} font-mono tracking-wide`}
                 placeholder="0000 0000 0000 0000"
                 value={carte.numero}
                 onChange={(e) => setCarte({ ...carte, numero: e.target.value.replace(/\D/g, '').slice(0, 19).replace(/(.{4})/g, '$1 ').trim() })} />
             </div>
-            <div className="grid grid-cols-3 gap-4 mb-4">
+            <div className="grid grid-cols-3 gap-3 mb-3">
               <div>
                 <label htmlFor="mois" className={etiquette}>Mois *</label>
                 <select id="mois" autoComplete="cc-exp-month" className={`${champ} bg-white`}
@@ -365,18 +365,16 @@ export default function FormulaireCommande({ product, lot, montant }: Props) {
             </div>
           </section>
 
-          {/* ── Garanties, chiffres réels du site ── */}
-          <div className="rounded-xl border border-brand-200 bg-brand-50 p-4">
-            <div className="grid grid-cols-3 gap-3 text-center text-xs text-brand-800">
-              {GARANTIES.map(({ icon: Icon, titre, detail }) => (
-                <div key={titre} className="flex flex-col items-center gap-1">
-                  <Icon size={18} className="text-brand-600" />
-                  <span className="font-semibold leading-tight">{titre}</span>
-                  <span className="text-brand-700">{detail}</span>
-                </div>
-              ))}
-            </div>
-          </div>
+          {/* ── Garanties. Une ligne qui se replie, plutôt que trois
+                 colonnes à 110 px sur téléphone où tout se chevauchait. ── */}
+          <ul className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2 rounded-lg border border-brand-200 bg-brand-50 px-4 py-3">
+            {GARANTIES.map(({ icon: Icon, libelle }) => (
+              <li key={libelle} className="flex items-center gap-1.5 text-[13px] font-semibold text-brand-800">
+                <Icon size={15} className="text-brand-600 flex-shrink-0" />
+                {libelle}
+              </li>
+            ))}
+          </ul>
 
           <button
             type="submit"
@@ -396,84 +394,36 @@ export default function FormulaireCommande({ product, lot, montant }: Props) {
           </div>
         </form>
 
-        {/* ── Récapitulatif. En tête sur téléphone : on doit voir ce qu'on
-               achète avant de remplir dix champs. ── */}
-        <aside className="space-y-4 order-first lg:order-last">
+        {/* ── Récapitulatif, réduit au strict nécessaire. Le client est
+               ici pour payer, pas pour lire : le produit, le total, et la
+               note du site sur une ligne. Rien d'autre. ── */}
+        <aside className="order-first lg:order-last">
           <div className={`${bloc} lg:sticky lg:top-24`}>
-            <h2 className="font-serif text-lg font-semibold text-ink mb-4">Récapitulatif</h2>
-
-            <div className="flex gap-3 mb-4">
-              <div className="relative w-14 h-14 rounded-lg overflow-hidden bg-gray-50 flex-shrink-0">
+            <div className="flex gap-3 items-center">
+              <div className="relative w-12 h-12 rounded-lg overflow-hidden bg-gray-50 flex-shrink-0">
                 <ProductVisual image={product.image} name={product.name} fit="contain" />
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-ink leading-snug">{product.name}</p>
-                {lot && <p className="text-xs text-gray-500 mt-0.5">{lot.poids}</p>}
-              </div>
-              <span className="text-sm font-semibold flex-shrink-0">{formatPrice(montant)}</span>
-            </div>
-
-            <div className="border-t border-gray-100 pt-4 space-y-2 text-sm text-gray-600">
-              <div className="flex justify-between">
-                <span>Sous-total</span>
-                <span>{formatPrice(montant)}</span>
-              </div>
-              <div className="flex justify-between">
-                <span>Livraison</span>
-                <span className="text-brand-700 font-semibold">Offerte</span>
-              </div>
-              <div className="flex justify-between font-bold text-base text-ink pt-2 border-t border-gray-100">
-                <span>Total TTC</span>
-                <span>{formatPrice(montant)}</span>
+                <p className="text-[14px] font-semibold text-ink leading-snug">{product.name}</p>
+                {lot && <p className="text-[13px] text-gray-500">{lot.poids}</p>}
               </div>
             </div>
 
-            <div className="mt-5 space-y-2">
-              {[
-                { icon: Truck, texte: `Livraison offerte, ${SHIPPING_ZONE}` },
-                { icon: Shield, texte: 'Entreprise familiale française, SIRET vérifiable' },
-                { icon: Mail, texte: 'Nous répondons nous-mêmes à vos messages' },
-              ].map(({ icon: Icon, texte }) => (
-                <p key={texte} className="flex items-start gap-2 text-xs text-gray-500">
-                  <Icon size={13} className="text-brand-600 flex-shrink-0 mt-0.5" />
-                  {texte}
-                </p>
-              ))}
+            <div className="flex justify-between items-baseline border-t border-gray-100 mt-3 pt-3">
+              <span className="text-[15px] font-bold text-ink">Total</span>
+              <span className="text-xl font-bold text-ink">{formatPrice(montant)}</span>
             </div>
+            <p className="text-[13px] text-brand-700 font-semibold text-right">Livraison offerte</p>
 
-            {/* Note du site, pas d'une plateforme tierce. */}
-            <div className="mt-5 pt-4 border-t border-gray-100 flex items-center gap-2">
+            <p className="flex items-center gap-1.5 mt-3 pt-3 border-t border-gray-100 text-[13px] text-gray-500">
               <span className="flex gap-0.5">
                 {[1, 2, 3, 4, 5].map((i) => (
-                  <Star key={i} size={12} className="fill-brand-500 text-brand-500" />
+                  <Star key={i} size={11} className="fill-brand-500 text-brand-500" />
                 ))}
               </span>
-              <span className="text-xs text-gray-500 font-medium">
-                {REVIEW_RATING}/5 · {REVIEW_COUNT} avis
-              </span>
-            </div>
+              {REVIEW_RATING}/5 · {REVIEW_COUNT} avis
+            </p>
           </div>
-
-          {/* Avis réels du site, jamais inventés. */}
-          <div className={`${bloc} space-y-4 hidden lg:block`}>
-            <h3 className="text-sm font-semibold text-ink">Ce que disent nos clients</h3>
-            {TESTIMONIALS.slice(0, 2).map((a) => (
-              <div key={a.name} className="border-t border-gray-100 pt-3 first:border-t-0 first:pt-0">
-                <span className="flex gap-0.5 mb-1">
-                  {[1, 2, 3, 4, 5].map((i) => (
-                    <Star key={i} size={10} className="fill-brand-500 text-brand-500" />
-                  ))}
-                </span>
-                <p className="text-xs text-gray-600 leading-relaxed italic">« {a.text} »</p>
-                <p className="text-xs font-semibold text-gray-700 mt-1">— {a.name}</p>
-              </div>
-            ))}
-          </div>
-
-          <p className="text-[11px] text-gray-400 leading-relaxed px-1">
-            Bois Tresor, entreprise familiale française. SIRET {SIRET}. Une question :{' '}
-            <a href={`mailto:${CONTACT_EMAIL}`} className="underline">{CONTACT_EMAIL}</a>.
-          </p>
         </aside>
       </div>
     </>
