@@ -370,6 +370,16 @@ const LIMOUZI_LOTS: Lot[] = [
 const LIMOUZI: Product = {
   ...LIMOUZI_BASE,
   variantId: '58513507058008',
+  /* Paiement sur le site par CAWL depuis le 20/10/2026, à la place du
+     prestataire externe. Seule cette fiche est concernée : toutes les
+     autres, fiche B des granulés comprise, passent encore par l'ancien
+     chemin. La demande d'e-mail avant redirection disparaît du même coup,
+     le checkout recueillant déjà l'adresse et le téléphone.
+
+     Les `variantId` des lots restent en place : ils n'appartiennent qu'au
+     prestataire externe et ne servent plus ici, mais les retirer ferait
+     disparaître les lots de l'affichage (`lotsDisponibles` filtre dessus). */
+  checkoutInterne: true,
   original_price: null,
   badge: 'destockage',
   /* Description longue volontairement non affichée : 250 mots de texte
