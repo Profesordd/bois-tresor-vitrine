@@ -367,6 +367,39 @@ pendant un temps, sans aucune erreur visible.
 La loi l'exige là, et nulle part ailleurs. Partout sur le site, seul le
 prénom est utilisé. Ne pas diffuser le nom complet dans un autre contexte.
 
+### Banc d'essai CAWL (20/10/2026)
+
+CAWL est le module de paiement du Crédit Agricole, bâti sur Worldline.
+Il est **à l'essai uniquement**, sous `/admin/paiement-cawl/` : le parcours
+d'achat du site n'y touche pas, il encaisse toujours par le prestataire
+externe et sa grille de huit prix.
+
+`lib/cawl.ts` signe chaque appel en « GCS v1HMAC » : HMAC-SHA256 d'une
+chaîne faite de la méthode, du type de contenu, de la date, des en-têtes
+`X-GCS` **en minuscules et triés**, puis du chemin complet, chacun suivi
+d'un retour à la ligne. Une virgule de travers et la signature est refusée
+sans explication utile.
+
+⚠️ **Deux plateformes, deux jeux de clés.** `payment.preprod.…` pour les
+essais, `payment.cawl-solutions.fr` pour le réel. Une clé de production
+employée sur la préprod renvoie `ACCESS_TO_MERCHANT_NOT_ALLOWED` ;
+l'inverse débite vraiment la carte. `CAWL_API_URL` pointe sur la préprod
+par défaut, et l'écran d'administration affiche la plateforme visée en
+toutes lettres.
+
+Trois réglages de l'intégration de référence sont **non négociables**, ils
+ont été validés en production ailleurs et toute variation fait échouer le
+3-D Secure : `javaScriptEnabled: false`, les dimensions d'écran transmises
+en chaînes de caractères, et pas de `paymentProduct130SpecificInput`. Les
+préfixes CB se limitent à 50, 56, 58 et 67.
+
+Le 3-D Secure se joue dans une iframe. La banque n'y redirige que
+l'iframe, jamais la page parente : la page de retour prévient le parent
+par `postMessage`, sans quoi l'écran attendrait indéfiniment.
+
+`ACTION_NOT_ALLOWED` à la capture signifie que le compte est en capture
+automatique. C'est un succès, pas une erreur.
+
 ---
 
 ## 2. Le persona, qui commande toutes les décisions

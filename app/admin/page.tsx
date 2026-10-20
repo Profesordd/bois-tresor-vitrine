@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { Users, Clock, FileText, LogOut, TrendingDown, MousePointerClick, AlertTriangle, Inbox, Package, Globe, Download, FileDown, PackageX, UserPlus } from 'lucide-react'
+import { Users, Clock, FileText, LogOut, TrendingDown, MousePointerClick, AlertTriangle, Inbox, Package, Globe, Download, FileDown, PackageX, UserPlus, CreditCard } from 'lucide-react'
 import { formatPrice } from '@/lib/utils'
 import { NOM_PAYS } from '@/lib/analytics/geo'
 import {
@@ -265,6 +265,25 @@ export default async function AdminDashboard({ searchParams }: Props) {
           </div>
         </section>
       )}
+
+      {/* ── Banc d'essai CAWL : hors parcours client, le site encaisse
+             toujours par le prestataire actuel. Discret, c'est un outil de
+             travail et non une information de pilotage. ── */}
+      <Link
+        href="/admin/paiement-cawl/"
+        className="flex items-center justify-between gap-4 rounded-lg border border-gray-200 bg-white p-4 hover:border-brand-400 transition-colors"
+      >
+        <span className="flex items-center gap-3">
+          <CreditCard size={19} className="text-brand-600 flex-shrink-0" />
+          <span>
+            <span className="block font-semibold text-ink text-[15px]">Paiement CAWL</span>
+            <span className="block text-sm text-gray-500">
+              Essai du processeur du Crédit Agricole. Sans effet sur le site.
+            </span>
+          </span>
+        </span>
+        <span className="text-brand-700 font-semibold text-sm whitespace-nowrap">Ouvrir →</span>
+      </Link>
 
       {/* ── Adresses à rappeler : placé avant les statistiques, comme les
              demandes de contact. Ce sont des gens qui ont voulu payer et
