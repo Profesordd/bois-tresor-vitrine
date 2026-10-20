@@ -73,10 +73,16 @@ Trois règles à ne pas casser dans cette fenêtre :
   survit au changement de page, et la redirection suit immédiatement. La
   route `/api/leads/` répond toujours 204, même en erreur. Un lead perdu
   coûte un lead ; une redirection bloquée coûte une commande.
-- **La case « recevoir vos offres » est décochée.** En France, prospecter
-  par e-mail quelqu'un qui n'a jamais acheté suppose son accord préalable.
-  Sans la case cochée, pas de relance commerciale : seul le suivi de sa
-  commande est permis.
+- **La fenêtre reste minuscule** : un titre, deux champs, un bouton,
+  environ 310 px de haut. La première version portait un rappel du produit,
+  une case d'accord et deux lignes de réassurance ; le client l'a fait
+  retirer le 20/10/2026, trouvant l'ensemble trop long. Quelqu'un qui vient
+  de cliquer sur « Commander » veut payer, pas lire.
+- **Il n'y a plus de case d'accord**, retirée à la même occasion : la
+  colonne `consent` existe toujours et reçoit `false`. En France,
+  prospecter par e-mail quelqu'un qui n'a jamais acheté suppose son accord
+  préalable — en l'état, seul le suivi de sa commande est couvert. À
+  rouvrir avec le client avant toute séquence de relance commerciale.
 
 Les trois chemins vers le paiement passent par cette fenêtre :
 `QuantitySelector`, `LotSelector` et la page `/panier`. En ajouter un
