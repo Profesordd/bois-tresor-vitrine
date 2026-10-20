@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { ADMIN_COOKIE, verifyToken } from '@/lib/admin/session'
 import { envoyer, emailConfigure } from '@/lib/emails/envoi'
-import { composer, lienPaiement, NB_ETAPES, DELAIS_HEURES, type LeadRelance } from '@/lib/emails/relances'
+import { composer, lienPaiement, NB_ETAPES, DELAIS_MINUTES, libelleDelai, type LeadRelance } from '@/lib/emails/relances'
 
 /**
  * Envoi des cinq relances à une adresse choisie, pour relecture.
@@ -30,9 +30,7 @@ const EXEMPLE: LeadRelance = {
   montant: 59.97,
 }
 
-function delai(heures: number): string {
-  return heures < 24 ? `${heures} h` : `J+${heures / 24}`
-}
+
 
 export async function POST(req: NextRequest) {
   const autorise = await verifyToken(
@@ -59,7 +57,7 @@ export async function POST(req: NextRequest) {
     const m = composer(etape, { ...EXEMPLE, email: destinataire }, desinscription)
     const r = await envoyer({
       a: destinataire,
-      sujet: `[Relance ${etape}/${NB_ETAPES} · ${delai(DELAIS_HEURES[etape - 1])}] ${m.sujet}`,
+      sujet: `[Relance ${etape}/${NB_ETAPES} · ${libelleDelai(DELAIS_MINUTES[etape - 1])}] ${m.sujet}`,
       html: m.html,
       texte: m.texte,
     })

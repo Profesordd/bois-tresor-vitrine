@@ -6,9 +6,9 @@ import { buildCheckoutUrl } from '@/lib/checkout'
 /**
  * Les cinq relances envoyées après un paiement non abouti.
  *
- * Calendrier : 1 h, 6 h, J+1, J+2, J+3. Deux messages le premier jour,
- * puis un par jour. L'essentiel d'un panier abandonné se récupère dans les
- * premières heures, et au-delà de trois jours un prospect qui n'a pas
+ * Calendrier : 30 min, 3 h, J+1, J+2, J+3. Deux messages le premier jour,
+ * puis un par jour. L'essentiel d'un panier abandonné se récupère dans la
+ * première heure, et au-delà de trois jours un prospect qui n'a pas
  * répondu a trouvé son bois ailleurs.
  *
  * Chaque message porte les deux mêmes ressorts, dans cet ordre :
@@ -39,15 +39,23 @@ export interface LeadRelance {
 const SITE = (process.env.NEXT_PUBLIC_SITE_URL ?? 'https://www.bois-tresor.com').replace(/\/$/, '')
 
 /**
- * Délais depuis le clic, en heures. L'index vaut l'étape moins un.
+ * Délais depuis le moment où l'adresse a été laissée, en minutes.
+ * L'index vaut l'étape moins un.
  *
  * ⚠️ C'est le moment où le message devient DÛ, pas celui où il part. Le
- * planificateur passe au début de chaque heure : un message dû à 13 h 10
- * est envoyé à 14 h. Resserrer ce décalage demande un passage plus
- * fréquent dans `vercel.json`.
+ * planificateur de `vercel.json` ne l'envoie qu'à son passage suivant :
+ * sa fréquence doit rester nettement plus courte que le premier délai,
+ * sinon les trente minutes ci-dessous n'ont aucun effet.
  */
-export const DELAIS_HEURES = [1, 6, 24, 48, 72] as const
-export const NB_ETAPES = DELAIS_HEURES.length
+export const DELAIS_MINUTES = [30, 180, 1440, 2880, 4320] as const
+export const NB_ETAPES = DELAIS_MINUTES.length
+
+/** Libellé lisible d'un délai, pour l'administration. */
+export function libelleDelai(minutes: number): string {
+  if (minutes < 60) return `${minutes} min`
+  if (minutes < 1440) return `${minutes / 60} h`
+  return `J+${minutes / 1440}`
+}
 
 /**
  * L'adresse de paiement d'origine, reconstruite.

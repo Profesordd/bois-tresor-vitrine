@@ -89,10 +89,16 @@ Les trois chemins vers le paiement passent par cette fenêtre :
 quatrième sans la fenêtre rouvrirait la fuite.
 
 **Séquence de relance** (20/10/2026, `lib/emails/`, `/api/relances/`) :
-cinq messages à qui n'est pas allé au bout du paiement, à 1 h, 6 h, J+1,
-J+2 et J+3. Deux le premier jour, puis un par jour. Ces délais disent
-quand un message devient dû, pas quand il part : le planificateur passe
-au début de chaque heure, un message dû à 13 h 10 est envoyé à 14 h. Déclenchée toutes les
+cinq messages à qui n'est pas allé au bout du paiement, à 30 min, 3 h,
+J+1, J+2 et J+3. Deux le premier jour, puis un par jour.
+
+⚠️ Ces délais disent quand un message devient **dû**, pas quand il part :
+il est envoyé au passage suivant du planificateur. D'où `*/5 * * * *`
+dans `vercel.json` — la fréquence doit rester nettement plus courte que
+les trente minutes du premier message, sinon le réglage ne sert à rien et
+rien ne le signale. Un espacement minimal de deux heures entre deux envois
+à la même personne empêche une adresse laissée il y a plusieurs heures de
+recevoir d'un coup les étapes échues. Déclenchée toutes les
 heures par le planificateur Vercel (`vercel.json`, en-tête `CRON_SECRET`),
 et à la main depuis `/admin/leads/`. Les cinq messages sont lisibles dans
 `/admin/relances/`.

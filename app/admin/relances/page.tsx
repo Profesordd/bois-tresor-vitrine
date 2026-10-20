@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import { ArrowLeft, Send, AlertTriangle, Check, X } from 'lucide-react'
-import { composer, DELAIS_HEURES, NB_ETAPES, type LeadRelance } from '@/lib/emails/relances'
+import { composer, DELAIS_MINUTES, NB_ETAPES, libelleDelai, type LeadRelance } from '@/lib/emails/relances'
 import { emailConfigure, diagnosticConfig } from '@/lib/emails/envoi'
 import { createAdminClient } from '@/lib/supabase/server'
 import EnvoiApercu from '@/components/admin/EnvoiApercu'
@@ -19,9 +19,8 @@ const EXEMPLE: LeadRelance = {
   montant: 59.97,
 }
 
-function delai(heures: number): string {
-  if (heures < 24) return `${heures} h après le clic`
-  return `J+${heures / 24}`
+function delai(minutes: number): string {
+  return minutes < 1440 ? `${libelleDelai(minutes)} après le clic` : libelleDelai(minutes)
 }
 
 /** Combien de relances sont parties, par étape. */
@@ -115,7 +114,7 @@ export default async function AdminRelancesPage() {
               <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 px-5 py-3.5 border-b border-gray-100">
                 <div className="min-w-0">
                   <p className="text-xs font-semibold uppercase tracking-wide text-brand-700">
-                    {etape}. {delai(DELAIS_HEURES[etape - 1])}
+                    {etape}. {delai(DELAIS_MINUTES[etape - 1])}
                   </p>
                   <p className="font-semibold text-ink mt-0.5">{m.sujet}</p>
                 </div>

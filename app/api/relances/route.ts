@@ -2,14 +2,19 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/server'
 import { ADMIN_COOKIE, verifyToken } from '@/lib/admin/session'
 import { envoyer, emailConfigure } from '@/lib/emails/envoi'
-import { composer, DELAIS_HEURES, NB_ETAPES, type LeadRelance } from '@/lib/emails/relances'
+import { composer, DELAIS_MINUTES, NB_ETAPES, type LeadRelance } from '@/lib/emails/relances'
 import { signerLead } from '@/lib/emails/jeton'
 
 /**
  * Envoi des relances dues.
  *
- * Déclenchée toutes les heures par le planificateur de Vercel
+ * Déclenchée toutes les cinq minutes par le planificateur de Vercel
  * (`vercel.json`), et manuellement depuis l'espace d'administration.
+ *
+ * ⚠️ Cette fréquence n'est pas arbitraire : elle doit rester nettement
+ * plus courte que le premier délai de la séquence, trente minutes. Un
+ * message dû n'est envoyé qu'au passage suivant. Repasser le
+ * planificateur à l'heure annulerait le réglage sans rien signaler.
  *
  * Le créneau est réservé en base AVANT l'envoi, pas après. Deux exécutions
  * qui se chevauchent écriraient sinon la même étape deux fois, et le
@@ -31,6 +36,16 @@ const LOT_MAX = 25
 const PAUSE_MS = 600
 /** Passé ce délai, une tentative d'achat est trop vieille pour être relancée. */
 const FENETRE_JOURS = 12
+/**
+ * Espacement minimal entre deux messages à la même personne.
+ *
+ * Le calendrier normal laisse au moins deux heures et demie entre deux
+ * étapes, cette règle n'y change rien. Elle protège d'un cas particulier :
+ * une adresse laissée il y a plusieurs heures a d'un coup deux ou trois
+ * étapes échues. Sans ce garde-fou, elle les recevrait à quelques minutes
+ * d'intervalle, ce qui ressemble à du harcèlement et finit en signalement.
+ */
+const ESPACEMENT_MIN_MS = 2 * 3600_000
 
 const SITE = (process.env.NEXT_PUBLIC_SITE_URL ?? 'https://www.bois-tresor.com').replace(/\/$/, '')
 
@@ -71,14 +86,17 @@ async function traiter(): Promise<Bilan | { erreur: string }> {
 
   const { data: deja } = await supabase
     .from('relances')
-    .select('lead_id, etape')
+    .select('lead_id, etape, envoye_a')
     .in('lead_id', (leads ?? []).map((l) => l.id as string))
 
-  /* Étape la plus avancée déjà écrite, par lead. */
+  /* Étape la plus avancée déjà écrite, et date du dernier envoi, par lead. */
   const avancement = new Map<string, number>()
+  const dernierEnvoi = new Map<string, number>()
   for (const r of deja ?? []) {
     const id = r.lead_id as string
     avancement.set(id, Math.max(avancement.get(id) ?? 0, Number(r.etape)))
+    const quand = new Date(r.envoye_a as string).getTime()
+    dernierEnvoi.set(id, Math.max(dernierEnvoi.get(id) ?? 0, quand))
   }
 
   const bilan: Bilan = { examines: leads?.length ?? 0, envoyes: 0, echecs: 0, details: [] }
@@ -89,8 +107,13 @@ async function traiter(): Promise<Bilan | { erreur: string }> {
     const etape = (avancement.get(lead.id as string) ?? 0) + 1
     if (etape > NB_ETAPES) continue
 
-    const du = new Date(lead.created_at as string).getTime() + DELAIS_HEURES[etape - 1] * 3600_000
+    const du = new Date(lead.created_at as string).getTime() + DELAIS_MINUTES[etape - 1] * 60_000
     if (du > Date.now()) continue
+
+    /* Deux messages ne partent jamais coup sur coup, même si deux étapes
+       sont échues en même temps. */
+    const precedent = dernierEnvoi.get(lead.id as string)
+    if (precedent && Date.now() - precedent < ESPACEMENT_MIN_MS) continue
 
     /* Réservation du créneau. Un conflit signifie qu'une autre exécution
        s'en occupe déjà : on la laisse faire. */
