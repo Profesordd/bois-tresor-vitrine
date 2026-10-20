@@ -90,8 +90,9 @@ quatrième sans la fenêtre rouvrirait la fuite.
 
 **Séquence de relance** (20/10/2026, `lib/emails/`, `/api/relances/`) :
 cinq messages à qui n'est pas allé au bout du paiement, à 1 h, 6 h, J+1,
-J+3 et J+7. Deux le premier jour, parce que l'essentiel d'un panier
-abandonné se récupère dans les premières heures. Déclenchée toutes les
+J+2 et J+3. Deux le premier jour, puis un par jour. Ces délais disent
+quand un message devient dû, pas quand il part : le planificateur passe
+au début de chaque heure, un message dû à 13 h 10 est envoyé à 14 h. Déclenchée toutes les
 heures par le planificateur Vercel (`vercel.json`, en-tête `CRON_SECRET`),
 et à la main depuis `/admin/leads/`. Les cinq messages sont lisibles dans
 `/admin/relances/`.

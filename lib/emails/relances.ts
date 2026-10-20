@@ -6,8 +6,10 @@ import { buildCheckoutUrl } from '@/lib/checkout'
 /**
  * Les cinq relances envoyées après un paiement non abouti.
  *
- * Calendrier : 1 h, 6 h, J+1, J+3, J+7. Deux le premier jour, parce que
- * l'essentiel d'un panier abandonné se récupère dans les premières heures.
+ * Calendrier : 1 h, 6 h, J+1, J+2, J+3. Deux messages le premier jour,
+ * puis un par jour. L'essentiel d'un panier abandonné se récupère dans les
+ * premières heures, et au-delà de trois jours un prospect qui n'a pas
+ * répondu a trouvé son bois ailleurs.
  *
  * Chaque message porte les deux mêmes ressorts, dans cet ordre :
  *   1. la réassurance, parce que la première crainte de ce public n'est pas
@@ -36,8 +38,15 @@ export interface LeadRelance {
 
 const SITE = (process.env.NEXT_PUBLIC_SITE_URL ?? 'https://www.bois-tresor.com').replace(/\/$/, '')
 
-/** Délais depuis le clic, en heures. L'index vaut l'étape moins un. */
-export const DELAIS_HEURES = [1, 6, 24, 72, 168] as const
+/**
+ * Délais depuis le clic, en heures. L'index vaut l'étape moins un.
+ *
+ * ⚠️ C'est le moment où le message devient DÛ, pas celui où il part. Le
+ * planificateur passe au début de chaque heure : un message dû à 13 h 10
+ * est envoyé à 14 h. Resserrer ce décalage demande un passage plus
+ * fréquent dans `vercel.json`.
+ */
+export const DELAIS_HEURES = [1, 6, 24, 48, 72] as const
 export const NB_ETAPES = DELAIS_HEURES.length
 
 /**
