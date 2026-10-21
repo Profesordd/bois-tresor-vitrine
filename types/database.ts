@@ -39,6 +39,12 @@ export interface Lot {
   /** null tant que le produit Shopify n'existe pas : le lot est alors masqué. */
   variantId: string | null
   checkoutMultiplier: number
+  /**
+   * Nombre d’exemplaires commandables en une fois, sur le checkout
+   * maison. Absent vaut un seul : le sélecteur de quantité ne s’affiche
+   * alors pas. Réservé aux lots où la demande existe, la palette.
+   */
+  quantiteMax?: number
 }
 
 export interface Product {

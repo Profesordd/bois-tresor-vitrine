@@ -41,6 +41,18 @@ export function prixAuSacMinimum(product: Product): number | null {
   return lots.length > 0 ? Math.min(...lots.map((l) => l.price / l.sacs)) : null
 }
 
+/**
+ * Combien d’exemplaires de ce lot peuvent partir dans une commande.
+ *
+ * Le navigateur s’en sert pour afficher le sélecteur, le serveur pour
+ * borner ce qu’il reçoit. Une seule source : une quantité fabriquée à la
+ * main dans la requête ne peut pas dépasser ce que la fiche autorise.
+ */
+export function quantiteMaximum(lot: Lot | null): number {
+  const max = lot?.quantiteMax ?? 1
+  return Math.min(10, Math.max(1, Math.floor(max)))
+}
+
 export function libelleLot(lot: Lot): string {
   return lot.label ?? `${lot.sacs} sacs`
 }

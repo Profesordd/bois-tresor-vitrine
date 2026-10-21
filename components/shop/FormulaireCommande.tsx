@@ -8,6 +8,7 @@ import { formatPrice } from '@/lib/utils'
 import { REVIEW_RATING, REVIEW_COUNT } from '@/lib/reviews'
 import Image from 'next/image'
 import ProductVisual from '@/components/shop/ProductVisual'
+import { quantiteMaximum } from '@/lib/lots'
 import { getSession } from '@/lib/analytics/track'
 import { trackInitiateCheckout, trackAddPaymentInfo, attendreLePixel } from '@/lib/analytics/meta'
 
@@ -68,6 +69,13 @@ export default function FormulaireCommande({ product, lot, montant }: Props) {
     prenom: '', nom: '', email: '', telephone: '',
     adresse: '', complement: '', codePostal: '', ville: '', pays: 'FR',
   })
+  /* Quantité : seuls les lots qui l’autorisent affichent le sélecteur,
+     et le serveur reborne de toute façon ce qu’il reçoit. Le total reste
+     indicatif ici : celui qui est débité vient du catalogue. */
+  const maxQuantite = quantiteMaximum(lot)
+  const [quantite, setQuantite] = useState(1)
+  const total = Math.round(montant * quantite * 100) / 100
+
   const [carte, setCarte] = useState({
     numero: '', mois: '01', annee: String(new Date().getFullYear() + 2), cvv: '', titulaire: '',
   })
@@ -131,7 +139,7 @@ export default function FormulaireCommande({ product, lot, montant }: Props) {
     /* `AddPaymentInfo` : coordonnées et carte saisies, le paiement part.
        Le pixel est chargé depuis longtemps à ce stade, l'attente se résout
        immédiatement. */
-    void attendreLePixel(1000).then(() => trackAddPaymentInfo(product, montant))
+    void attendreLePixel(1000).then(() => trackAddPaymentInfo(product, total))
 
     try {
       const r1 = await fetch('/api/commande/', {
@@ -140,6 +148,7 @@ export default function FormulaireCommande({ product, lot, montant }: Props) {
         body: JSON.stringify({
           produitSlug: product.slug,
           lot: lot?.id ?? null,
+          quantite,
           ...client,
           sessionId: getSession().id || null,
         }),
@@ -408,7 +417,7 @@ export default function FormulaireCommande({ product, lot, montant }: Props) {
             className="w-full bg-brand-600 hover:bg-brand-700 text-white py-4 rounded-lg font-bold text-[17px] flex items-center justify-center gap-2.5 transition-colors shadow-sm"
           >
             <Lock size={19} />
-            Payer {formatPrice(montant)}
+            Payer {formatPrice(total)}
           </button>
 
           {/* Les vrais logos plutôt que des étiquettes grises : ce public
@@ -438,10 +447,42 @@ export default function FormulaireCommande({ product, lot, montant }: Props) {
               </div>
             </div>
 
+            {maxQuantite > 1 && (
+              <div className="flex items-center justify-between border-t border-gray-100 mt-3 pt-3">
+                <span className="text-[14px] font-bold text-ink">Quantité</span>
+                <div className="inline-flex items-center rounded-lg border border-gray-300 overflow-hidden">
+                  <button
+                    type="button"
+                    onClick={() => setQuantite((q) => Math.max(1, q - 1))}
+                    disabled={quantite <= 1}
+                    aria-label="Retirer une palette"
+                    className="px-3 py-1 text-xl leading-none text-gray-700 hover:bg-gray-50 disabled:text-gray-300 disabled:hover:bg-white"
+                  >
+                    &minus;
+                  </button>
+                  <span className="px-3 text-[15px] font-bold text-ink tabular-nums">{quantite}</span>
+                  <button
+                    type="button"
+                    onClick={() => setQuantite((q) => Math.min(maxQuantite, q + 1))}
+                    disabled={quantite >= maxQuantite}
+                    aria-label="Ajouter une palette"
+                    className="px-3 py-1 text-xl leading-none text-gray-700 hover:bg-gray-50 disabled:text-gray-300 disabled:hover:bg-white"
+                  >
+                    +
+                  </button>
+                </div>
+              </div>
+            )}
+
             <div className="flex justify-between items-baseline border-t border-gray-100 mt-3 pt-3">
               <span className="text-[15px] font-bold text-ink">Total</span>
-              <span className="text-xl font-bold text-ink">{formatPrice(montant)}</span>
+              <span className="text-xl font-bold text-ink">{formatPrice(total)}</span>
             </div>
+            {quantite > 1 && (
+              <p className="text-[13px] text-gray-500 text-right">
+                {quantite} × {formatPrice(montant)}
+              </p>
+            )}
             <p className="text-[13px] text-brand-700 font-semibold text-right">Livraison offerte</p>
 
             <p className="flex items-center gap-1.5 mt-3 pt-3 border-t border-gray-100 text-[13px] text-gray-500">

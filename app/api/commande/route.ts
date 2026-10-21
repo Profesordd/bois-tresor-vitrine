@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/server'
 import { getProductBySlug } from '@/lib/products'
-import { lotsDisponibles } from '@/lib/lots'
+import { lotsDisponibles, quantiteMaximum } from '@/lib/lots'
 import { estUnRobot } from '@/lib/analytics/geo'
 
 /**
@@ -49,7 +49,12 @@ export async function POST(req: NextRequest) {
   const lot = lots.length > 0
     ? (lots.find((l) => l.id === b?.lot) ?? lots[0])
     : null
-  const montantCents = Math.round((lot ? lot.price : produit.price) * 100)
+  const demandee = Number(b?.quantite)
+  const quantite = Number.isFinite(demandee)
+    ? Math.min(quantiteMaximum(lot), Math.max(1, Math.floor(demandee)))
+    : 1
+  const unitaireCents = Math.round((lot ? lot.price : produit.price) * 100)
+  const montantCents = unitaireCents * quantite
   if (!Number.isInteger(montantCents) || montantCents <= 0) {
     return NextResponse.json({ error: 'Montant indisponible' }, { status: 400 })
   }
@@ -78,9 +83,10 @@ export async function POST(req: NextRequest) {
     .insert({
       reference: reference(),
       produit_slug: produit.slug,
-      produit_nom: lot ? `${produit.name} — ${lot.poids}` : produit.name,
+      produit_nom: (lot ? `${produit.name} — ${lot.poids}` : produit.name)
+        + (quantite > 1 ? ` × ${quantite}` : ''),
       lot: lot?.id ?? null,
-      quantite: 1,
+      quantite,
       montant_cents: montantCents,
       ...champs,
       email: champs.email!.toLowerCase(),
