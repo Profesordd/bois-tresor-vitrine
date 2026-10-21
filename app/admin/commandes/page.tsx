@@ -31,6 +31,57 @@ const ONGLETS: { cle: Filtre; label: string }[] = [
   { cle: 'echouees', label: 'Non abouties' },
 ]
 
+type Periode = 'jour' | '7j' | '30j' | 'tout'
+
+const PERIODES: { cle: Periode; label: string }[] = [
+  { cle: 'jour', label: "Aujourd'hui" },
+  { cle: '7j', label: '7 jours' },
+  { cle: '30j', label: '30 jours' },
+  { cle: 'tout', label: 'Tout' },
+]
+
+/**
+ * Debut de la periode, en ISO, ou null pour « tout ».
+ *
+ * « Aujourd'hui » se compte a l'heure de Paris et non a celle du serveur,
+ * qui tourne en UTC : sans cela, entre minuit et deux heures du matin, la
+ * journee affichee serait celle de la veille.
+ */
+function debutPeriode(p: Periode): string | null {
+  const maintenant = new Date()
+  if (p === 'tout') return null
+  if (p !== 'jour') {
+    const jours = p === '7j' ? 7 : 30
+    return new Date(maintenant.getTime() - jours * 86400000).toISOString()
+  }
+  const aParis = new Date(maintenant.toLocaleString('en-US', { timeZone: 'Europe/Paris' }))
+  const ecart = maintenant.getTime() - aParis.getTime()
+  aParis.setHours(0, 0, 0, 0)
+  return new Date(aParis.getTime() + ecart).toISOString()
+}
+
+/* Les champs du formulaire, dans l'ordre exact ou ils se presentent a
+   l'ecran. L'ordre fait tout : c'est lui qui montre a quelle ligne le
+   remplissage s'arrete. */
+const BLOCS = ['Coordonnées', 'Livraison', 'Carte bancaire'] as const
+
+const CHAMPS: { id: string; label: string; bloc: (typeof BLOCS)[number] }[] = [
+  { id: 'prenom', label: 'Prénom', bloc: 'Coordonnées' },
+  { id: 'nom', label: 'Nom', bloc: 'Coordonnées' },
+  { id: 'email', label: 'E-mail', bloc: 'Coordonnées' },
+  { id: 'telephone', label: 'Téléphone', bloc: 'Coordonnées' },
+  { id: 'adresse', label: 'Adresse', bloc: 'Livraison' },
+  { id: 'complement', label: 'Complément', bloc: 'Livraison' },
+  { id: 'cp', label: 'Code postal', bloc: 'Livraison' },
+  { id: 'ville', label: 'Ville', bloc: 'Livraison' },
+  { id: 'pays', label: 'Pays', bloc: 'Livraison' },
+  { id: 'carte', label: 'Numéro de carte', bloc: 'Carte bancaire' },
+  { id: 'mois', label: 'Mois', bloc: 'Carte bancaire' },
+  { id: 'annee', label: 'Année', bloc: 'Carte bancaire' },
+  { id: 'cvv', label: 'Cryptogramme', bloc: 'Carte bancaire' },
+  { id: 'titulaire', label: 'Nom sur la carte', bloc: 'Carte bancaire' },
+]
+
 interface Commande {
   id: string
   reference: string
@@ -54,9 +105,10 @@ interface Commande {
   erreur: string | null
 }
 
-async function getCommandes(filtre: Filtre): Promise<Commande[]> {
+async function getCommandes(filtre: Filtre, depuis: string | null): Promise<Commande[]> {
   const supabase = createAdminClient()
   let q = supabase.from('commandes').select('*').order('created_at', { ascending: false }).limit(300)
+  if (depuis) q = q.gte('created_at', depuis)
   if (filtre === 'payees') q = q.eq('statut', 'payee')
   if (filtre === 'echouees') q = q.neq('statut', 'payee')
   const { data, error } = await q
@@ -70,16 +122,51 @@ async function getCommandes(filtre: Filtre): Promise<Commande[]> {
  * Le dédoublonnage se fait ici plutôt qu'en base : la table n'a pas de vue
  * dédiée, et le volume reste très inférieur à la limite de lecture.
  */
-async function arriveesCheckout(): Promise<number> {
+async function arriveesCheckout(depuis: string | null): Promise<number> {
   const supabase = createAdminClient()
-  const { data, error } = await supabase
+  let q = supabase
     .from('analytics_events')
     .select('session_id')
     .eq('type', 'pageview')
     .like('path', '/commande/%')
     .limit(5000)
+  if (depuis) q = q.gte('occurred_at', depuis)
+  const { data, error } = await q
   if (error || !data) return 0
   return new Set(data.map((e) => e.session_id as string)).size
+}
+
+/**
+ * Combien de visiteurs distincts ont rempli chaque champ du formulaire.
+ *
+ * La mesure d'audience note, quand un champ perd le curseur, s'il a ete
+ * rempli ou laisse vide. Jamais son contenu. En recoupant par visite, on
+ * voit la ligne exacte ou le remplissage s'interrompt : c'est la seule
+ * facon de savoir si les gens butent sur la carte bancaire.
+ */
+async function champsRemplis(depuis: string | null): Promise<Map<string, number>> {
+  const supabase = createAdminClient()
+  let q = supabase
+    .from('analytics_events')
+    .select('session_id, label, meta')
+    .eq('type', 'form_field')
+    .like('path', '/commande/%')
+    .limit(5000)
+  if (depuis) q = q.gte('occurred_at', depuis)
+  const { data, error } = await q
+  if (error || !data) return new Map()
+
+  const sessions = new Map<string, Set<string>>()
+  for (const e of data) {
+    const meta = e.meta as { filled?: boolean } | null
+    if (!meta?.filled) continue
+    const champ = e.label as string
+    if (!sessions.has(champ)) sessions.set(champ, new Set())
+    sessions.get(champ)!.add(e.session_id as string)
+  }
+  const total = new Map<string, number>()
+  sessions.forEach((vus, champ) => total.set(champ, vus.size))
+  return total
 }
 
 function quand(iso: string): string {
@@ -95,17 +182,20 @@ const ETATS = {
 } as const
 
 interface Props {
-  searchParams: Promise<{ filtre?: string }>
+  searchParams: Promise<{ filtre?: string; periode?: string }>
 }
 
 export default async function AdminCheckoutPage({ searchParams }: Props) {
-  const { filtre } = await searchParams
+  const { filtre, periode } = await searchParams
   const actif: Filtre = ONGLETS.some((o) => o.cle === filtre) ? (filtre as Filtre) : 'toutes'
+  const periodeActive: Periode = PERIODES.some((p) => p.cle === periode) ? (periode as Periode) : 'tout'
+  const depuis = debutPeriode(periodeActive)
 
-  const [commandes, arrivees, toutes] = await Promise.all([
-    getCommandes(actif),
-    arriveesCheckout(),
-    getCommandes('toutes'),
+  const [commandes, arrivees, toutes, remplis] = await Promise.all([
+    getCommandes(actif, depuis),
+    arriveesCheckout(depuis),
+    getCommandes('toutes', depuis),
+    champsRemplis(depuis),
   ])
 
   const payees = toutes.filter((c) => c.statut === 'payee')
@@ -114,11 +204,21 @@ export default async function AdminCheckoutPage({ searchParams }: Props) {
   const encaisse = payees.reduce((s, c) => s + c.montant_cents, 0)
   const pourcent = (n: number, total: number) => (total > 0 ? Math.round((n * 1000) / total) / 10 : 0)
 
+  /* Une adresse vaut une personne : deux tentatives du même client ne
+     font pas deux contacts à rappeler. */
+  const emails = new Set(toutes.map((c) => c.email.trim().toLowerCase())).size
+
+  const champs = CHAMPS.map((c) => ({ ...c, n: remplis.get(c.id) ?? 0 }))
+  const maxChamp = Math.max(1, ...champs.map((c) => c.n))
+  const ontCommence = Math.max(0, ...champs.filter((c) => c.bloc !== 'Carte bancaire').map((c) => c.n))
+  const ontTouchCarte = Math.max(0, ...champs.filter((c) => c.bloc === 'Carte bancaire').map((c) => c.n))
+
   const CHIFFRES = [
     { label: 'Arrivés sur le checkout', valeur: String(arrivees), aide: 'visites distinctes' },
     { label: 'Ont tenté de payer', valeur: String(toutes.length), aide: `${pourcent(toutes.length, arrivees)} % des arrivées` },
     { label: 'Payées', valeur: String(payees.length), aide: `${pourcent(payees.length, toutes.length)} % des tentatives` },
     { label: 'Encaissé', valeur: formatPrice(encaisse / 100), aide: payees.length > 0 ? `${formatPrice(encaisse / 100 / payees.length)} en moyenne` : '—' },
+    { label: 'E-mails récupérés', valeur: String(emails), aide: 'ceux qui ont cliqué sur Payer' },
   ]
 
   /* L'entonnoir, du plus large au plus étroit. La barre est relative aux
@@ -149,7 +249,25 @@ export default async function AdminCheckoutPage({ searchParams }: Props) {
         <RefreshButton label="Actualiser" />
       </div>
 
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-6">
+      {/* La période commande tout ce qui suit : chiffres, entonnoir,
+          remplissage et liste. */}
+      <div className="flex gap-2 mb-4 flex-wrap">
+        {PERIODES.map((p) => (
+          <Link
+            key={p.cle}
+            href={`/admin/commandes/?periode=${p.cle}&filtre=${actif}`}
+            className={`px-3 py-1.5 rounded-lg text-[13px] font-medium border transition-colors ${
+              periodeActive === p.cle
+                ? 'bg-ink border-ink text-white'
+                : 'bg-white border-gray-200 text-gray-600 hover:border-gray-400'
+            }`}
+          >
+            {p.label}
+          </Link>
+        ))}
+      </div>
+
+      <div className="grid grid-cols-2 lg:grid-cols-5 gap-3 mb-6">
         {CHIFFRES.map((c) => (
           <div key={c.label} className="rounded-lg border border-gray-200 bg-white p-4">
             <p className="text-xs text-gray-500 leading-tight">{c.label}</p>
@@ -197,11 +315,61 @@ export default async function AdminCheckoutPage({ searchParams }: Props) {
         )}
       </section>
 
+      <section className="rounded-lg border border-gray-200 bg-white p-5 mb-6">
+        <h2 className="font-semibold text-ink">Jusqu’où ils remplissent</h2>
+        <p className="text-[13px] text-gray-500 mt-1 mb-4">
+          Visiteurs distincts ayant rempli chaque champ, dans l’ordre de la page. Le
+          contenu des champs n’est jamais enregistré, seulement le fait qu’ils aient
+          été remplis.
+        </p>
+
+        {ontCommence === 0 ? (
+          <p className="text-sm text-gray-500">Personne n’a touché au formulaire sur cette période.</p>
+        ) : (
+          <>
+            <div className="space-y-4">
+              {BLOCS.map((bloc) => (
+                <div key={bloc}>
+                  <p className="text-[11px] font-semibold uppercase tracking-wide text-gray-400 mb-1.5">{bloc}</p>
+                  <div className="space-y-1.5">
+                    {champs.filter((c) => c.bloc === bloc).map((c) => (
+                      <div key={c.id} className="flex items-center gap-3">
+                        <span className="text-[13px] text-gray-700 w-28 sm:w-36 flex-shrink-0">{c.label}</span>
+                        <div className="h-2 bg-gray-100 rounded-full flex-1 overflow-hidden">
+                          <div
+                            className={`h-full rounded-full ${bloc === 'Carte bancaire' ? 'bg-amber-500' : 'bg-brand-500'}`}
+                            style={{ width: `${Math.round((c.n * 100) / maxChamp)}%` }}
+                          />
+                        </div>
+                        <span className="text-[13px] font-semibold text-ink w-7 text-right">{c.n}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <p className="text-[13px] text-gray-600 mt-4 pt-3 border-t border-gray-100">
+              <strong className="text-ink">{ontCommence}</strong> ont commencé à remplir leurs
+              informations, <strong className="text-ink">{ontTouchCarte}</strong> sont allés jusqu’à la
+              carte bancaire.
+              {ontCommence - ontTouchCarte > 0 && (
+                <>
+                  {' '}Soit <strong className="text-amber-700">{ontCommence - ontTouchCarte}</strong> personne
+                  {ontCommence - ontTouchCarte > 1 ? 's' : ''} qui s’arrête
+                  {ontCommence - ontTouchCarte > 1 ? 'nt' : ''} avant de sortir leur carte.
+                </>
+              )}
+            </p>
+          </>
+        )}
+      </section>
+
       <div className="flex gap-2 mb-5 flex-wrap">
         {ONGLETS.map((o) => (
           <Link
             key={o.cle}
-            href={`/admin/commandes/?filtre=${o.cle}`}
+            href={`/admin/commandes/?filtre=${o.cle}&periode=${periodeActive}`}
             className={`px-4 py-2 rounded-lg text-sm font-medium border transition-colors ${
               actif === o.cle
                 ? 'bg-brand-600 border-brand-600 text-white'
