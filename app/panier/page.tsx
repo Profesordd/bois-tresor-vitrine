@@ -31,6 +31,18 @@ export default function PanierPage() {
   const canCheckout = unavailable.length === 0 && items.length > 0
 
   function handleCheckout() {
+    /* Un article réglé sur le site emmène toute la commande vers notre
+       checkout : il recueille déjà l'adresse, l'e-mail et le téléphone, la
+       fenêtre de collecte n'a plus lieu d'être. */
+    const interne = items.find((i) => i.product.checkoutInterne)
+    if (interne) {
+      setRedirecting(true)
+      const lot = interne.product.lot?.id
+      window.location.href =
+        `/commande/${interne.product.slug}/${lot ? `?lot=${encodeURIComponent(lot)}` : ''}`
+      return
+    }
+
     const url = buildCheckoutUrl(items)
     if (!url) return
     setCollecte(url)

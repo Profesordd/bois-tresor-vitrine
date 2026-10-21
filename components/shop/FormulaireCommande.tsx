@@ -6,9 +6,10 @@ import { Lock, Shield, Truck, AlertTriangle, Loader2, CreditCard, Star, Check } 
 import type { Product, Lot } from '@/types/database'
 import { formatPrice } from '@/lib/utils'
 import { REVIEW_RATING, REVIEW_COUNT } from '@/lib/reviews'
+import Image from 'next/image'
 import ProductVisual from '@/components/shop/ProductVisual'
 import { getSession } from '@/lib/analytics/track'
-import { trackInitiateCheckout, trackAddPaymentInfo } from '@/lib/analytics/meta'
+import { trackInitiateCheckout, trackAddPaymentInfo, attendreLePixel } from '@/lib/analytics/meta'
 
 /**
  * Checkout maison, paiement par carte sur le site.
@@ -78,7 +79,13 @@ export default function FormulaireCommande({ product, lot, montant }: Props) {
   useEffect(() => {
     if (checkoutMesure.current) return
     checkoutMesure.current = true
-    trackInitiateCheckout(product, montant)
+    /* ⚠️ Attendre le pixel AVANT d'envoyer. L'événement part à l'instant où
+       la page se monte, et le script du pixel n'est pas encore chargé :
+       sans cette attente, le navigateur n'envoie rien et seul le serveur
+       compte. C'est ce qui faisait apparaître les AddToCart dans Meta sans
+       aucun InitiateCheckout. L'attente précède l'envoi et ne le répète
+       pas : réessayer créerait plusieurs événements serveur. */
+    void attendreLePixel(2000).then(() => trackInitiateCheckout(product, montant))
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
@@ -121,8 +128,10 @@ export default function FormulaireCommande({ product, lot, montant }: Props) {
     }
     setErreur('')
     setEtape('envoi')
-    /* `AddPaymentInfo` : coordonnées et carte saisies, le paiement part. */
-    trackAddPaymentInfo(product, montant)
+    /* `AddPaymentInfo` : coordonnées et carte saisies, le paiement part.
+       Le pixel est chargé depuis longtemps à ce stade, l'attente se résout
+       immédiatement. */
+    void attendreLePixel(1000).then(() => trackAddPaymentInfo(product, montant))
 
     try {
       const r1 = await fetch('/api/commande/', {
@@ -402,14 +411,16 @@ export default function FormulaireCommande({ product, lot, montant }: Props) {
             Payer {formatPrice(montant)}
           </button>
 
-          <div className="flex items-center justify-center gap-2.5 flex-wrap pt-0.5">
-            <span className="text-xs text-gray-400">Paiement sécurisé :</span>
-            {['Visa', 'Mastercard', 'CB', '3-D Secure'].map((l) => (
-              <span key={l} className="text-[10px] font-bold bg-gray-100 text-gray-500 px-2 py-1 rounded border border-gray-200 tracking-wide">
-                {l}
-              </span>
-            ))}
-          </div>
+          {/* Les vrais logos plutôt que des étiquettes grises : ce public
+              reconnaît Visa, Mastercard et CB d'un coup d'œil, là où du
+              texte ne rassure personne. */}
+          <Image
+            src="/paiement-securise.png"
+            alt="Paiement 100 % sécurisé, Visa, Mastercard et CB"
+            width={900}
+            height={435}
+            className="w-full max-w-[260px] h-auto mx-auto"
+          />
         </form>
 
         {/* ── Récapitulatif, réduit au strict nécessaire. Le client est
