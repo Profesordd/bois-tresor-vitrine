@@ -1,31 +1,34 @@
 import Link from 'next/link'
-import { ArrowLeft, Receipt, Check, Clock, X, Phone, Mail } from 'lucide-react'
+import { ArrowLeft, Receipt, Check, Clock, X, Phone, Mail, MapPin } from 'lucide-react'
 import { createAdminClient } from '@/lib/supabase/server'
 import { formatPrice } from '@/lib/utils'
 import RefreshButton from '@/components/admin/RefreshButton'
 
 export const dynamic = 'force-dynamic'
-export const metadata = { title: 'Commandes' }
+export const metadata = { title: 'Checkout' }
 
 /**
- * Les commandes passées par le checkout maison.
+ * Tableau de bord du checkout maison.
  *
- * Les paiements réglés chez le prestataire externe n'apparaissent pas ici :
- * il ne nous rend rien. Cette page ne montre que ce qui est encaissé par
- * CAWL, sur les fiches basculées.
+ * Ne montre que ce qui passe par notre page de paiement : les commandes
+ * réglées chez le prestataire externe n'apparaissent pas, il ne nous rend
+ * rien.
  *
- * Trois états. « Payée » vient du serveur CAWL, jamais du navigateur. « En
- * attente » signifie que le client a commencé et n'est pas allé au bout, ou
- * qu'il a fermé sa page entre la banque et nous. « Refusée » est un refus
- * constaté, avec son motif.
+ * L'entonnoir croise deux sources. Les arrivées viennent de la mesure
+ * d'audience, qui compte les visites distinctes sur `/commande/` ; les
+ * tentatives et les paiements viennent de la table des commandes. Un
+ * visiteur qui arrive et repart sans rien remplir n'existe donc que dans
+ * la première, et c'est précisément ce qu'on veut voir.
+ *
+ * « Payée » vient toujours du serveur CAWL, jamais du navigateur.
  */
 
-type Filtre = 'payees' | 'attente' | 'toutes'
+type Filtre = 'toutes' | 'payees' | 'echouees'
 
 const ONGLETS: { cle: Filtre; label: string }[] = [
-  { cle: 'payees', label: 'Payées' },
-  { cle: 'attente', label: 'En attente' },
   { cle: 'toutes', label: 'Toutes' },
+  { cle: 'payees', label: 'Payées' },
+  { cle: 'echouees', label: 'Non abouties' },
 ]
 
 interface Commande {
@@ -53,25 +56,30 @@ interface Commande {
 
 async function getCommandes(filtre: Filtre): Promise<Commande[]> {
   const supabase = createAdminClient()
-  let q = supabase.from('commandes').select('*').order('created_at', { ascending: false }).limit(200)
+  let q = supabase.from('commandes').select('*').order('created_at', { ascending: false }).limit(300)
   if (filtre === 'payees') q = q.eq('statut', 'payee')
-  if (filtre === 'attente') q = q.neq('statut', 'payee')
+  if (filtre === 'echouees') q = q.neq('statut', 'payee')
   const { data, error } = await q
   if (error || !data) return []
   return data as Commande[]
 }
 
-async function compter(): Promise<{ payees: number; total: number; recette: number }> {
+/**
+ * Visites distinctes arrivées sur le checkout.
+ *
+ * Le dédoublonnage se fait ici plutôt qu'en base : la table n'a pas de vue
+ * dédiée, et le volume reste très inférieur à la limite de lecture.
+ */
+async function arriveesCheckout(): Promise<number> {
   const supabase = createAdminClient()
-  const { data } = await supabase.from('commandes').select('statut, montant_cents').limit(5000)
-  const lignes = data ?? []
-  return {
-    payees: lignes.filter((l) => l.statut === 'payee').length,
-    total: lignes.length,
-    recette: lignes
-      .filter((l) => l.statut === 'payee')
-      .reduce((s, l) => s + Number(l.montant_cents), 0),
-  }
+  const { data, error } = await supabase
+    .from('analytics_events')
+    .select('session_id')
+    .eq('type', 'pageview')
+    .like('path', '/commande/%')
+    .limit(5000)
+  if (error || !data) return 0
+  return new Set(data.map((e) => e.session_id as string)).size
 }
 
 function quand(iso: string): string {
@@ -82,7 +90,7 @@ function quand(iso: string): string {
 
 const ETATS = {
   payee: { libelle: 'Payée', classe: 'bg-brand-100 text-brand-800', icone: Check },
-  en_attente: { libelle: 'En attente', classe: 'bg-amber-100 text-amber-800', icone: Clock },
+  en_attente: { libelle: 'Abandonnée', classe: 'bg-amber-100 text-amber-800', icone: Clock },
   refusee: { libelle: 'Refusée', classe: 'bg-red-100 text-red-800', icone: X },
 } as const
 
@@ -90,11 +98,36 @@ interface Props {
   searchParams: Promise<{ filtre?: string }>
 }
 
-export default async function AdminCommandesPage({ searchParams }: Props) {
+export default async function AdminCheckoutPage({ searchParams }: Props) {
   const { filtre } = await searchParams
-  const actif: Filtre = ONGLETS.some((o) => o.cle === filtre) ? (filtre as Filtre) : 'payees'
+  const actif: Filtre = ONGLETS.some((o) => o.cle === filtre) ? (filtre as Filtre) : 'toutes'
 
-  const [commandes, bilan] = await Promise.all([getCommandes(actif), compter()])
+  const [commandes, arrivees, toutes] = await Promise.all([
+    getCommandes(actif),
+    arriveesCheckout(),
+    getCommandes('toutes'),
+  ])
+
+  const payees = toutes.filter((c) => c.statut === 'payee')
+  const refusees = toutes.filter((c) => c.statut === 'refusee')
+  const abandonnees = toutes.filter((c) => c.statut === 'en_attente')
+  const encaisse = payees.reduce((s, c) => s + c.montant_cents, 0)
+  const pourcent = (n: number, total: number) => (total > 0 ? Math.round((n * 1000) / total) / 10 : 0)
+
+  const CHIFFRES = [
+    { label: 'Arrivés sur le checkout', valeur: String(arrivees), aide: 'visites distinctes' },
+    { label: 'Ont tenté de payer', valeur: String(toutes.length), aide: `${pourcent(toutes.length, arrivees)} % des arrivées` },
+    { label: 'Payées', valeur: String(payees.length), aide: `${pourcent(payees.length, toutes.length)} % des tentatives` },
+    { label: 'Encaissé', valeur: formatPrice(encaisse / 100), aide: payees.length > 0 ? `${formatPrice(encaisse / 100 / payees.length)} en moyenne` : '—' },
+  ]
+
+  /* L'entonnoir, du plus large au plus étroit. La barre est relative aux
+     arrivées : c'est la chute entre deux marches qui informe. */
+  const ETAPES = [
+    { libelle: 'Arrivés sur le checkout', n: arrivees },
+    { libelle: 'Ont rempli et tenté de payer', n: toutes.length },
+    { libelle: 'Paiement accepté', n: payees.length },
+  ]
 
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 py-10">
@@ -106,30 +139,65 @@ export default async function AdminCommandesPage({ searchParams }: Props) {
         <div>
           <h1 className="font-serif text-2xl sm:text-3xl font-bold text-ink flex items-center gap-2.5">
             <Receipt size={24} className="text-brand-600" />
-            Commandes
+            Checkout
           </h1>
           <p className="text-gray-500 text-sm mt-1">
-            Payées sur le site par carte. Les commandes réglées chez le prestataire externe
-            n’apparaissent pas ici.
+            Le paiement par carte sur le site. Les commandes réglées chez le prestataire
+            externe n’apparaissent pas ici.
           </p>
         </div>
         <RefreshButton label="Actualiser" />
       </div>
 
-      <div className="grid grid-cols-3 gap-3 mb-6">
-        {[
-          { label: 'Payées', valeur: String(bilan.payees) },
-          { label: 'Encaissé', valeur: formatPrice(bilan.recette / 100) },
-          { label: 'Tentatives', valeur: String(bilan.total) },
-        ].map((c) => (
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-6">
+        {CHIFFRES.map((c) => (
           <div key={c.label} className="rounded-lg border border-gray-200 bg-white p-4">
-            <p className="text-xs text-gray-500">{c.label}</p>
-            <p className="font-serif text-2xl font-bold text-ink mt-0.5">{c.valeur}</p>
+            <p className="text-xs text-gray-500 leading-tight">{c.label}</p>
+            <p className="font-serif text-2xl font-bold text-ink mt-1">{c.valeur}</p>
+            <p className="text-[11px] text-gray-400 mt-0.5">{c.aide}</p>
           </div>
         ))}
       </div>
 
-      <div className="flex gap-2 mb-6 flex-wrap">
+      <section className="rounded-lg border border-gray-200 bg-white p-5 mb-6">
+        <h2 className="font-semibold text-ink mb-4">Où ils s’arrêtent</h2>
+        <div className="space-y-3">
+          {ETAPES.map((e, i) => {
+            const largeur = arrivees > 0 ? Math.max(4, Math.round((e.n * 100) / arrivees)) : 0
+            const perdus = i > 0 ? ETAPES[i - 1].n - e.n : 0
+            return (
+              <div key={e.libelle}>
+                <div className="flex items-baseline justify-between gap-3 text-sm">
+                  <span className="text-gray-700">{e.libelle}</span>
+                  <span className="font-semibold text-ink whitespace-nowrap">
+                    {e.n}
+                    {i > 0 && arrivees > 0 && (
+                      <span className="font-normal text-gray-400"> · {pourcent(e.n, arrivees)} %</span>
+                    )}
+                  </span>
+                </div>
+                <div className="h-2 bg-gray-100 rounded-full mt-1 overflow-hidden">
+                  <div className="h-full bg-brand-500 rounded-full" style={{ width: `${largeur}%` }} />
+                </div>
+                {perdus > 0 && (
+                  <p className="text-[12px] text-amber-700 mt-1">
+                    {perdus} personne{perdus > 1 ? 's' : ''} perdue{perdus > 1 ? 's' : ''} à cette marche
+                  </p>
+                )}
+              </div>
+            )
+          })}
+        </div>
+        {refusees.length > 0 && (
+          <p className="text-[13px] text-gray-500 mt-4 pt-3 border-t border-gray-100">
+            Sur les non abouties : <strong className="text-ink">{refusees.length}</strong> refusée
+            {refusees.length > 1 ? 's' : ''} par la banque, <strong className="text-ink">{abandonnees.length}</strong> abandonnée
+            {abandonnees.length > 1 ? 's' : ''} en cours de paiement.
+          </p>
+        )}
+      </section>
+
+      <div className="flex gap-2 mb-5 flex-wrap">
         {ONGLETS.map((o) => (
           <Link
             key={o.cle}
@@ -147,7 +215,7 @@ export default async function AdminCommandesPage({ searchParams }: Props) {
 
       {commandes.length === 0 ? (
         <p className="rounded-lg border border-gray-200 bg-white p-8 text-center text-gray-500">
-          {actif === 'payees' ? 'Aucune commande payée pour l’instant.' : 'Rien à afficher.'}
+          Personne n’a encore rempli le formulaire de paiement.
         </p>
       ) : (
         <div className="space-y-3">
@@ -182,9 +250,10 @@ export default async function AdminCommandesPage({ searchParams }: Props) {
                   {c.lot && <span className="text-gray-500"> · lot {c.lot}</span>}
                 </p>
 
-                <div className="mt-3 pt-3 border-t border-gray-100 grid sm:grid-cols-2 gap-x-6 gap-y-1.5 text-[14px]">
-                  <p className="font-semibold text-ink">{c.prenom} {c.nom}</p>
-                  <p className="text-gray-600 sm:text-right">
+                <div className="mt-3 pt-3 border-t border-gray-100 space-y-1.5">
+                  <p className="font-semibold text-ink text-[15px]">{c.prenom} {c.nom}</p>
+                  <p className="flex items-start gap-1.5 text-[14px] text-gray-600">
+                    <MapPin size={14} className="text-gray-400 flex-shrink-0 mt-0.5" />
                     {c.adresse}
                     {c.complement && `, ${c.complement}`}
                     {`, ${c.code_postal} ${c.ville} (${c.pays})`}
@@ -204,9 +273,14 @@ export default async function AdminCommandesPage({ searchParams }: Props) {
                   >
                     <Phone size={14} /> {c.telephone}
                   </a>
+                  {c.statut !== 'payee' && (
+                    <span className="text-[13px] text-amber-700 ml-auto">
+                      À rappeler, le paiement n’a pas abouti
+                    </span>
+                  )}
                 </div>
 
-                {/* Le détail technique, utile quand il faut écrire au support CAWL. */}
+                {/* Le détail technique, à donner au support CAWL si besoin. */}
                 {(c.paiement_id || c.erreur) && (
                   <p className="text-[12px] text-gray-400 mt-3 break-all">
                     {c.paiement_id && <>paiement {c.paiement_id}</>}

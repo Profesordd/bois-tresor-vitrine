@@ -297,13 +297,13 @@ export default async function AdminDashboard({ searchParams }: Props) {
           <span>
             <span className="block font-semibold text-ink">
               {commandes.payees > 0
-                ? `${commandes.payees} commande${commandes.payees > 1 ? 's' : ''} payée${commandes.payees > 1 ? 's' : ''} sur le site`
-                : 'Commandes payées sur le site'}
+                ? `Checkout — ${commandes.payees} commande${commandes.payees > 1 ? 's' : ''} payée${commandes.payees > 1 ? 's' : ''}`
+                : 'Checkout'}
             </span>
             <span className="block text-sm text-gray-500">
               {commandes.payees > 0
-                ? `${formatPrice(commandes.recette / 100)} encaissés par carte.`
-                : 'Aucune commande encaissée par carte pour l’instant.'}
+                ? `${formatPrice(commandes.recette / 100)} encaissés par carte sur le site.`
+                : 'Paiement par carte sur le site : tentatives, abandons et encaissements.'}
             </span>
           </span>
         </span>
