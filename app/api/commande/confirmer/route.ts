@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/server'
 import { lirePaiement, capturerPaiement, STATUTS_REFUS, STATUTS_DEJA_ENCAISSES } from '@/lib/cawl'
+import { envoyerCapi } from '@/lib/analytics/capi'
 
 /**
  * Confirmation d'une commande après le 3-D Secure.
@@ -18,7 +19,7 @@ export async function POST(req: NextRequest) {
   const supabase = createAdminClient()
   const { data: commande } = await supabase
     .from('commandes')
-    .select('id, reference, statut, montant_cents, paiement_id')
+    .select('id, reference, statut, montant_cents, paiement_id, produit_slug, produit_nom, email')
     .eq('id', commandeId)
     .maybeSingle()
 
@@ -58,6 +59,37 @@ export async function POST(req: NextRequest) {
     await supabase.from('commandes')
       .update({ statut: 'payee', paiement_statut: paiement.statut, payee_a: new Date().toISOString() })
       .eq('id', commande.id)
+
+    /* L'achat part aussi vers Meta depuis le serveur, avec l'identifiant de
+       la commande comme `event_id`. La page de remerciement enverra le même
+       événement depuis le navigateur, avec le même identifiant : Meta les
+       rapproche et n'en compte qu'un. L'envoi serveur est celui qui compte,
+       il arrive même si le pixel est bloqué.
+
+       Il ne retient jamais la réponse : une commande payée doit être
+       confirmée au client, que Meta réponde ou non. */
+    void envoyerCapi([{
+      nom: 'Purchase',
+      eventId: commande.id as string,
+      url: `${(process.env.NEXT_PUBLIC_SITE_URL ?? 'https://www.bois-tresor.com').replace(/\/$/, '')}/commande/merci/`,
+      utilisateur: {
+        ip: req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ?? null,
+        userAgent: req.headers.get('user-agent'),
+        fbp: req.cookies.get('_fbp')?.value ?? null,
+        fbc: req.cookies.get('_fbc')?.value ?? null,
+        email: commande.email as string,
+      },
+      donnees: {
+        content_type: 'product',
+        content_ids: [commande.produit_slug],
+        content_name: commande.produit_nom,
+        value: Number(((commande.montant_cents as number) / 100).toFixed(2)),
+        currency: 'EUR',
+        order_id: commande.reference,
+      },
+    }]).then((r) => {
+      if (!r.ok) console.error('[purchase/capi]', r.status, JSON.stringify(r.corps).slice(0, 300))
+    })
 
     return NextResponse.json({ ok: true, reference: commande.reference })
   } catch (err) {

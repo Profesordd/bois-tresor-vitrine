@@ -1,6 +1,27 @@
 import Link from 'next/link'
 import { CheckCircle2, Mail, Truck } from 'lucide-react'
 import { CONTACT_EMAIL, SIRET, SHIPPING_ZONE } from '@/lib/site'
+import { createAdminClient } from '@/lib/supabase/server'
+import PurchaseTracker from '@/components/shop/PurchaseTracker'
+
+export const dynamic = 'force-dynamic'
+
+/**
+ * La commande, relue en base.
+ *
+ * C'est elle qui fournit le montant envoyé au pixel, et non l'adresse de
+ * la page : un montant passé en paramètre serait modifiable par le
+ * visiteur, et c'est lui que Meta retiendrait après déduplication.
+ */
+async function getCommande(reference: string) {
+  const supabase = createAdminClient()
+  const { data } = await supabase
+    .from('commandes')
+    .select('id, reference, statut, produit_slug, produit_nom, montant_cents')
+    .eq('reference', reference)
+    .maybeSingle()
+  return data
+}
 
 export const metadata = { title: 'Merci pour votre commande', robots: { index: false, follow: false } }
 
@@ -17,9 +38,21 @@ interface Props {
  */
 export default async function MerciPage({ searchParams }: Props) {
   const { ref } = await searchParams
+  const commande = ref ? await getCommande(ref) : null
 
   return (
     <div className="max-w-xl mx-auto px-4 sm:px-6 py-16 text-center">
+      {/* L'achat n'est mesuré que s'il est réellement payé. */}
+      {commande?.statut === 'payee' && (
+        <PurchaseTracker
+          commandeId={commande.id as string}
+          reference={commande.reference as string}
+          produitSlug={commande.produit_slug as string}
+          produitNom={commande.produit_nom as string}
+          montant={(commande.montant_cents as number) / 100}
+        />
+      )}
+
       <CheckCircle2 size={56} className="text-brand-600 mx-auto mb-5" />
       <h1 className="font-serif text-2xl sm:text-3xl font-bold text-ink">
         Merci, votre commande est enregistrée

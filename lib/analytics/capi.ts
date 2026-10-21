@@ -45,7 +45,7 @@ export interface DonneesUtilisateur {
 }
 
 export interface EvenementCapi {
-  nom: 'PageView' | 'ViewContent' | 'AddToCart'
+  nom: 'PageView' | 'ViewContent' | 'AddToCart' | 'InitiateCheckout' | 'AddPaymentInfo' | 'Purchase'
   /** Identifiant partagé avec le pixel navigateur — clé de la déduplication. */
   eventId: string
   url: string

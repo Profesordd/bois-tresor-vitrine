@@ -63,7 +63,7 @@ export async function GET(req: NextRequest) {
  * visiteur, ni retarder une redirection vers le paiement.
  */
 
-const NOMS = ['PageView', 'ViewContent', 'AddToCart'] as const
+const NOMS = ['PageView', 'ViewContent', 'AddToCart', 'InitiateCheckout', 'AddPaymentInfo', 'Purchase'] as const
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 
 export async function POST(req: NextRequest) {

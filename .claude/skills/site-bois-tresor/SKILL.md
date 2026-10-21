@@ -656,7 +656,19 @@ optimisation faussée dans le mauvais sens.
 | `PageView` | toutes les pages |
 | `ViewContent` | fiche produit |
 | `AddToCart` | clic sur « Commander » |
+| `InitiateCheckout` | arrivée sur le checkout maison |
+| `AddPaymentInfo` | formulaire envoyé, le paiement part |
+| `Purchase` | commande confirmée par le serveur CAWL |
 | `InitiateCheckout`, `Purchase` | **checkout externe — ne pas toucher** |
+
+⚠️ **L'achat part deux fois, exprès**, et c'est l'identifiant de la
+commande qui sert d'`event_id` des deux côtés : l'API Conversions depuis
+`/api/commande/confirmer/`, et le pixel depuis la page de remerciement.
+C'est le seul identifiant partagé possible, puisqu'il faut que le serveur
+et le navigateur tombent sur le même sans se parler. Le montant du pixel
+est relu en base par la page, jamais pris dans l'adresse : un montant
+passé en paramètre serait modifiable, et c'est lui que Meta retiendrait
+après déduplication.
 
 **Ne jamais proposer la vérification de domaine Meta ni les événements
 agrégés iOS.** Décision du client : son architecture repose sur des Business

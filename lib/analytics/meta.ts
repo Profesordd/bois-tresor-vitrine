@@ -13,7 +13,7 @@ declare global {
   }
 }
 
-type NomEvenement = 'PageView' | 'ViewContent' | 'AddToCart'
+type NomEvenement = 'PageView' | 'ViewContent' | 'AddToCart' | 'InitiateCheckout' | 'AddPaymentInfo' | 'Purchase'
 
 function nouvelId(): string {
   if (typeof crypto !== 'undefined' && 'randomUUID' in crypto) return crypto.randomUUID()
@@ -36,10 +36,13 @@ function nouvelId(): string {
  * perdu pour les visiteurs qui bloquent les traceurs, et l'API Conversions
  * seule ne voit pas ce que le navigateur sait faire.
  */
-function envoyer(nom: NomEvenement, donnees?: Record<string, unknown>): boolean {
+function envoyer(nom: NomEvenement, donnees?: Record<string, unknown>, idImpose?: string): boolean {
   if (typeof window === 'undefined') return false
 
-  const eventId = nouvelId()
+  /* `idImpose` sert aux achats : le serveur envoie le même événement de
+     son côté, et seul un identifiant partagé évite de compter deux fois.
+     L'identifiant de la commande fait l'affaire, c'est déjà un UUID. */
+  const eventId = idImpose ?? nouvelId()
   let pixelOk = false
 
   if (typeof window.fbq === 'function') {
@@ -136,9 +139,31 @@ export function trackViewContent(product: Product): boolean {
   return envoyer('ViewContent', produit(product))
 }
 
-/** Clic sur « Commander » : dernier signal mesurable avant le checkout externe. */
+/** Clic sur « Commander ». */
 export function trackAddToCart(product: Product, quantity: number): boolean {
   return envoyer('AddToCart', produit(product, quantity))
+}
+
+/** Arrivée sur le checkout maison. */
+export function trackInitiateCheckout(product: Product, montant: number): boolean {
+  return envoyer('InitiateCheckout', { ...produit(product), value: Number(montant.toFixed(2)) })
+}
+
+/** Coordonnées et carte saisies, au moment où le paiement part. */
+export function trackAddPaymentInfo(product: Product, montant: number): boolean {
+  return envoyer('AddPaymentInfo', { ...produit(product), value: Number(montant.toFixed(2)) })
+}
+
+/**
+ * Achat confirmé.
+ *
+ * L'identifiant de la commande sert d'`eventId` : le serveur envoie le
+ * même achat à l'API Conversions avec cet identifiant, et Meta n'en
+ * compte qu'un. Sans cela, chaque vente serait comptée deux fois et le
+ * coût par achat divisé par deux.
+ */
+export function trackPurchase(commandeId: string, donnees: Record<string, unknown>): boolean {
+  return envoyer('Purchase', donnees, commandeId)
 }
 
 /**

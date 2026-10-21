@@ -8,6 +8,7 @@ import { formatPrice } from '@/lib/utils'
 import { REVIEW_RATING, REVIEW_COUNT } from '@/lib/reviews'
 import ProductVisual from '@/components/shop/ProductVisual'
 import { getSession } from '@/lib/analytics/track'
+import { trackInitiateCheckout, trackAddPaymentInfo } from '@/lib/analytics/meta'
 
 /**
  * Checkout maison, paiement par carte sur le site.
@@ -70,6 +71,17 @@ export default function FormulaireCommande({ product, lot, montant }: Props) {
     numero: '', mois: '01', annee: String(new Date().getFullYear() + 2), cvv: '', titulaire: '',
   })
 
+  /* `InitiateCheckout` à l'arrivée sur l'écran. Une seule fois : en
+     développement React monte, démonte puis remonte, et le garde-fou
+     évite d'envoyer deux fois le même événement. */
+  const checkoutMesure = useRef(false)
+  useEffect(() => {
+    if (checkoutMesure.current) return
+    checkoutMesure.current = true
+    trackInitiateCheckout(product, montant)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
   /* La banque ne redirige que l'iframe, jamais la page parente. Sans ce
      message, l'écran attendrait indéfiniment la fin du 3-D Secure. */
   useEffect(() => {
@@ -109,6 +121,8 @@ export default function FormulaireCommande({ product, lot, montant }: Props) {
     }
     setErreur('')
     setEtape('envoi')
+    /* `AddPaymentInfo` : coordonnées et carte saisies, le paiement part. */
+    trackAddPaymentInfo(product, montant)
 
     try {
       const r1 = await fetch('/api/commande/', {
