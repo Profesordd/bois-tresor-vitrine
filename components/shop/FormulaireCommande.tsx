@@ -419,7 +419,7 @@ export default function FormulaireCommande({ product, lot, montant }: Props) {
             alt="Paiement 100 % sécurisé, Visa, Mastercard et CB"
             width={900}
             height={435}
-            className="w-full max-w-[260px] h-auto mx-auto"
+            className="w-full max-w-[150px] h-auto mx-auto"
           />
         </form>
 
