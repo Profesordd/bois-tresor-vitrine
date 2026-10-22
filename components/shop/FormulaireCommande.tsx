@@ -154,6 +154,37 @@ export default function FormulaireCommande({ product, lot, montant }: Props) {
     }).catch(() => { /* une relance perdue ne doit jamais gêner un achat */ })
   }
 
+  /**
+   * Le client revient de chez sa banque sans etre passe par la page de
+   * retour, presque toujours par le bouton « precedent ».
+   *
+   * On lui dit ce qui s'est passe : soit son paiement a bien abouti et on
+   * l'emmene au remerciement, soit il n'a pas ete debite et il peut
+   * recommencer. Le silence est ce qui lui coute le plus cher.
+   */
+  const [retourBanque, setRetourBanque] = useState<string | null>(null)
+  useEffect(() => {
+    let id: string | null = null
+    try {
+      id = sessionStorage.getItem('bt_paiement')
+      if (id) sessionStorage.removeItem('bt_paiement')
+    } catch { /* navigation privee */ }
+    if (!id) return
+
+    void fetch(`/api/commande/etat/?c=${encodeURIComponent(id)}`)
+      .then((r) => (r.ok ? r.json() : null))
+      .then((j) => {
+        if (!j) return
+        if (j.statut === 'payee') {
+          window.location.replace(`/commande/merci/?ref=${encodeURIComponent(j.reference)}`)
+          return
+        }
+        setRetourBanque('Votre paiement n’a pas été finalisé. Vous n’avez pas été débité, '
+          + 'et votre commande n’est pas enregistrée. Vous pouvez recommencer ci-dessous.')
+      })
+      .catch(() => { /* un message manquant ne doit pas bloquer la page */ })
+  }, [])
+
   const checkoutMesure = useRef(false)
   useEffect(() => {
     if (checkoutMesure.current) return
@@ -278,6 +309,10 @@ export default function FormulaireCommande({ product, lot, montant }: Props) {
            L'identifiant de commande voyage dans `returnUrl`, donc rien n'a
            besoin de survivre en mémoire pendant l'aller-retour. */
         setEtape('3ds')
+        /* Trace du passage chez la banque. Le client qui revient par le
+           bouton « precedent » retomberait sinon sur un formulaire vide,
+           sans un mot, et repartirait en croyant avoir paye. */
+        try { sessionStorage.setItem('bt_paiement', j1.commandeId) } catch { /* navigation privee */ }
         window.location.href = j2.redirection
         return
       }
@@ -391,6 +426,13 @@ export default function FormulaireCommande({ product, lot, montant }: Props) {
                 {champErreur.message}
               </p>
             </div>
+          )}
+
+          {retourBanque && (
+            <p className="flex items-start gap-2.5 rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 text-[15px] text-amber-900">
+              <AlertTriangle size={19} className="flex-shrink-0 mt-0.5" />
+              {retourBanque}
+            </p>
           )}
 
           {erreur && (
