@@ -104,6 +104,37 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Enregistrement impossible' }, { status: 502 })
   }
 
+  /* L'adresse rejoint la séquence de relance.
+     Le checkout l'enregistre déjà à la sortie du champ, mais le
+     remplissage automatique du téléphone ne déclenche aucune sortie de
+     champ : sans ce second filet, un client qui remplit tout d'un geste
+     puis échoue au paiement ne recevrait jamais rien. Or c'est le plus
+     chaud de tous, il avait sorti sa carte.
+     Rien ne retient la réponse : une relance manquée ne doit pas empêcher
+     une commande de naître. */
+  void (async () => {
+    const adresse = champs.email!.toLowerCase()
+    const { data: deja } = await supabase
+      .from('leads')
+      .select('id')
+      .eq('email', adresse)
+      .eq('a_commande', false)
+      .gte('created_at', new Date(Date.now() - 12 * 86400_000).toISOString())
+      .limit(1)
+    if (deja && deja.length > 0) return
+    await supabase.from('leads').insert({
+      email: adresse,
+      telephone: champs.telephone,
+      consent: false,
+      produit_slug: produit.slug,
+      produit_nom: lot ? `${produit.name} — ${lot.poids}` : produit.name,
+      lot: lot?.id ?? null,
+      montant: montantCents / 100,
+      session_id: sessionId && UUID_RE.test(sessionId) ? sessionId : null,
+      pays,
+    })
+  })().catch(() => { /* la commande prime sur la relance */ })
+
   return NextResponse.json({
     ok: true,
     commandeId: data.id,
