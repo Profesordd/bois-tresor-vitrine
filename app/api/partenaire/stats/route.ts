@@ -3,13 +3,17 @@ import { timingSafeEqual } from 'crypto'
 import { createAdminClient } from '@/lib/supabase/server'
 
 /**
- * Chiffres du site, en lecture seule, pour un tableau de bord extérieur.
+ * Les ventes du site, en lecture seule, pour un tableau de bord extérieur.
  *
  * Pensée pour être appelée depuis un autre site, qui n'a aucun lien avec
  * celui-ci et ne doit rien en apprendre. La réponse ne contient donc NI le
  * nom du site, NI son adresse, NI un nom de produit, NI la moindre donnée
  * de client. Le site s'y désigne par une étiquette neutre, « Site 1 »,
  * posée dans `PARTENAIRE_LIBELLE`.
+ *
+ * Uniquement les ventes abouties et ce qu'elles ont rapporté. Ni visites,
+ * ni paniers, ni tentatives : le destinataire veut un chiffre d'affaires,
+ * pas un diagnostic.
  *
  * L'accès tient à une clé, présentée en `Authorization: Bearer <clé>` ou,
  * pour les tableaux de bord qui ne savent poser aucun en-tête, en `?cle=`.
@@ -49,52 +53,11 @@ function minuitParis(ilYA: number): Date {
   return new Date(paris.getTime() + ecart - ilYA * 86_400_000)
 }
 
-interface Commande { created_at: string; statut: string; montant_cents: number }
+interface Vente { created_at: string; montant_cents: number }
 
-function arrondi(n: number, d = 2): number {
-  return Number(n.toFixed(d))
-}
-
-/** Minuit a Paris, il y a `ilYA` jours. Le serveur tourne en UTC. */
-function bornes(ilYA: number, jusqua?: number) {
-  return { depuis: minuitParis(ilYA), jusqua: jusqua === undefined ? null : minuitParis(jusqua) }
-}
-
-const PERIODES = {
-  aujourdhui: bornes(0),
-  hier: bornes(1, 0),
-  sept_jours: bornes(7),
-  trente_jours: bornes(30),
-}
-
-type NomPeriode = keyof typeof PERIODES
-
-/**
- * Toutes les lignes, par pages de mille.
- *
- * PostgREST plafonne une reponse a mille lignes quoi qu'on demande. Sans
- * pagination, le chiffre de trente jours se fige a mille et personne ne
- * s'en apercoit : il a l'air plausible.
- */
-async function toutesLesLignes<T>(
-  requete: (de: number, a: number) => PromiseLike<{ data: unknown[] | null; error: unknown }>,
-): Promise<T[]> {
-  const PAGE = 1000
-  const lignes: T[] = []
-  for (let page = 0; page < 30; page++) {
-    const { data, error } = await requete(page * PAGE, page * PAGE + PAGE - 1)
-    if (error) throw new Error('lecture interrompue')
-    const recues = (data ?? []) as T[]
-    lignes.push(...recues)
-    if (recues.length < PAGE) break
-  }
-  return lignes
-}
-
-/* Les chiffres changent peu d'une seconde a l'autre, et un tableau de bord
+/* Les chiffres changent peu d'une seconde à l'autre, et un tableau de bord
    qui interroge en boucle ne doit pas peser sur la base. Une minute de
-   memoire suffit a rendre l'appel gratuit sans que personne voie la
-   difference. */
+   mémoire suffit sans que personne voie la différence. */
 let cache: { a: number; corps: unknown } | null = null
 const CACHE_MS = 60_000
 
@@ -116,73 +79,46 @@ export async function GET(req: NextRequest) {
   }
 
   const supabase = createAdminClient()
-  const debut = minuitParis(30).toISOString()
 
-  try {
-    /* Les visites se comptent côté base : les rapatrier pour les compter
-       ici coûterait des dizaines de milliers de lignes par appel. */
-    const visites: Record<NomPeriode, number> = {} as Record<NomPeriode, number>
-    await Promise.all((Object.keys(PERIODES) as NomPeriode[]).map(async (nom) => {
-      const { depuis, jusqua } = PERIODES[nom]
-      let q = supabase.from('analytics_sessions')
-        .select('id', { count: 'exact', head: true })
-        .gte('started_at', depuis.toISOString())
-      if (jusqua) q = q.lt('started_at', jusqua.toISOString())
-      const { count } = await q
-      visites[nom] = count ?? 0
-    }))
-
-    const commandes = await toutesLesLignes<Commande>((de, a) =>
-      supabase.from('commandes').select('created_at, statut, montant_cents')
-        .gte('created_at', debut).order('created_at').range(de, a))
-
-    const vues = await toutesLesLignes<{ session_id: string; occurred_at: string }>((de, a) =>
-      supabase.from('analytics_events').select('session_id, occurred_at')
-        .eq('type', 'pageview').like('path', '/commande/%')
-        .gte('occurred_at', debut).order('occurred_at').range(de, a))
-
-    /* Une arrivée sur le checkout par visite, pas par page vue : recharger
-       la page ne doit pas gonfler le chiffre. */
-    const premiereVue = new Map<string, string>()
-    for (const e of vues) {
-      if (!premiereVue.has(e.session_id) || e.occurred_at < premiereVue.get(e.session_id)!) {
-        premiereVue.set(e.session_id, e.occurred_at)
-      }
+  /* Toutes les ventes depuis l'ouverture, par pages de mille. PostgREST
+     plafonne une réponse à mille lignes quoi qu'on demande : sans
+     pagination, le total se figerait un jour à mille sans prévenir. */
+  const ventes: Vente[] = []
+  for (let page = 0; page < 50; page++) {
+    const { data, error } = await supabase
+      .from('commandes')
+      .select('created_at, montant_cents')
+      .eq('statut', 'payee')
+      .order('created_at')
+      .range(page * 1000, page * 1000 + 999)
+    if (error) {
+      console.error('[partenaire] lecture impossible', error.message)
+      return NextResponse.json({ error: 'Lecture impossible' }, { status: 502, headers: ENTETES_CORS })
     }
-    const arrivees: string[] = []
-    premiereVue.forEach((quand) => arrivees.push(quand))
-
-    const periodes = {} as Record<NomPeriode, unknown>
-    for (const nom of Object.keys(PERIODES) as NomPeriode[]) {
-      const { depuis, jusqua } = PERIODES[nom]
-      const dans = (iso: string) => {
-        const t = new Date(iso).getTime()
-        return t >= depuis.getTime() && (!jusqua || t < jusqua.getTime())
-      }
-      const c = commandes.filter((x) => dans(x.created_at))
-      const payees = c.filter((x) => x.statut === 'payee')
-      const ca = payees.reduce((s2, x) => s2 + x.montant_cents, 0) / 100
-      periodes[nom] = {
-        visites: visites[nom],
-        arrivees_checkout: arrivees.filter(dans).length,
-        tentatives: c.length,
-        commandes_payees: payees.length,
-        chiffre_affaires_eur: arrondi(ca),
-        panier_moyen_eur: payees.length > 0 ? arrondi(ca / payees.length) : 0,
-        taux_conversion_pct: visites[nom] > 0 ? arrondi((payees.length * 100) / visites[nom]) : 0,
-      }
-    }
-
-    const corps = {
-      site: process.env.PARTENAIRE_LIBELLE ?? 'Site 1',
-      devise: 'EUR',
-      genere_a: new Date().toISOString(),
-      periodes,
-    }
-    cache = { a: Date.now(), corps }
-    return NextResponse.json(corps, { headers: ENTETES_CORS })
-  } catch {
-    console.error('[partenaire] lecture impossible')
-    return NextResponse.json({ error: 'Lecture impossible' }, { status: 502, headers: ENTETES_CORS })
+    ventes.push(...((data ?? []) as Vente[]))
+    if ((data?.length ?? 0) < 1000) break
   }
+
+  const compter = (depuis: Date | null, jusqua?: Date) => {
+    const lot = ventes.filter((v) => {
+      const t = new Date(v.created_at).getTime()
+      return (!depuis || t >= depuis.getTime()) && (!jusqua || t < jusqua.getTime())
+    })
+    const montant = lot.reduce((s, v) => s + v.montant_cents, 0) / 100
+    return { ventes: lot.length, montant_eur: Number(montant.toFixed(2)) }
+  }
+
+  const corps = {
+    site: process.env.PARTENAIRE_LIBELLE ?? 'Site 1',
+    devise: 'EUR',
+    genere_a: new Date().toISOString(),
+    aujourdhui: compter(minuitParis(0)),
+    hier: compter(minuitParis(1), minuitParis(0)),
+    sept_jours: compter(minuitParis(7)),
+    trente_jours: compter(minuitParis(30)),
+    depuis_le_debut: compter(null),
+  }
+
+  cache = { a: Date.now(), corps }
+  return NextResponse.json(corps, { headers: ENTETES_CORS })
 }
