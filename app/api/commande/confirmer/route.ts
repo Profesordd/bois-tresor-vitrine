@@ -19,7 +19,7 @@ export async function POST(req: NextRequest) {
   const supabase = createAdminClient()
   const { data: commande } = await supabase
     .from('commandes')
-    .select('id, reference, statut, montant_cents, paiement_id, produit_slug, produit_nom, email')
+    .select('id, reference, statut, montant_cents, paiement_id, produit_slug, produit_nom, email, lot')
     .eq('id', commandeId)
     .maybeSingle()
 
@@ -40,7 +40,14 @@ export async function POST(req: NextRequest) {
       await supabase.from('commandes')
         .update({ statut: 'refusee', paiement_statut: paiement.statut })
         .eq('id', commande.id)
-      return NextResponse.json({ error: `Paiement refusé (${paiement.statut})` }, { status: 402 })
+      /* Le slug et le lot accompagnent l'échec : la page de retour peut
+         alors proposer de recommencer sur la bonne fiche au lieu d'un
+         cul-de-sac. Ces clients avaient une carte valide. */
+      return NextResponse.json({
+        error: `Paiement refusé (${paiement.statut})`,
+        produitSlug: commande.produit_slug,
+        lot: commande.lot,
+      }, { status: 402 })
     }
 
     if (paiement.statut === 'PENDING_CAPTURE') {

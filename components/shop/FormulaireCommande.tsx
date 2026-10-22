@@ -62,8 +62,6 @@ export default function FormulaireCommande({ product, lot, montant }: Props) {
   const router = useRouter()
   const [etape, setEtape] = useState<Etape>('saisie')
   const [erreur, setErreur] = useState('')
-  const [iframeUrl, setIframeUrl] = useState<string | null>(null)
-  const commandeRef = useRef<string | null>(null)
 
   const [client, setClient] = useState({
     prenom: '', nom: '', email: '', telephone: '',
@@ -138,19 +136,9 @@ export default function FormulaireCommande({ product, lot, montant }: Props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  /* La banque ne redirige que l'iframe, jamais la page parente. Sans ce
-     message, l'écran attendrait indéfiniment la fin du 3-D Secure. */
-  useEffect(() => {
-    function surMessage(e: MessageEvent) {
-      if (e.data?.type !== 'CAWL_RETOUR' || !commandeRef.current) return
-      setIframeUrl(null)
-      setEtape('confirmation')
-      void confirmer(commandeRef.current)
-    }
-    window.addEventListener('message', surMessage)
-    return () => window.removeEventListener('message', surMessage)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  /* Plus de cadre, donc plus de `postMessage` à écouter : la banque
+     renvoie désormais la page entière sur `/commande/retour/`, qui
+     confirme la commande elle-même. */
 
   function premierManquant(): { id: string; message: string } | null {
     const m = (id: string, message: string) => ({ id, message })
@@ -215,7 +203,6 @@ export default function FormulaireCommande({ product, lot, montant }: Props) {
       })
       const j1 = await r1.json()
       if (!r1.ok || !j1.ok) throw new Error(j1.error ?? 'Commande impossible')
-      commandeRef.current = j1.commandeId
 
       const r2 = await fetch('/api/commande/payer/', {
         method: 'POST',
@@ -245,12 +232,26 @@ export default function FormulaireCommande({ product, lot, montant }: Props) {
       if (!r2.ok || !j2.ok) throw new Error(j2.error ?? 'Paiement refusé')
 
       if (j2.redirection) {
-        setIframeUrl(j2.redirection)
+        /* ⚠️ Page entière, surtout pas un cadre.
+
+           Mesuré sur deux jours de production : dans un cadre, les
+           authentifications silencieuses échouaient six fois sur six, alors
+           que celles où la banque interroge le client passaient cinq fois
+           sur six. En 3-D Secure 2 la banque pose un cadre invisible pour
+           prendre l'empreinte du navigateur ; imbriqué dans le nôtre et en
+           domaines croisés, Safari lui bloque le stockage, l'empreinte
+           n'arrive jamais, et la banque déclare l'expiration.
+
+           En pleine page, la banque travaille dans un contexte normal.
+           L'identifiant de commande voyage dans `returnUrl`, donc rien n'a
+           besoin de survivre en mémoire pendant l'aller-retour. */
         setEtape('3ds')
-      } else {
-        setEtape('confirmation')
-        await confirmer(j1.commandeId)
+        window.location.href = j2.redirection
+        return
       }
+
+      setEtape('confirmation')
+      await confirmer(j1.commandeId)
     } catch (err) {
       setErreur(err instanceof Error ? err.message : 'Une erreur est survenue')
       setEtape('erreur')
@@ -287,17 +288,18 @@ export default function FormulaireCommande({ product, lot, montant }: Props) {
       ? champ.replace('border-gray-300', 'border-red-500') + ' ring-2 ring-red-200'
       : champ
 
-  /* ── Pendant le 3-D Secure, la banque occupe tout l'écran ── */
-  if (etape === '3ds' && iframeUrl) {
+  /* ── Le temps que la banque prenne la main ── */
+  if (etape === '3ds') {
     return (
-      <div className="max-w-2xl mx-auto">
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-          <p className="px-5 py-4 border-b border-gray-100 text-[16px] text-gray-700 flex items-start gap-2.5">
-            <Shield size={19} className="text-brand-600 flex-shrink-0 mt-0.5" />
-            Votre banque vous demande de confirmer le paiement. Gardez votre téléphone à portée de main.
-          </p>
-          <iframe title="Confirmation bancaire" src={iframeUrl} className="w-full h-[620px] border-0" />
-        </div>
+      <div className="max-w-md mx-auto bg-white rounded-xl p-10 text-center shadow-sm border border-gray-100">
+        <Loader2 size={36} className="animate-spin text-brand-600 mx-auto mb-4" />
+        <p className="text-[17px] font-medium text-ink">Nous vous mettons en relation avec votre banque…</p>
+        <p className="text-[15px] text-gray-600 mt-2">
+          Elle va vous demander de confirmer le paiement. Gardez votre téléphone à portée de main.
+        </p>
+        <p className="flex items-center justify-center gap-1.5 text-[13px] text-gray-500 mt-4">
+          <Shield size={14} className="text-brand-600" /> Ne fermez pas cette page.
+        </p>
       </div>
     )
   }
