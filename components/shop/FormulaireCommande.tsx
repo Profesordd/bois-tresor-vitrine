@@ -77,8 +77,49 @@ export default function FormulaireCommande({ product, lot, montant }: Props) {
   const total = Math.round(montant * quantite * 100) / 100
 
   const [carte, setCarte] = useState({
-    numero: '', mois: '01', annee: String(new Date().getFullYear() + 2), cvv: '', titulaire: '',
+    /* Mois et annee vides au depart, volontairement. Une date pre-remplie
+       a l'air valide : le client ne la corrige pas, la banque refuse, et
+       il n'a aucun moyen de comprendre pourquoi. */
+    numero: '', mois: '', annee: '', cvv: '', titulaire: '',
   })
+
+  /* Le champ qui bloque l'envoi. Il porte le message, s'entoure de rouge et
+     recoit le curseur : le client reste la ou il travaille au lieu d'etre
+     renvoye en haut de page. */
+  const [champErreur, setChampErreur] = useState<{ id: string; message: string } | null>(null)
+
+  function majClient(patch: Partial<typeof client>) {
+    setChampErreur(null)
+    setClient((c) => ({ ...c, ...patch }))
+  }
+  function majCarte(patch: Partial<typeof carte>) {
+    setChampErreur(null)
+    setCarte((c) => ({ ...c, ...patch }))
+  }
+
+  /**
+   * Saisie du numero de carte.
+   *
+   * Le formatage par groupes de quatre replace le curseur a la fin a chaque
+   * frappe si on n'y prend pas garde : corriger un chiffre au milieu devient
+   * impossible. On compte donc la position en CHIFFRES avant le curseur, et
+   * on la restitue apres reformatage.
+   */
+  function saisirNumero(e: React.ChangeEvent<HTMLInputElement>) {
+    const el = e.target
+    const avant = el.value.slice(0, el.selectionStart ?? el.value.length).replace(/\D/g, '').length
+    const formate = el.value.replace(/\D/g, '').slice(0, 19).replace(/(.{4})/g, '$1 ').trim()
+    majCarte({ numero: formate })
+    requestAnimationFrame(() => {
+      let pos = 0
+      let vus = 0
+      while (pos < formate.length && vus < avant) {
+        if (/\d/.test(formate[pos])) vus++
+        pos++
+      }
+      try { el.setSelectionRange(pos, pos) } catch { /* champ demonte */ }
+    })
+  }
 
   /* `InitiateCheckout` à l'arrivée sur l'écran. Une seule fois : en
      développement React monte, démonte puis remonte, et le garde-fou
@@ -111,18 +152,31 @@ export default function FormulaireCommande({ product, lot, montant }: Props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  function premierManquant(): string | null {
-    if (client.prenom.trim().length < 2) return 'votre prénom'
-    if (client.nom.trim().length < 2) return 'votre nom'
-    if (!/^[^\s@]+@[^\s@]+\.[a-z]{2,}$/i.test(client.email.trim())) return 'votre adresse e-mail'
-    if (client.telephone.replace(/\D/g, '').length < 9) return 'votre numéro de téléphone'
-    if (client.adresse.trim().length < 5) return 'votre adresse de livraison'
-    if (client.codePostal.trim().length < 4) return 'votre code postal'
-    if (client.ville.trim().length < 2) return 'votre ville'
+  function premierManquant(): { id: string; message: string } | null {
+    const m = (id: string, message: string) => ({ id, message })
+    if (client.prenom.trim().length < 2) return m('prenom', 'Indiquez votre prénom.')
+    if (client.nom.trim().length < 2) return m('nom', 'Indiquez votre nom.')
+    if (!/^[^\s@]+@[^\s@]+\.[a-z]{2,}$/i.test(client.email.trim())) return m('email', 'Cette adresse e-mail ne semble pas valide.')
+    if (client.telephone.replace(/\D/g, '').length < 9) return m('telephone', 'Indiquez votre numéro de téléphone.')
+    if (client.adresse.trim().length < 5) return m('adresse', 'Indiquez votre adresse de livraison.')
+    if (client.codePostal.trim().length < 4) return m('cp', 'Indiquez votre code postal.')
+    if (client.ville.trim().length < 2) return m('ville', 'Indiquez votre ville.')
+
     const brut = carte.numero.replace(/\D/g, '')
-    if (brut.length < 13 || !luhn(brut)) return 'le numéro de carte'
-    if (!/^\d{3,4}$/.test(carte.cvv)) return 'le cryptogramme au dos de la carte'
-    if (carte.titulaire.trim().length < 2) return 'le nom inscrit sur la carte'
+    if (brut.length < 13 || !luhn(brut)) return m('carte', 'Ce numéro de carte est incomplet ou comporte une erreur.')
+
+    /* La date d'expiration, vérifiée ici et pas seulement chez la banque.
+       Une date passée revient en « INVALID_VALUE », un message que
+       personne ne peut comprendre. */
+    if (!carte.mois || !carte.annee) return m('mois', 'Choisissez la date d’expiration inscrite sur la carte.')
+    const finDeValidite = new Date(Number(carte.annee), Number(carte.mois), 0, 23, 59, 59)
+    if (finDeValidite.getTime() < Date.now()) return m('mois', 'Cette date d’expiration est déjà passée.')
+
+    /* Trois chiffres, jamais quatre. Le quatrième n'existe que sur
+       American Express, que ce compte marchand n'accepte pas, et la banque
+       refuse alors le paiement sans rien expliquer. */
+    if (!/^\d{3}$/.test(carte.cvv)) return m('cvv', 'Le cryptogramme fait trois chiffres, au dos de la carte.')
+    if (carte.titulaire.trim().length < 2) return m('titulaire', 'Indiquez le nom inscrit sur la carte.')
     return null
   }
 
@@ -130,11 +184,17 @@ export default function FormulaireCommande({ product, lot, montant }: Props) {
     e.preventDefault()
     const manque = premierManquant()
     if (manque) {
-      setErreur(`Il manque ${manque}.`)
-      window.scrollTo({ top: 0, behavior: 'smooth' })
+      setErreur('')
+      setChampErreur(manque)
+      const el = document.getElementById(manque.id)
+      el?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+      /* Le curseur sans second défilement : `scrollIntoView` a déjà placé
+         la page, `focus` la ferait sauter une seconde fois. */
+      setTimeout(() => el?.focus({ preventScroll: true }), 350)
       return
     }
     setErreur('')
+    setChampErreur(null)
     setEtape('envoi')
     /* `AddPaymentInfo` : coordonnées et carte saisies, le paiement part.
        Le pixel est chargé depuis longtemps à ce stade, l'attente se résout
@@ -221,6 +281,11 @@ export default function FormulaireCommande({ product, lot, montant }: Props) {
   const etiquette = 'block text-[15px] font-bold text-ink mb-1'
   const titre = 'text-[15px] font-bold text-ink mb-3'
   const bloc = 'bg-white rounded-xl p-4 sm:p-5 shadow-sm border border-gray-100'
+  /* Le champ en faute passe en rouge, les autres ne bougent pas. */
+  const classeChamp = (id: string) =>
+    champErreur?.id === id
+      ? champ.replace('border-gray-300', 'border-red-500') + ' ring-2 ring-red-200'
+      : champ
 
   /* ── Pendant le 3-D Secure, la banque occupe tout l'écran ── */
   if (etape === '3ds' && iframeUrl) {
@@ -283,6 +348,17 @@ export default function FormulaireCommande({ product, lot, montant }: Props) {
       <div className="grid lg:grid-cols-3 gap-6 lg:gap-8 items-start">
         {/* ── Le formulaire ── */}
         <form onSubmit={envoyer} className="lg:col-span-2 space-y-4 order-last lg:order-first">
+          {/* Le message suit le client au lieu de l'attendre en haut de
+              page : sur téléphone, il est toujours sous les yeux. */}
+          {champErreur && (
+            <div className="fixed inset-x-3 bottom-3 z-40 sm:left-1/2 sm:right-auto sm:-translate-x-1/2 sm:w-[420px]">
+              <p className="flex items-start gap-2.5 rounded-lg bg-red-600 px-4 py-3 text-[15px] font-medium text-white shadow-lg">
+                <AlertTriangle size={19} className="flex-shrink-0 mt-0.5" />
+                {champErreur.message}
+              </p>
+            </div>
+          )}
+
           {erreur && (
             <p className="flex items-start gap-2.5 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-[15px] text-red-800">
               <AlertTriangle size={19} className="flex-shrink-0 mt-0.5" />
@@ -295,26 +371,26 @@ export default function FormulaireCommande({ product, lot, montant }: Props) {
             <div className="grid grid-cols-2 gap-3 mb-3">
               <div>
                 <label htmlFor="prenom" className={etiquette}>Prénom *</label>
-                <input id="prenom" autoComplete="given-name" className={champ}
-                  value={client.prenom} onChange={(e) => setClient({ ...client, prenom: e.target.value })} />
+                <input id="prenom" autoComplete="given-name" className={classeChamp('prenom')}
+                  value={client.prenom} onChange={(e) => majClient({ prenom: e.target.value })} />
               </div>
               <div>
                 <label htmlFor="nom" className={etiquette}>Nom *</label>
-                <input id="nom" autoComplete="family-name" className={champ}
-                  value={client.nom} onChange={(e) => setClient({ ...client, nom: e.target.value })} />
+                <input id="nom" autoComplete="family-name" className={classeChamp('nom')}
+                  value={client.nom} onChange={(e) => majClient({ nom: e.target.value })} />
               </div>
             </div>
             <div className="mb-3">
               <label htmlFor="email" className={etiquette}>E-mail *</label>
-              <input id="email" type="email" inputMode="email" autoComplete="email" className={champ}
-                value={client.email} onChange={(e) => setClient({ ...client, email: e.target.value })} />
+              <input id="email" type="email" inputMode="email" autoComplete="email" className={classeChamp('email')}
+                value={client.email} onChange={(e) => majClient({ email: e.target.value })} />
               <p className="text-[13px] text-gray-500 mt-1.5">Pour votre confirmation et le suivi de livraison.</p>
             </div>
             <div>
               <label htmlFor="telephone" className={etiquette}>Téléphone *</label>
-              <input id="telephone" type="tel" inputMode="tel" autoComplete="tel" className={champ}
+              <input id="telephone" type="tel" inputMode="tel" autoComplete="tel" className={classeChamp('telephone')}
                 placeholder="06 12 34 56 78"
-                value={client.telephone} onChange={(e) => setClient({ ...client, telephone: e.target.value })} />
+                value={client.telephone} onChange={(e) => majClient({ telephone: e.target.value })} />
               <p className="text-[13px] text-gray-500 mt-1.5">Le transporteur vous appelle avant de passer.</p>
             </div>
           </section>
@@ -323,34 +399,34 @@ export default function FormulaireCommande({ product, lot, montant }: Props) {
             <h2 className={titre}>Adresse de livraison</h2>
             <div className="mb-3">
               <label htmlFor="adresse" className={etiquette}>Adresse *</label>
-              <input id="adresse" autoComplete="street-address" className={champ}
+              <input id="adresse" autoComplete="street-address" className={classeChamp('adresse')}
                 placeholder="12 route des Chênes"
-                value={client.adresse} onChange={(e) => setClient({ ...client, adresse: e.target.value })} />
+                value={client.adresse} onChange={(e) => majClient({ adresse: e.target.value })} />
             </div>
             <div className="mb-3">
               <label htmlFor="complement" className={etiquette}>
                 Complément <span className="font-normal text-gray-400">(facultatif)</span>
               </label>
-              <input id="complement" className={champ} placeholder="Lieu-dit, bâtiment, code du portail"
-                value={client.complement} onChange={(e) => setClient({ ...client, complement: e.target.value })} />
+              <input id="complement" className={classeChamp('complement')} placeholder="Lieu-dit, bâtiment, code du portail"
+                value={client.complement} onChange={(e) => majClient({ complement: e.target.value })} />
             </div>
             <div className="grid grid-cols-5 gap-3 mb-3">
               <div className="col-span-2">
                 <label htmlFor="cp" className={etiquette}>Code postal *</label>
-                <input id="cp" inputMode="numeric" autoComplete="postal-code" className={champ}
+                <input id="cp" inputMode="numeric" autoComplete="postal-code" className={classeChamp('cp')}
                   placeholder="39000"
-                  value={client.codePostal} onChange={(e) => setClient({ ...client, codePostal: e.target.value })} />
+                  value={client.codePostal} onChange={(e) => majClient({ codePostal: e.target.value })} />
               </div>
               <div className="col-span-3">
                 <label htmlFor="ville" className={etiquette}>Ville *</label>
-                <input id="ville" autoComplete="address-level2" className={champ}
-                  value={client.ville} onChange={(e) => setClient({ ...client, ville: e.target.value })} />
+                <input id="ville" autoComplete="address-level2" className={classeChamp('ville')}
+                  value={client.ville} onChange={(e) => majClient({ ville: e.target.value })} />
               </div>
             </div>
             <div>
               <label htmlFor="pays" className={etiquette}>Pays *</label>
-              <select id="pays" className={`${champ} bg-white`}
-                value={client.pays} onChange={(e) => setClient({ ...client, pays: e.target.value })}>
+              <select id="pays" className={`${classeChamp('pays')} bg-white`}
+                value={client.pays} onChange={(e) => majClient({ pays: e.target.value })}>
                 {PAYS.map((p) => <option key={p.code} value={p.code}>{p.nom}</option>)}
               </select>
             </div>
@@ -360,18 +436,25 @@ export default function FormulaireCommande({ product, lot, montant }: Props) {
             <h2 className={`${titre} flex items-center gap-2`}>
               <CreditCard size={18} className="text-brand-600" /> Votre carte bancaire
             </h2>
+            {/* Au-dessus des champs, pas sous le bouton. C'est ici que le
+                client hésite, donc ici qu'il faut répondre à sa question. */}
+            <p className="flex items-start gap-2 text-[13px] text-gray-600 -mt-1 mb-3">
+              <Lock size={14} className="text-brand-600 flex-shrink-0 mt-0.5" />
+              Paiement encaissé par le Crédit Agricole. Votre numéro de carte n’est pas conservé par notre site.
+            </p>
             <div className="mb-3">
               <label htmlFor="carte" className={etiquette}>Numéro de carte *</label>
-              <input id="carte" inputMode="numeric" autoComplete="cc-number" className={`${champ} font-mono tracking-wide`}
+              <input id="carte" inputMode="numeric" autoComplete="cc-number" className={`${classeChamp('carte')} font-mono tracking-wide`}
                 placeholder="0000 0000 0000 0000"
                 value={carte.numero}
-                onChange={(e) => setCarte({ ...carte, numero: e.target.value.replace(/\D/g, '').slice(0, 19).replace(/(.{4})/g, '$1 ').trim() })} />
+                onChange={saisirNumero} />
             </div>
             <div className="grid grid-cols-3 gap-3 mb-3">
               <div>
                 <label htmlFor="mois" className={etiquette}>Mois *</label>
-                <select id="mois" autoComplete="cc-exp-month" className={`${champ} bg-white`}
-                  value={carte.mois} onChange={(e) => setCarte({ ...carte, mois: e.target.value })}>
+                <select id="mois" autoComplete="cc-exp-month" className={`${classeChamp('mois')} bg-white`}
+                  value={carte.mois} onChange={(e) => majCarte({ mois: e.target.value })}>
+                  <option value="">--</option>
                   {Array.from({ length: 12 }, (_, i) => String(i + 1).padStart(2, '0')).map((m) => (
                     <option key={m} value={m}>{m}</option>
                   ))}
@@ -379,8 +462,9 @@ export default function FormulaireCommande({ product, lot, montant }: Props) {
               </div>
               <div>
                 <label htmlFor="annee" className={etiquette}>Année *</label>
-                <select id="annee" autoComplete="cc-exp-year" className={`${champ} bg-white`}
-                  value={carte.annee} onChange={(e) => setCarte({ ...carte, annee: e.target.value })}>
+                <select id="annee" autoComplete="cc-exp-year" className={`${classeChamp('annee')} bg-white`}
+                  value={carte.annee} onChange={(e) => majCarte({ annee: e.target.value })}>
+                  <option value="">----</option>
                   {Array.from({ length: 12 }, (_, i) => String(new Date().getFullYear() + i)).map((a) => (
                     <option key={a} value={a}>{a}</option>
                   ))}
@@ -388,16 +472,16 @@ export default function FormulaireCommande({ product, lot, montant }: Props) {
               </div>
               <div>
                 <label htmlFor="cvv" className={etiquette}>Crypto. *</label>
-                <input id="cvv" inputMode="numeric" autoComplete="cc-csc" className={`${champ} font-mono`}
+                <input id="cvv" inputMode="numeric" autoComplete="cc-csc" className={`${classeChamp('cvv')} font-mono`}
                   placeholder="123"
                   value={carte.cvv}
-                  onChange={(e) => setCarte({ ...carte, cvv: e.target.value.replace(/\D/g, '').slice(0, 4) })} />
+                  onChange={(e) => majCarte({ cvv: e.target.value.replace(/\D/g, '').slice(0, 3) })} />
               </div>
             </div>
             <div>
               <label htmlFor="titulaire" className={etiquette}>Nom inscrit sur la carte *</label>
-              <input id="titulaire" autoComplete="cc-name" className={champ} placeholder="JEAN DUPONT"
-                value={carte.titulaire} onChange={(e) => setCarte({ ...carte, titulaire: e.target.value })} />
+              <input id="titulaire" autoComplete="cc-name" className={classeChamp('titulaire')} placeholder="JEAN DUPONT"
+                value={carte.titulaire} onChange={(e) => majCarte({ titulaire: e.target.value })} />
             </div>
           </section>
 

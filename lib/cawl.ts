@@ -106,8 +106,11 @@ async function appel<T>(method: string, chemin: string, corps?: unknown, cleIdem
       const e = json?.errors?.[0]
       const message = e?.message ?? e?.code ?? json?.errorId ?? `CAWL ${reponse.status}`
       /* Le code et l'identifiant sont ce que le support CAWL demande pour
-         retrouver la transaction. On les garde dans le message. */
-      throw new Error(`${message}${e?.code ? ` [${e.code}]` : ''} (réf. ${json?.errorId ?? reponse.status})`)
+         retrouver la transaction. `propertyName` dit QUEL champ a été
+         refusé : sans lui, un « INVALID_VALUE » oblige à rejouer la
+         requête champ par champ pour retrouver le coupable. */
+      const champ = e?.propertyName ? ` sur ${e.propertyName}` : ''
+      throw new Error(`${message}${e?.code ? ` [${e.code}]` : ''}${champ} (réf. ${json?.errorId ?? reponse.status})`)
     }
     return json as T
   }

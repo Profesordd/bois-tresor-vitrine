@@ -1,5 +1,6 @@
 {
   "crons": [
-    { "path": "/api/relances/", "schedule": "*/5 * * * *" }
+    { "path": "/api/relances/", "schedule": "*/5 * * * *" },
+    { "path": "/api/commande/reconcilier/", "schedule": "*/15 * * * *" }
   ]
 }
