@@ -159,7 +159,10 @@ export async function GET(req: NextRequest) {
      celui demandé, ou celui de la première vente. */
   const aujourdhui = jourParis(new Date().toISOString())
   const premiereVente = ventes.length > 0 ? jourParis(ventes[0].created_at) : aujourdhui
-  const premier = depuisJour && depuisJour > premiereVente ? depuisJour : premiereVente
+  /* `depuis` est honoré à la lettre, y compris avant la première vente :
+     le destinataire a demandé une grille qui commence là, il doit la
+     recevoir complète, zéros compris. */
+  const premier = depuisJour ?? premiereVente
 
   const jours: { jour: string; ventes: number; montant_eur: number }[] = []
   /* Midi plutôt que minuit : à midi, aucun changement d'heure ne fait
