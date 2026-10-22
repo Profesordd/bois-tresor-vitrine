@@ -67,6 +67,14 @@ export function lienPaiement(lead: LeadRelance): string {
   const produit = lead.produit_slug ? getProductBySlug(lead.produit_slug) : null
   if (!produit) return `${SITE}/produits/`
 
+  /* Les fiches qui se règlent sur le site ont leur propre adresse de
+     paiement. Les envoyer chez le prestataire externe donnerait un panier
+     vide, ou pire un prix qui ne correspond à rien. */
+  if (produit.checkoutInterne) {
+    const q = lead.lot ? `?lot=${encodeURIComponent(lead.lot)}` : ''
+    return `${SITE}/commande/${produit.slug}/${q}`
+  }
+
   const lot = lead.lot ? lotsDisponibles(produit).find((l) => l.id === lead.lot) : null
   const article = lot ? produitDuLot(produit, lot) : produit
   return buildCheckoutUrl([{ product: article, quantity: 1 }]) ?? `${SITE}/produits/${produit.slug}/`

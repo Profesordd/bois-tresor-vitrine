@@ -75,6 +75,14 @@ export async function POST(req: NextRequest) {
 
        Il ne retient jamais la réponse : une commande payée doit être
        confirmée au client, que Meta réponde ou non. */
+    /* La relance n'a plus lieu d'être : cette personne a acheté. Le
+       rapprochement se fait par l'adresse, la seule chose que les deux
+       tables ont en commun. */
+    void supabase.from('leads')
+      .update({ a_commande: true, commande_a: new Date().toISOString() })
+      .eq('email', commande.email as string)
+      .eq('a_commande', false)
+
     void envoyerCapi([{
       nom: 'Purchase',
       eventId: commande.id as string,

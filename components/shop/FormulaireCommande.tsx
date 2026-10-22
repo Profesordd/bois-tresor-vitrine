@@ -122,6 +122,38 @@ export default function FormulaireCommande({ product, lot, montant }: Props) {
   /* `InitiateCheckout` à l'arrivée sur l'écran. Une seule fois : en
      développement React monte, démonte puis remonte, et le garde-fou
      évite d'envoyer deux fois le même événement. */
+  /**
+   * L'adresse, gardée dès qu'elle est saisie.
+   *
+   * Sans cela, elle n'existe qu'au moment du clic sur Payer : tous ceux
+   * qui remplissent le formulaire puis s'interrompent sont perdus, alors
+   * qu'ils sont les plus chauds du site. Mesuré le 22/10/2026 : quinze
+   * adresses tapées dans la journée, huit commandes créées.
+   *
+   * Une seule fois par adresse, sinon chaque passage dans le champ
+   * créerait une ligne de plus et le client recevrait la relance en
+   * double.
+   */
+  const emailGarde = useRef('')
+  function garderEmail() {
+    const adresse = client.email.trim().toLowerCase()
+    if (!/^[^\s@]+@[^\s@]+\.[a-z]{2,}$/.test(adresse) || emailGarde.current === adresse) return
+    emailGarde.current = adresse
+    void fetch('/api/leads/', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        email: adresse,
+        telephone: client.telephone.trim() || null,
+        produitSlug: product.slug,
+        produitNom: product.name,
+        lot: lot?.id ?? null,
+        montant: total,
+        sessionId: getSession().id || null,
+      }),
+    }).catch(() => { /* une relance perdue ne doit jamais gêner un achat */ })
+  }
+
   const checkoutMesure = useRef(false)
   useEffect(() => {
     if (checkoutMesure.current) return
@@ -384,7 +416,7 @@ export default function FormulaireCommande({ product, lot, montant }: Props) {
             </div>
             <div className="mb-3">
               <label htmlFor="email" className={etiquette}>E-mail *</label>
-              <input id="email" type="email" inputMode="email" autoComplete="email" className={classeChamp('email')}
+              <input id="email" type="email" inputMode="email" autoComplete="email" onBlur={garderEmail} className={classeChamp('email')}
                 value={client.email} onChange={(e) => majClient({ email: e.target.value })} />
               <p className="text-[13px] text-gray-500 mt-1.5">Pour votre confirmation et le suivi de livraison.</p>
             </div>

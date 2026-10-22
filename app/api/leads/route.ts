@@ -50,6 +50,20 @@ export async function POST(req: NextRequest) {
     const montant = Number(payload?.montant)
 
     const supabase = createAdminClient()
+
+    /* Une relance en cours suffit. Le checkout appelle cette route dès que
+       l'adresse est saisie, et un client qui revient le lendemain la
+       saisirait une seconde fois : sans ce garde-fou, il recevrait la
+       séquence en double. */
+    const { data: deja } = await supabase
+      .from('leads')
+      .select('id')
+      .eq('email', email.toLowerCase())
+      .eq('a_commande', false)
+      .gte('created_at', new Date(Date.now() - 12 * 86400_000).toISOString())
+      .limit(1)
+    if (deja && deja.length > 0) return
+
     const { error } = await supabase.from('leads').insert({
       email: email.toLowerCase(),
       telephone: str(payload?.telephone, 40),
