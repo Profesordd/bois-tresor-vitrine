@@ -74,7 +74,8 @@ export default function RetourPaiement() {
           }
           throw new Error(j.error ?? 'Paiement non confirmé')
         }
-        window.location.replace(`/commande/merci/?ref=${encodeURIComponent(j.reference)}`)
+        const merci = j.canal === 'partenaire' ? '/commande/partenaire/merci' : '/commande/merci'
+          window.location.replace(`${merci}/?ref=${encodeURIComponent(j.reference)}`)
       } catch (err) {
         setMessage(err instanceof Error ? err.message : 'Paiement non confirmé')
         setEtat('echec')

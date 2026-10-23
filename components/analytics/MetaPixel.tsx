@@ -1,4 +1,7 @@
+'use client'
+
 import Script from 'next/script'
+import { usePathname } from 'next/navigation'
 import { META_PIXEL_ID } from '@/lib/analytics/meta'
 import MetaPageView from '@/components/analytics/MetaPageView'
 
@@ -8,8 +11,24 @@ import MetaPageView from '@/components/analytics/MetaPageView'
  * Le script se contente d'initialiser le pixel. Le PageView n'est plus
  * déclenché ici : il part depuis MetaPageView, avec un identifiant partagé
  * avec l'envoi serveur, sans lequel Meta compterait l'événement deux fois.
+ *
+ * ⚠️ Rien n'est chargé sur l'espace partenaire ni sur l'administration :
+ * ni le script, ni fbq, ni l'image noscript. Une vente du partenaire, ou
+ * une visite du gérant, ne doit JAMAIS atteindre le Facebook de
+ * bois-tresor. Ces pages sont, pour Meta, un autre site.
  */
+
+/** Les pages hors mesure Meta : partenaire (canal distinct) et admin. */
+function horsMeta(path: string): boolean {
+  return path.startsWith('/partenaire')
+    || path.startsWith('/commande/partenaire')
+    || path.startsWith('/admin')
+}
 export default function MetaPixel() {
+  const pathname = usePathname()
+  /* Aucun pixel sur ces pages : elles appartiennent à un autre univers. */
+  if (horsMeta(pathname)) return null
+
   return (
     <>
       <Script id="meta-pixel" strategy="afterInteractive">

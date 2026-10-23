@@ -343,7 +343,8 @@ export default function FormulaireCommande({ product, lot, montant, canal = 'sit
       })
       const j = await r.json()
       if (!r.ok || !j.ok) throw new Error(j.error ?? 'Paiement non confirmé')
-      router.replace(`/commande/merci/?ref=${encodeURIComponent(j.reference)}`)
+      const merci = canal === 'partenaire' ? '/commande/partenaire/merci' : '/commande/merci'
+      router.replace(`${merci}/?ref=${encodeURIComponent(j.reference)}`)
     } catch (err) {
       setErreur(err instanceof Error ? err.message : 'Paiement non confirmé')
       setEtape('erreur')

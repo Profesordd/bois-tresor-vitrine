@@ -27,7 +27,7 @@ export async function POST(req: NextRequest) {
 
   /* Déjà confirmée : on renvoie la même réponse, sans rien refaire. */
   if (commande.statut === 'payee') {
-    return NextResponse.json({ ok: true, reference: commande.reference })
+    return NextResponse.json({ ok: true, reference: commande.reference, canal: commande.canal })
   }
   if (!commande.paiement_id) {
     return NextResponse.json({ error: 'Aucun paiement associé' }, { status: 409 })
@@ -109,7 +109,7 @@ export async function POST(req: NextRequest) {
       if (!r.ok) console.error('[purchase/capi]', r.status, JSON.stringify(r.corps).slice(0, 300))
     })
 
-    return NextResponse.json({ ok: true, reference: commande.reference })
+    return NextResponse.json({ ok: true, reference: commande.reference, canal: commande.canal })
   } catch (err) {
     return NextResponse.json({ error: err instanceof Error ? err.message : 'Erreur' }, { status: 502 })
   }

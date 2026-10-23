@@ -52,7 +52,12 @@ function productOf(el: HTMLElement): Record<string, unknown> | null {
 /** L'espace d'administration n'est pas mesuré : les visites du gérant
  *  fausseraient ses propres statistiques de fréquentation. */
 function isTracked(path: string): boolean {
+  /* Le canal partenaire a sa propre comptabilité : ses visites ne doivent
+     pas entrer dans la mesure d'audience ni dans l'entonnoir checkout de
+     bois-tresor, sinon l'admin mélangerait les deux sites. */
   return !path.startsWith('/admin')
+    && !path.startsWith('/partenaire')
+    && !path.startsWith('/commande/partenaire')
 }
 
 export default function AnalyticsTracker() {

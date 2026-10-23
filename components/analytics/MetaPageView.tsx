@@ -23,7 +23,8 @@ export default function MetaPageView() {
   const dernier = useRef<{ path: string; at: number } | null>(null)
 
   useEffect(() => {
-    if (pathname.startsWith('/admin')) return
+    /* Partenaire et admin exclus : un autre site, et les visites du gérant. */
+    if (pathname.startsWith('/admin') || pathname.startsWith('/partenaire') || pathname.startsWith('/commande/partenaire')) return
 
     /* Le mode strict de React exécute deux fois les effets en
        développement : sans ce garde-fou, chaque vue partirait en double. */
