@@ -38,9 +38,16 @@ export async function POST(req: NextRequest) {
 
   const b = await req.json().catch(() => null)
 
+  /* Deux canaux. « site » : le checkout de bois-tresor, réservé aux fiches
+     checkoutInterne. « partenaire » : un autre site qui redirige ses
+     paiements ici ; il peut régler n'importe quel produit du catalogue,
+     car ce sont nos produits, et le montant sort de toute façon du
+     catalogue. Les deux restent comptés séparément par cette étiquette. */
+  const canal = b?.canal === 'partenaire' ? 'partenaire' : 'site'
+
   const produit = typeof b?.produitSlug === 'string' ? getProductBySlug(b.produitSlug) : null
-  if (!produit) return NextResponse.json({ error: 'Produit inconnu' }, { status: 400 })
-  if (!produit.checkoutInterne) {
+  if (!produit || produit.unlisted) return NextResponse.json({ error: 'Produit inconnu' }, { status: 400 })
+  if (canal === 'site' && !produit.checkoutInterne) {
     return NextResponse.json({ error: 'Ce produit ne se règle pas ici' }, { status: 400 })
   }
 
@@ -49,9 +56,12 @@ export async function POST(req: NextRequest) {
   const lot = lots.length > 0
     ? (lots.find((l) => l.id === b?.lot) ?? lots[0])
     : null
+  /* Quantité bornée côté serveur. Un lot impose son propre maximum ; un
+     produit sans lot acheté via le partenaire se prend jusqu'à dix. */
+  const maxQuantite = lot ? quantiteMaximum(lot) : (canal === 'partenaire' ? 10 : 1)
   const demandee = Number(b?.quantite)
   const quantite = Number.isFinite(demandee)
-    ? Math.min(quantiteMaximum(lot), Math.max(1, Math.floor(demandee)))
+    ? Math.min(maxQuantite, Math.max(1, Math.floor(demandee)))
     : 1
   const unitaireCents = Math.round((lot ? lot.price : produit.price) * 100)
   const montantCents = unitaireCents * quantite
@@ -87,6 +97,7 @@ export async function POST(req: NextRequest) {
         + (quantite > 1 ? ` × ${quantite}` : ''),
       lot: lot?.id ?? null,
       quantite,
+      canal,
       montant_cents: montantCents,
       ...champs,
       email: champs.email!.toLowerCase(),
@@ -112,7 +123,10 @@ export async function POST(req: NextRequest) {
      chaud de tous, il avait sorti sa carte.
      Rien ne retient la réponse : une relance manquée ne doit pas empêcher
      une commande de naître. */
-  void (async () => {
+  /* Les relances sont celles de bois-tresor, avec ses liens et sa marque.
+     Une commande partenaire n'y a pas sa place : son client n'est pas le
+     nôtre. */
+  if (canal === 'site') void (async () => {
     const adresse = champs.email!.toLowerCase()
     const { data: deja } = await supabase
       .from('leads')

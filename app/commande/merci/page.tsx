@@ -17,7 +17,7 @@ async function getCommande(reference: string) {
   const supabase = createAdminClient()
   const { data } = await supabase
     .from('commandes')
-    .select('id, reference, statut, produit_slug, produit_nom, montant_cents')
+    .select('id, reference, statut, produit_slug, produit_nom, montant_cents, canal')
     .eq('reference', reference)
     .maybeSingle()
   return data
@@ -42,8 +42,9 @@ export default async function MerciPage({ searchParams }: Props) {
 
   return (
     <div className="max-w-xl mx-auto px-4 sm:px-6 py-16 text-center">
-      {/* L'achat n'est mesuré que s'il est réellement payé. */}
-      {commande?.statut === 'payee' && (
+      {/* L'achat n'est mesuré que s'il est réellement payé, et seulement
+          pour le canal du site : une vente partenaire n'est pas la nôtre. */}
+      {commande?.statut === 'payee' && commande.canal === 'site' && (
         <PurchaseTracker
           commandeId={commande.id as string}
           reference={commande.reference as string}

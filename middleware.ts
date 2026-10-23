@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { ADMIN_COOKIE, verifyToken } from '@/lib/admin/session'
+import { ADMIN_COOKIE, PARTENAIRE_COOKIE, verifyToken } from '@/lib/admin/session'
 
 export const PAYS_COOKIE = 'bt_pays'
 
@@ -94,6 +94,23 @@ function marquerLePays(req: NextRequest, res: NextResponse): NextResponse {
  */
 export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl
+
+  /* Espace partenaire : session propre, totalement séparée de l'admin de
+     bois-tresor. Le partenaire ne peut pas entrer dans /admin (il n'a pas
+     ce mot de passe), et un admin ne voit l'espace partenaire que s'il s'y
+     connecte aussi. */
+  if (pathname.startsWith('/partenaire')) {
+    if (pathname.startsWith('/partenaire/login')) return NextResponse.next()
+    const ok = await verifyToken(
+      req.cookies.get(PARTENAIRE_COOKIE)?.value,
+      process.env.PARTENAIRE_SESSION_SECRET ?? '',
+    )
+    if (ok) return NextResponse.next()
+    const login = req.nextUrl.clone()
+    login.pathname = '/partenaire/login/'
+    login.search = ''
+    return NextResponse.redirect(login)
+  }
 
   if (!pathname.startsWith('/admin')) {
     const res = marquerLePays(req, NextResponse.next())

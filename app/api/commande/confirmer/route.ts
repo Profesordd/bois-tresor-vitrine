@@ -19,7 +19,7 @@ export async function POST(req: NextRequest) {
   const supabase = createAdminClient()
   const { data: commande } = await supabase
     .from('commandes')
-    .select('id, reference, statut, montant_cents, paiement_id, produit_slug, produit_nom, email, lot')
+    .select('id, reference, statut, montant_cents, paiement_id, produit_slug, produit_nom, email, lot, canal')
     .eq('id', commandeId)
     .maybeSingle()
 
@@ -47,6 +47,7 @@ export async function POST(req: NextRequest) {
         error: `Paiement refusé (${paiement.statut})`,
         produitSlug: commande.produit_slug,
         lot: commande.lot,
+        canal: commande.canal,
       }, { status: 402 })
     }
 
@@ -83,7 +84,9 @@ export async function POST(req: NextRequest) {
       .eq('email', commande.email as string)
       .eq('a_commande', false)
 
-    void envoyerCapi([{
+    /* L'achat ne remonte à Meta que pour le canal du site : une vente du
+       partenaire n'est pas une conversion de bois-tresor. */
+    if (commande.canal === 'site') void envoyerCapi([{
       nom: 'Purchase',
       eventId: commande.id as string,
       url: `${(process.env.NEXT_PUBLIC_SITE_URL ?? 'https://www.bois-tresor.com').replace(/\/$/, '')}/commande/merci/`,

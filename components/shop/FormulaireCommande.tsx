@@ -56,9 +56,16 @@ interface Props {
   product: Product
   lot: Lot | null
   montant: number
+  /**
+   * Canal de vente. « partenaire » : la commande vient d'un autre site qui
+   * redirige ici ; elle est comptée à part, et la mesure Meta de
+   * bois-tresor ne doit pas la ramasser, sinon les campagnes seraient
+   * optimisées sur des ventes qui ne sont pas les siennes.
+   */
+  canal?: 'site' | 'partenaire'
 }
 
-export default function FormulaireCommande({ product, lot, montant }: Props) {
+export default function FormulaireCommande({ product, lot, montant, canal = 'site' }: Props) {
   const router = useRouter()
   const [etape, setEtape] = useState<Etape>('saisie')
   const [erreur, setErreur] = useState('')
@@ -70,7 +77,7 @@ export default function FormulaireCommande({ product, lot, montant }: Props) {
   /* Quantité : seuls les lots qui l’autorisent affichent le sélecteur,
      et le serveur reborne de toute façon ce qu’il reçoit. Le total reste
      indicatif ici : celui qui est débité vient du catalogue. */
-  const maxQuantite = quantiteMaximum(lot)
+  const maxQuantite = lot ? quantiteMaximum(lot) : (canal === 'partenaire' ? 10 : 1)
   const [quantite, setQuantite] = useState(1)
   const total = Math.round(montant * quantite * 100) / 100
 
@@ -195,7 +202,7 @@ export default function FormulaireCommande({ product, lot, montant }: Props) {
        compte. C'est ce qui faisait apparaître les AddToCart dans Meta sans
        aucun InitiateCheckout. L'attente précède l'envoi et ne le répète
        pas : réessayer créerait plusieurs événements serveur. */
-    void attendreLePixel(2000).then(() => trackInitiateCheckout(product, montant))
+    if (canal === 'site') void attendreLePixel(2000).then(() => trackInitiateCheckout(product, montant))
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
@@ -250,7 +257,7 @@ export default function FormulaireCommande({ product, lot, montant }: Props) {
     /* `AddPaymentInfo` : coordonnées et carte saisies, le paiement part.
        Le pixel est chargé depuis longtemps à ce stade, l'attente se résout
        immédiatement. */
-    void attendreLePixel(1000).then(() => trackAddPaymentInfo(product, total))
+    if (canal === 'site') void attendreLePixel(1000).then(() => trackAddPaymentInfo(product, total))
 
     try {
       const r1 = await fetch('/api/commande/', {
@@ -260,6 +267,7 @@ export default function FormulaireCommande({ product, lot, montant }: Props) {
           produitSlug: product.slug,
           lot: lot?.id ?? null,
           quantite,
+          canal,
           ...client,
           sessionId: getSession().id || null,
         }),

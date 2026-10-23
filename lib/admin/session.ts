@@ -11,6 +11,9 @@
 
 export const ADMIN_COOKIE = 'bt_admin'
 
+/** Session de l'espace partenaire, séparée de l'admin de bois-tresor. */
+export const PARTENAIRE_COOKIE = 'bt_partenaire'
+
 /** Durée de validité d'une connexion. */
 const MAX_AGE_SECONDS = 60 * 60 * 12
 

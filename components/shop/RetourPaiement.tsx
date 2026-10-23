@@ -66,7 +66,11 @@ export default function RetourPaiement() {
         const j = await r.json()
         if (!r.ok || !j.ok) {
           if (j.produitSlug) {
-            setRetour(`/commande/${j.produitSlug}/${j.lot ? `?lot=${encodeURIComponent(j.lot)}` : ''}`)
+            /* On renvoie sur le même canal : un client du partenaire ne
+               doit pas retomber sur le checkout du site, qui refuserait son
+               produit. */
+            const base = j.canal === 'partenaire' ? '/commande/partenaire' : '/commande'
+            setRetour(`${base}/${j.produitSlug}/${j.lot ? `?lot=${encodeURIComponent(j.lot)}` : ''}`)
           }
           throw new Error(j.error ?? 'Paiement non confirmé')
         }
