@@ -1,5 +1,7 @@
 import RetourPaiement from '@/components/shop/RetourPaiement'
 
+export const dynamic = 'force-dynamic'
+
 export const metadata = { title: 'Confirmation du paiement', robots: { index: false, follow: false } }
 
 /**
@@ -13,5 +15,8 @@ export const metadata = { title: 'Confirmation du paiement', robots: { index: fa
  * ne passe pas par ici.
  */
 export default function RetourCommandePage() {
-  return <RetourPaiement />
+  /* Après un achat partenaire réussi, on renvoie le client vers l'URL du
+     partenaire plutôt que sur une page de remerciement. Lue au runtime,
+     elle se change par variable d'environnement sans toucher au code. */
+  return <RetourPaiement redirectPartenaire={process.env.PARTENAIRE_REDIRECT_URL ?? null} />
 }

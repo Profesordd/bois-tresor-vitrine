@@ -63,9 +63,11 @@ interface Props {
    * optimisées sur des ventes qui ne sont pas les siennes.
    */
   canal?: 'site' | 'partenaire'
+  /** Canal partenaire : URL externe où renvoyer le client après l'achat. */
+  redirectSucces?: string | null
 }
 
-export default function FormulaireCommande({ product, lot, montant, canal = 'site' }: Props) {
+export default function FormulaireCommande({ product, lot, montant, canal = 'site', redirectSucces = null }: Props) {
   const router = useRouter()
   const [etape, setEtape] = useState<Etape>('saisie')
   const [erreur, setErreur] = useState('')
@@ -343,6 +345,11 @@ export default function FormulaireCommande({ product, lot, montant, canal = 'sit
       })
       const j = await r.json()
       if (!r.ok || !j.ok) throw new Error(j.error ?? 'Paiement non confirmé')
+      if (canal === 'partenaire' && redirectSucces) {
+        const sep = redirectSucces.includes('?') ? '&' : '?'
+        window.location.replace(`${redirectSucces}${sep}ref=${encodeURIComponent(j.reference)}`)
+        return
+      }
       const merci = canal === 'partenaire' ? '/commande/partenaire/merci' : '/commande/merci'
       router.replace(`${merci}/?ref=${encodeURIComponent(j.reference)}`)
     } catch (err) {

@@ -27,7 +27,7 @@ import { Loader2, AlertTriangle, RefreshCw } from 'lucide-react'
 
 type Etat = 'confirmation' | 'echec'
 
-export default function RetourPaiement() {
+export default function RetourPaiement({ redirectPartenaire }: { redirectPartenaire?: string | null }) {
   const [etat, setEtat] = useState<Etat>('confirmation')
   const [message, setMessage] = useState('')
   const [retour, setRetour] = useState<string | null>(null)
@@ -74,7 +74,15 @@ export default function RetourPaiement() {
           }
           throw new Error(j.error ?? 'Paiement non confirmé')
         }
-        const merci = j.canal === 'partenaire' ? '/commande/partenaire/merci' : '/commande/merci'
+        /* Canal partenaire avec une URL de retour configurée : on y envoie
+             le client directement, en lui passant sa référence. Sinon, la
+             page de remerciement du bon canal. */
+          if (j.canal === 'partenaire' && redirectPartenaire) {
+            const sep = redirectPartenaire.includes('?') ? '&' : '?'
+            window.location.replace(`${redirectPartenaire}${sep}ref=${encodeURIComponent(j.reference)}`)
+            return
+          }
+          const merci = j.canal === 'partenaire' ? '/commande/partenaire/merci' : '/commande/merci'
           window.location.replace(`${merci}/?ref=${encodeURIComponent(j.reference)}`)
       } catch (err) {
         setMessage(err instanceof Error ? err.message : 'Paiement non confirmé')

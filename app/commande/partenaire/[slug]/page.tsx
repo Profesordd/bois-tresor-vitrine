@@ -54,7 +54,11 @@ export default async function CommandePartenairePage({ params, searchParams }: P
           <ShieldCheck size={15} className="text-brand-600" /> Paiement sécurisé
         </p>
 
-        <FormulaireCommande product={produit} lot={lot} montant={montant} canal="partenaire" />
+        <FormulaireCommande
+          product={produit} lot={lot} montant={montant}
+          canal="partenaire"
+          redirectSucces={process.env.PARTENAIRE_REDIRECT_URL ?? null}
+        />
 
         <p className="text-center text-[12px] text-gray-400 mt-8">
           Un souci ? <Link href="/contact/" className="underline hover:text-gray-600">Écrivez-nous</Link>
