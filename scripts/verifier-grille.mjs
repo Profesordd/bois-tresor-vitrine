@@ -45,9 +45,23 @@ const lignes = source.split('\n')
 /* `price:` seulement — ni `originalPrice`, qui n'est jamais encaissé, ni
    `pricePerStere`, qui n'est qu'un repère affiché. */
 const prix = []
+let exempts = 0
 lignes.forEach((ligne, i) => {
   const m = ligne.match(/(?<![A-Za-z])price:\s*([\d.]+)\s*,/)
   if (!m) return
+
+  /* Les fiches réglées sur le site par CAWL n'ont aucune grille : le
+     montant débité est le prix du catalogue, quel qu'il soit. On les
+     reconnaît à un variantId non numérique (marqueur interne) sur la ligne
+     du lot, ou à `checkoutInterne: true` dans le bloc du produit. */
+  const variantNonNumerique = /variantId:\s*'[^']*[A-Za-z][^']*'/.test(ligne)
+  let interne = variantNonNumerique
+  for (let j = i; !interne && j < Math.min(lignes.length, i + 15); j++) {
+    if (j > i && /(?<![A-Za-z])price:\s*[\d.]+\s*,/.test(lignes[j])) break
+    if (/checkoutInterne:\s*true/.test(lignes[j])) interne = true
+  }
+  if (interne) { exempts++; return }
+
   const centimes = Math.round(Number(m[1]) * 100)
   /* Le multiplicateur déclaré, s'il y en a un : c'est lui qui décide de ce
      que le processeur encaisse réellement. */

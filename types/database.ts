@@ -114,8 +114,13 @@ export interface Product {
    * pratique commerciale trompeuse).
    */
   offre?: {
-    /** Fin de l'offre, en ISO 8601 avec fuseau : '2026-09-30T23:59:00+02:00'. */
-    finAt: string
+    /**
+     * Fin de l'offre, en ISO 8601 avec fuseau. Optionnelle : sans elle,
+     * pas de compte à rebours, seulement la rareté par le stock. Un
+     * minuteur qui tourne inquiète un acheteur méfiant ; « plus que X à ce
+     * prix » le pousse sans le faire fuir.
+     */
+    finAt?: string
     /** Nombre de lots encore disponibles à ce prix. */
     lotsRestants: number
   }

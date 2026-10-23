@@ -4,7 +4,8 @@ import { useEffect, useState } from 'react'
 import { CalendarClock, PackageCheck } from 'lucide-react'
 
 interface Props {
-  finAt: string
+  /** Absente : rareté par le stock seul, sans compte à rebours. */
+  finAt?: string
   lotsRestants: number
   /** Prévient le sélecteur dès que l'offre s'arrête, pour retirer l'achat. */
   onTermine?: (termine: boolean) => void
@@ -37,6 +38,9 @@ export default function OffreLimitee({ finAt, lotsRestants, onTermine }: Props) 
   const [temps, setTemps] = useState<ReturnType<typeof restant> | undefined>(undefined)
 
   useEffect(() => {
+    /* Sans date de fin, l'offre ne se termine jamais : la rareté tient au
+       stock, pas à l'horloge. On le dit tout de suite au sélecteur. */
+    if (!finAt) { onTermine?.(false); return }
     const tic = () => {
       const t = restant(finAt)
       setTemps(t)
@@ -46,6 +50,23 @@ export default function OffreLimitee({ finAt, lotsRestants, onTermine }: Props) 
     const id = setInterval(tic, 1000)
     return () => clearInterval(id)
   }, [finAt, onTermine])
+
+  /* Rareté par le stock seul : pas de minuteur, pas d'échéance, toujours
+     disponible. C'est la forme la plus sûre pour un public qui se méfie
+     des fausses urgences. */
+  if (!finAt) {
+    return (
+      <div className="rounded-lg border-2 border-amber-400 bg-amber-50 p-4">
+        <p className="flex items-center gap-2 font-bold text-ink">
+          <PackageCheck size={19} className="text-amber-700 flex-shrink-0" />
+          Plus que {lotsRestants} lot{lotsRestants > 1 ? 's' : ''} disponible{lotsRestants > 1 ? 's' : ''} à ce prix
+        </p>
+        <p className="text-[15px] text-gray-700 mt-1 leading-snug">
+          Ce lot vient d’un arrivage particulier : une fois écoulé, il ne sera pas renouvelé à ce prix.
+        </p>
+      </div>
+    )
+  }
 
   if (temps === undefined) return null
 

@@ -887,10 +887,16 @@ const RANGEMENT: Product[] = ([
    Prix contrôlés sur la grille, en centimes :
      89,98 € = 44,99 × 2   119,97 € = 39,99 × 3   149,95 € = 29,99 × 5
    ───────────────────────────────────────────── */
+/* Fiche B, prix haut, réglée sur le site par CAWL : le montant débité est
+   le `price` du lot, recalculé côté serveur. Les `variantId` ne servent
+   plus qu'à afficher le lot (lotsDisponibles filtre dessus) ; celui de la
+   palette est un marqueur interne, aucun produit externe derrière.
+   Dégressif assumé : plus on prend, moins le sac coûte. */
 const LIMOUZI_B_LOTS: Lot[] = [
-  { id: '20',  sacs: 20, poids: '300 kg', price: 89.98,  variantId: '58545343758680', checkoutMultiplier: 2 },  // 4,50 €/sac
-  { id: '30',  sacs: 30, poids: '450 kg', price: 119.97, variantId: '58545345298776', checkoutMultiplier: 3 },  // 4,00 €/sac
-  { id: 'demi', sacs: 45, poids: '675 kg', price: 149.95, variantId: '58545346675032', checkoutMultiplier: 5, label: 'Demi-palette 45 sacs' },  // 3,33 €/sac
+  { id: '20',      sacs: 20, poids: '300 kg', price: 89.98,  variantId: '58545343758680', checkoutMultiplier: 2 },  // 4,50 €/sac
+  { id: '30',      sacs: 30, poids: '450 kg', price: 119.97, variantId: '58545345298776', checkoutMultiplier: 3 },  // 4,00 €/sac
+  { id: 'demi',    sacs: 45, poids: '675 kg', price: 149.95, variantId: '58545346675032', checkoutMultiplier: 5, label: 'Demi-palette 45 sacs' },  // 3,33 €/sac
+  { id: 'palette', sacs: 65, poids: '975 kg', price: 194.87, variantId: 'interne-b-palette', checkoutMultiplier: 1, label: 'Palette 65 sacs', quantiteMax: 5 },  // 3,00 €/sac
 ]
 
 const LIMOUZI_B: Product = {
@@ -904,10 +910,11 @@ const LIMOUZI_B: Product = {
   checkoutMultiplier: 2,
   unlisted: true,
   canonicalOf: LIMOUZI.slug,
-  /* Arrivage limité, d'un autre fournisseur : quantité et date réelles,
-     à tenir à jour. Le compte à rebours vise cette date exacte et la fiche
-     cesse de vendre une fois passée. */
-  offre: { finAt: '2026-09-27T23:59:00+02:00', lotsRestants: 3 },
+  /* Arrivage limité d'un autre fournisseur. Rareté par le stock seul, sans
+     compte à rebours : un minuteur qui tourne fait fuir un public qui
+     craint l'arnaque, « plus que X à ce prix » le rassure tout en poussant.
+     La fiche reste donc toujours disponible. */
+  offre: { lotsRestants: 4 },
   keyPoints: LIMOUZI.keyPoints.map((l) =>
     l.startsWith('Par lot de')
       ? 'Par lot de 20 ou 30 sacs, ou demi-palette de 45 sacs, à partir de 89,98 € — livraison offerte. Plus vous prenez, moins le sac est cher.'
