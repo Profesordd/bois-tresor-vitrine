@@ -371,8 +371,8 @@ export default function FormulaireCommande({ product, lot, montant, canal = 'sit
         window.setTimeout(() => window.location.replace(cible), 600)
         return
       }
-      const merci = canal === 'partenaire' ? '/commande/partenaire/merci' : '/commande/merci'
-      router.replace(`${merci}/?ref=${encodeURIComponent(j.reference)}`)
+      /* Ici, uniquement le canal du site : le partenaire est déjà reparti. */
+      router.replace(`/commande/merci/?ref=${encodeURIComponent(j.reference)}`)
     } catch (err) {
       setErreur(err instanceof Error ? err.message : 'Paiement non confirmé')
       setEtape('erreur')
