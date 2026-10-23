@@ -1,4 +1,3 @@
-import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { ShieldCheck } from 'lucide-react'
 import { getProductBySlug } from '@/lib/products'
@@ -28,8 +27,10 @@ interface Props {
 export async function generateMetadata({ params }: Props) {
   const { slug } = await params
   const produit = getProductBySlug(slug)
+  /* Titre absolu : on écarte le suffixe « | Bois Tresor » du gabarit. Rien
+     de bois-tresor ne doit apparaître, pas même dans l'onglet. */
   return {
-    title: produit ? `Commander — ${produit.name}` : 'Commander',
+    title: { absolute: produit ? `Commander — ${produit.name}` : 'Commander' },
     robots: { index: false, follow: false },
   }
 }
@@ -59,10 +60,6 @@ export default async function CommandePartenairePage({ params, searchParams }: P
           canal="partenaire"
           redirectSucces={process.env.PARTENAIRE_REDIRECT_URL ?? null}
         />
-
-        <p className="text-center text-[12px] text-gray-400 mt-8">
-          Un souci ? <Link href="/contact/" className="underline hover:text-gray-600">Écrivez-nous</Link>
-        </p>
       </div>
     </div>
   )

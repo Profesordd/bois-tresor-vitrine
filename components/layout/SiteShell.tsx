@@ -20,6 +20,13 @@ export default function SiteShell({ children }: { children: React.ReactNode }) {
     return <main className="min-h-screen bg-gray-50">{children}</main>
   }
 
+  /* Le checkout partenaire est une page de paiement nue : un autre site y
+     redirige ses clients, et rien de bois-tresor ne doit y paraître — ni
+     logo, ni menu, ni bandeau, ni pied de page. Strictement ce chemin. */
+  if (pathname?.startsWith('/commande/partenaire')) {
+    return <main className="min-h-screen bg-gray-50">{children}</main>
+  }
+
   return (
     <>
       <Header />
