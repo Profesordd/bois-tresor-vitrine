@@ -11,6 +11,7 @@ import ProductVisual from '@/components/shop/ProductVisual'
 import { quantiteMaximum } from '@/lib/lots'
 import { getSession } from '@/lib/analytics/track'
 import { trackInitiateCheckout, trackAddPaymentInfo, attendreLePixel } from '@/lib/analytics/meta'
+import { chargerPixelBurban, attendreBurban, trackBurban, produitBurban } from '@/lib/analytics/burban'
 
 /**
  * Checkout maison, paiement par carte sur le site.
@@ -204,7 +205,14 @@ export default function FormulaireCommande({ product, lot, montant, canal = 'sit
        compte. C'est ce qui faisait apparaître les AddToCart dans Meta sans
        aucun InitiateCheckout. L'attente précède l'envoi et ne le répète
        pas : réessayer créerait plusieurs événements serveur. */
-    if (canal === 'site') void attendreLePixel(2000).then(() => trackInitiateCheckout(product, montant))
+    if (canal === 'site') {
+      void attendreLePixel(2000).then(() => trackInitiateCheckout(product, montant))
+    } else {
+      /* Canal partenaire : son pixel à lui, chargé ici et nulle part
+         ailleurs. Rien ne part vers le pixel de bois-tresor. */
+      chargerPixelBurban()
+      void attendreBurban(2000).then(() => trackBurban('InitiateCheckout', produitBurban(product.slug, product.name, total)))
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
@@ -259,7 +267,11 @@ export default function FormulaireCommande({ product, lot, montant, canal = 'sit
     /* `AddPaymentInfo` : coordonnées et carte saisies, le paiement part.
        Le pixel est chargé depuis longtemps à ce stade, l'attente se résout
        immédiatement. */
-    if (canal === 'site') void attendreLePixel(1000).then(() => trackAddPaymentInfo(product, total))
+    if (canal === 'site') {
+      void attendreLePixel(1000).then(() => trackAddPaymentInfo(product, total))
+    } else {
+      void attendreBurban(1000).then(() => trackBurban('AddPaymentInfo', produitBurban(product.slug, product.name, total)))
+    }
 
     try {
       const r1 = await fetch('/api/commande/', {
@@ -345,9 +357,18 @@ export default function FormulaireCommande({ product, lot, montant, canal = 'sit
       })
       const j = await r.json()
       if (!r.ok || !j.ok) throw new Error(j.error ?? 'Paiement non confirmé')
-      if (canal === 'partenaire' && redirectSucces) {
-        const sep = redirectSucces.includes('?') ? '&' : '?'
-        window.location.replace(`${redirectSucces}${sep}ref=${encodeURIComponent(j.reference)}`)
+      if (canal === 'partenaire') {
+        /* Purchase vers le seul pixel Burban (cas sans 3-D Secure). */
+        await attendreBurban(1500)
+        trackBurban(
+          'Purchase',
+          { ...produitBurban(product.slug, product.name, j.montantEur ?? total), order_id: j.reference },
+          commandeId,
+        )
+        const cible = redirectSucces
+          ? `${redirectSucces}${redirectSucces.includes('?') ? '&' : '?'}ref=${encodeURIComponent(j.reference)}`
+          : `/commande/partenaire/merci/?ref=${encodeURIComponent(j.reference)}`
+        window.setTimeout(() => window.location.replace(cible), 600)
         return
       }
       const merci = canal === 'partenaire' ? '/commande/partenaire/merci' : '/commande/merci'

@@ -33,7 +33,7 @@ export async function POST(req: NextRequest) {
      autant que le montant : sans elles, la banque refuse l'authentification. */
   const { data: commande } = await supabase
     .from('commandes')
-    .select('id, reference, montant_cents, statut, prenom, nom, email, telephone, adresse, complement, code_postal, ville, pays')
+    .select('id, reference, montant_cents, statut, canal, prenom, nom, email, telephone, adresse, complement, code_postal, ville, pays')
     .eq('id', commandeId)
     .maybeSingle()
 
@@ -59,7 +59,10 @@ export async function POST(req: NextRequest) {
       titulaire: String(b.titulaire),
       produitId,
       reference: commande.reference as string,
-      returnUrl: `${base}/commande/retour/?c=${encodeURIComponent(commande.id as string)}`,
+      /* Le retour reste dans le bon univers : une commande partenaire
+         revient sur sa propre page de retour, elle-même exclue du pixel de
+         bois-tresor et chargée de déclencher celui du partenaire. */
+      returnUrl: `${base}${commande.canal === 'partenaire' ? '/commande/partenaire/retour' : '/commande/retour'}/?c=${encodeURIComponent(commande.id as string)}`,
       client: {
         prenom: commande.prenom as string,
         nom: commande.nom as string,
