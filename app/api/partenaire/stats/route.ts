@@ -100,9 +100,15 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: 'Clé invalide' }, { status: 401, headers: ENTETES_CORS })
   }
 
-  /* Le cache porte sur la question posée : deux `depuis` différents ne
-     doivent pas se répondre l'un pour l'autre. */
-  const question = req.nextUrl.searchParams.get('depuis') ?? ''
+  /* Le canal demandé : « site » (défaut) = les ventes propres de
+     bois-tresor ; « partenaire » = celles du checkout partenaire (Burban),
+     comptées à part. Sans ce filtre, les ventes du partenaire gonfleraient
+     le chiffre de bois-tresor dans le tableau de bord. */
+  const canal = req.nextUrl.searchParams.get('canal') === 'partenaire' ? 'partenaire' : 'site'
+
+  /* Le cache porte sur la question posée : deux `depuis` ou deux canaux
+     différents ne doivent pas se répondre l'un pour l'autre. */
+  const question = `${canal}:${req.nextUrl.searchParams.get('depuis') ?? ''}`
   if (cache && cache.question === question && Date.now() - cache.a < CACHE_MS) {
     return NextResponse.json(cache.corps, { headers: ENTETES_CORS })
   }
@@ -118,6 +124,7 @@ export async function GET(req: NextRequest) {
       .from('commandes')
       .select('created_at, montant_cents')
       .eq('statut', 'payee')
+      .eq('canal', canal)
       .order('created_at')
       .range(page * 1000, page * 1000 + 999)
     if (error) {
