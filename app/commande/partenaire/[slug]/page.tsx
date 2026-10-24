@@ -40,7 +40,9 @@ export default async function CommandePartenairePage({ params, searchParams }: P
   const { lot: lotVoulu } = await searchParams
 
   const produit = getProductBySlug(slug)
-  if (!produit || produit.unlisted) notFound()
+  /* Masqué de bois-tresor, mais les produits du partenaire y sont
+     légitimes : le drapeau `partenaireOnly` les laisse passer. */
+  if (!produit || (produit.unlisted && !produit.partenaireOnly)) notFound()
 
   const lots = lotsDisponibles(produit)
   const lot = lots.length > 0

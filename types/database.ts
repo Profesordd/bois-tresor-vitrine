@@ -91,6 +91,13 @@ export interface Product {
    */
   unlisted?: boolean
   /**
+   * Produit d'un site partenaire, vendu uniquement via le checkout
+   * partenaire (`/commande/partenaire/`). Toujours `unlisted` aussi : il
+   * n'a rien à faire sur bois-tresor. Ce drapeau le laisse passer sur le
+   * checkout partenaire, là où `unlisted` seul le bloquerait.
+   */
+  partenaireOnly?: boolean
+  /**
    * Slug de la fiche de référence, pour le lien canonique. Deux fiches au
    * même contenu se cannibalisent sinon dans les résultats de recherche.
    */

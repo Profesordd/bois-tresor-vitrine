@@ -55,7 +55,7 @@ export async function POST(req: NextRequest) {
   if (canal === 'site' && !produit.checkoutInterne) {
     return NextResponse.json({ error: 'Ce produit ne se règle pas ici' }, { status: 400 })
   }
-  if (canal === 'partenaire' && produit.unlisted) {
+  if (canal === 'partenaire' && produit.unlisted && !produit.partenaireOnly) {
     return NextResponse.json({ error: 'Produit inconnu' }, { status: 400 })
   }
 

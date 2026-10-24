@@ -974,7 +974,49 @@ const ESSAI_CHECKOUT: Product = {
   created_at: '',
 }
 
-export const PRODUCTS: Product[] = [...MELANGES, ...HETRES, ...DENSIFIES, LIMOUZI, LIMOUZI_B, ...GRANULES, ...HERBICIDES_PRODUITS, ...RANGEMENT, ESSAI_CHECKOUT]
+/* Produits d'un site partenaire, vendus uniquement via le checkout
+   partenaire. `unlisted` les cache de bois-tresor, `partenaireOnly` les
+   laisse passer sur /commande/partenaire/. Jamais checkoutInterne : le
+   checkout du site les refuse. */
+const PARTENAIRE_PRODUITS: Product[] = [
+  {
+    id: nextId(),
+    slug: 'abri-en-bois-massif-19-8m-plus-28mm-traite-teinte-marron-gardy-shelter',
+    name: 'Abri en bois massif 19,8 m² Plus 28 mm traité teinté marron Gardy Shelter',
+    tagline: 'Bois massif 28 mm, traité teinté marron',
+    keyPoints: [
+      'Surface de 19,8 m², parois en bois massif de 28 mm.',
+      'Bois traité et teinté marron, prêt à poser.',
+      'Marque Gardy Shelter.',
+    ],
+    description: null,
+    richDescription: false,
+    price: 859.80,
+    original_price: null,
+    pricePerStere: null,
+    stock: 20,
+    family: 'rangement',
+    subtype: 'rangement',
+    image: '/products/partenaire/abri-gardy-198.jpg',
+    variantId: null,
+    checkoutMultiplier: null,
+    unlisted: true,
+    partenaireOnly: true,
+    specs: [
+      { label: 'Surface', value: '19,8 m²' },
+      { label: 'Épaisseur des parois', value: '28 mm' },
+      { label: 'Bois', value: 'Massif, traité teinté marron' },
+    ],
+    category_id: cat('cat-rangement').id,
+    category: cat('cat-rangement'),
+    badge: null,
+    rating: null,
+    review_count: 0,
+    created_at: '',
+  },
+]
+
+export const PRODUCTS: Product[] = [...MELANGES, ...HETRES, ...DENSIFIES, LIMOUZI, LIMOUZI_B, ...GRANULES, ...HERBICIDES_PRODUITS, ...RANGEMENT, ...PARTENAIRE_PRODUITS, ESSAI_CHECKOUT]
 
 export const BOIS_CHAUFFAGE_PRODUCTS = PRODUCTS.filter(p => p.family === 'bois-de-chauffage')
 export const DENSIFIE_PRODUCTS        = PRODUCTS.filter(p => p.family === 'bois-densifie')
