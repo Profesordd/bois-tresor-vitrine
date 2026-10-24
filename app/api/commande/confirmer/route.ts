@@ -25,15 +25,11 @@ export async function POST(req: NextRequest) {
 
   if (!commande) return NextResponse.json({ error: 'Commande introuvable' }, { status: 404 })
 
-  /* Déjà confirmée : on renvoie la même réponse, sans rien refaire — mais
-     on s'assure quand même que la relance est bien coupée. Les commandes
-     payées avant le correctif de l'écriture `void` n'avaient jamais mis ce
-     marqueur, et leurs acheteurs continuaient d'être relancés. */
+  /* Déjà confirmée : on renvoie la même réponse, sans rien refaire.
+     La relance n'est volontairement PAS coupée à l'achat (décision du
+     client, 24/10/2026) : les destinataires doivent continuer de recevoir
+     la séquence même après avoir commandé. */
   if (commande.statut === 'payee') {
-    await supabase.from('leads')
-      .update({ a_commande: true, commande_a: new Date().toISOString() })
-      .eq('email', commande.email as string)
-      .eq('a_commande', false)
     return NextResponse.json({
       ok: true,
       reference: commande.reference,
@@ -90,21 +86,15 @@ export async function POST(req: NextRequest) {
 
        Il ne retient jamais la réponse : une commande payée doit être
        confirmée au client, que Meta réponde ou non. */
-    /* La relance n'a plus lieu d'être : cette personne a acheté. Le
-       rapprochement se fait par l'adresse, la seule chose que les deux
-       tables ont en commun.
 
-       ⚠️ Attendu, pas `void`. En serverless, la fonction peut être gelée
-       dès la réponse envoyée : une écriture non attendue n'arrive jamais.
-       C'est ce qui laissait des acheteurs recevoir encore des relances. */
-    await supabase.from('leads')
-      .update({ a_commande: true, commande_a: new Date().toISOString() })
-      .eq('email', commande.email as string)
-      .eq('a_commande', false)
+    /* ⚠️ On NE coupe PAS la relance à l'achat (décision du client,
+       24/10/2026) : les destinataires doivent continuer de recevoir la
+       séquence même après avoir commandé. Le marqueur `a_commande` n'est
+       donc volontairement pas posé ici. */
 
     /* L'achat ne remonte à Meta que pour le canal du site : une vente du
-       partenaire n'est pas une conversion de bois-tresor. Attendu lui
-       aussi, pour la même raison : sinon l'événement serveur se perd. */
+       partenaire n'est pas une conversion de bois-tresor. Attendu, pas
+       `void` : en serverless l'événement serveur se perdrait sinon. */
     if (commande.canal === 'site') await envoyerCapi([{
       nom: 'Purchase',
       eventId: commande.id as string,

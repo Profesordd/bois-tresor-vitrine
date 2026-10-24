@@ -77,12 +77,8 @@ export async function GET(req: NextRequest) {
         }).eq('id', c.id)
         if (conforme) {
           bilan.payees++
-          /* Attendu : cette tâche ne renvoie pas de page, mais une écriture
-             `void` peut quand même être coupée en fin d'exécution. */
-          await supabase.from('leads')
-            .update({ a_commande: true, commande_a: new Date().toISOString() })
-            .eq('email', c.email)
-            .eq('a_commande', false)
+          /* La relance n'est pas coupée à l'achat (décision du client,
+             24/10/2026) : le marqueur `a_commande` n'est pas posé ici. */
           /* L'achat n'a jamais été remonté à Meta : le client n'est pas
              revenu, donc ni le pixel ni la route de confirmation n'ont
              tourné. Même `event_id` que partout ailleurs, pour que Meta
