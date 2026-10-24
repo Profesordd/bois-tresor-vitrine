@@ -57,6 +57,15 @@ function quand(iso: string): string {
   })
 }
 
+/* Pour l'ami, quand il est à zéro. Rien de méchant, juste pour le sourire. */
+const PHRASES_ZERO = [
+  '0 comme les pirates 🏴‍☠️',
+  'Zéro pour l’instant. Le calme avant la thune.',
+  'Rien encore. Même les sacs de granulés s’ennuient.',
+  '0 vente. La journée est jeune, patron.',
+  'Pour l’instant c’est désert. Ça va bientôt sonner à la caisse.',
+]
+
 interface Props { searchParams: Promise<{ periode?: string }> }
 
 export default async function PartenairePage({ searchParams }: Props) {
@@ -116,6 +125,13 @@ export default async function PartenairePage({ searchParams }: Props) {
           </div>
         ))}
       </div>
+
+      {/* Petit mot pour l'ami, quand le compteur est à zéro. */}
+      {payees.length === 0 && (
+        <p className="rounded-lg border border-dashed border-gray-300 bg-gray-50 p-4 mb-6 text-center text-[15px] font-medium text-gray-600">
+          {PHRASES_ZERO[Math.floor(Math.random() * PHRASES_ZERO.length)]}
+        </p>
+      )}
 
       {commandes.length === 0 ? (
         <p className="rounded-lg border border-gray-200 bg-white p-8 text-center text-gray-500">
