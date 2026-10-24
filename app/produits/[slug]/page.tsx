@@ -51,7 +51,9 @@ export async function generateMetadata({ params }: Props) {
 export default async function ProductPage({ params }: Props) {
   const { slug } = await params
   const product = await chargerProduit(slug)
-  if (!product) notFound()
+  /* Un produit du site partenaire n'existe pas sur bois-tresor : il ne se
+     voit et ne se règle que sur le checkout partenaire. */
+  if (!product || product.partenaireOnly) notFound()
 
   const related = getRelatedProducts(product, 4, await chargerProduits())
   const hasPromo = product.original_price !== null && product.original_price > product.price
