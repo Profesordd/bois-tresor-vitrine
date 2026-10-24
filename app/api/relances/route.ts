@@ -39,13 +39,14 @@ const FENETRE_JOURS = 12
 /**
  * Espacement minimal entre deux messages à la même personne.
  *
- * Le calendrier normal laisse au moins deux heures et demie entre deux
- * étapes, cette règle n'y change rien. Elle protège d'un cas particulier :
- * une adresse laissée il y a plusieurs heures a d'un coup deux ou trois
- * étapes échues. Sans ce garde-fou, elle les recevrait à quelques minutes
- * d'intervalle, ce qui ressemble à du harcèlement et finit en signalement.
+ * La séquence serrée (30, 60, 90 minutes) laisse trente minutes entre deux
+ * étapes. Ce garde-fou doit donc rester sous ce délai, sinon il bloquerait
+ * l'étape suivante pourtant due. Il protège d'un seul cas : une adresse
+ * laissée il y a plus d'une heure a d'un coup les trois étapes échues ;
+ * sans lui, elle les recevrait à quelques secondes d'intervalle. À vingt
+ * minutes, un tel rattrapage s'étale au lieu de tout partir d'un coup.
  */
-const ESPACEMENT_MIN_MS = 2 * 3600_000
+const ESPACEMENT_MIN_MS = 20 * 60_000
 
 const SITE = (process.env.NEXT_PUBLIC_SITE_URL ?? 'https://www.bois-tresor.com').replace(/\/$/, '')
 
