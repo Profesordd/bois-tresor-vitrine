@@ -77,7 +77,9 @@ export async function GET(req: NextRequest) {
         }).eq('id', c.id)
         if (conforme) {
           bilan.payees++
-          void supabase.from('leads')
+          /* Attendu : cette tâche ne renvoie pas de page, mais une écriture
+             `void` peut quand même être coupée en fin d'exécution. */
+          await supabase.from('leads')
             .update({ a_commande: true, commande_a: new Date().toISOString() })
             .eq('email', c.email)
             .eq('a_commande', false)
@@ -85,7 +87,7 @@ export async function GET(req: NextRequest) {
              revenu, donc ni le pixel ni la route de confirmation n'ont
              tourné. Même `event_id` que partout ailleurs, pour que Meta
              n'en compte qu'un si le client revient plus tard. */
-          void envoyerCapi([{
+          await envoyerCapi([{
             nom: 'Purchase',
             eventId: c.id,
             url: `${(process.env.NEXT_PUBLIC_SITE_URL ?? 'https://www.bois-tresor.com').replace(/\/$/, '')}/commande/merci/`,
