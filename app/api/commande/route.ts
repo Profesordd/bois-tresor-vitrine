@@ -46,9 +46,17 @@ export async function POST(req: NextRequest) {
   const canal = b?.canal === 'partenaire' ? 'partenaire' : 'site'
 
   const produit = typeof b?.produitSlug === 'string' ? getProductBySlug(b.produitSlug) : null
-  if (!produit || produit.unlisted) return NextResponse.json({ error: 'Produit inconnu' }, { status: 400 })
+  if (!produit) return NextResponse.json({ error: 'Produit inconnu' }, { status: 400 })
+  /* Sur le site, c'est `checkoutInterne` qui autorise la commande. Les
+     fiches masquées (`unlisted`) mais checkoutInterne — la fiche B du test
+     A/B, le produit d'essai — se commandent légitimement par leur URL ou
+     par une pub. Le blocage des produits masqués ne vaut donc que pour le
+     canal partenaire, qui lui est ouvert à tout le catalogue. */
   if (canal === 'site' && !produit.checkoutInterne) {
     return NextResponse.json({ error: 'Ce produit ne se règle pas ici' }, { status: 400 })
+  }
+  if (canal === 'partenaire' && produit.unlisted) {
+    return NextResponse.json({ error: 'Produit inconnu' }, { status: 400 })
   }
 
   /* Le prix sort du catalogue, jamais de la requête. */
