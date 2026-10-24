@@ -978,7 +978,49 @@ const ESSAI_CHECKOUT: Product = {
    partenaire. `unlisted` les cache de bois-tresor, `partenaireOnly` les
    laisse passer sur /commande/partenaire/. Jamais checkoutInterne : le
    checkout du site les refuse. */
+/* Lots du granulé résineux Burban. Réglé par CAWL, donc le montant est le
+   `price` du lot, quel qu'il soit ; variantId et checkoutMultiplier ne
+   servent qu'à l'affichage. ⚠️ Le prix palette vient de Burban tel quel. */
+const GRANULES_BURBAN_LOTS: Lot[] = [
+  { id: '20',      sacs: 20, poids: '300 kg', price: 49.99, variantId: 'burban-gran-20',  checkoutMultiplier: 1 },
+  { id: '30',      sacs: 30, poids: '450 kg', price: 59.99, variantId: 'burban-gran-30',  checkoutMultiplier: 1 },
+  { id: '40',      sacs: 40, poids: '600 kg', price: 69.99, variantId: 'burban-gran-40',  checkoutMultiplier: 1 },
+  { id: 'palette', sacs: 65, poids: '975 kg', price: 39.99, variantId: 'burban-gran-pal', checkoutMultiplier: 1, label: 'Palette 65 sacs' },
+]
+
 const PARTENAIRE_PRODUITS: Product[] = [
+  {
+    id: nextId(),
+    slug: 'granules-de-bois-resineux-100-sacs-de-15-kg',
+    name: 'Granulés de bois Limouzi – sacs de 15 kg',
+    tagline: 'Granulés de bois résineux, sacs de 15 kg',
+    keyPoints: [
+      'Granulés de bois résineux, sacs de 15 kg.',
+      'Plusieurs formats, du lot de 20 sacs à la palette.',
+    ],
+    description: null,
+    richDescription: false,
+    price: 49.99,
+    original_price: null,
+    pricePerStere: null,
+    stock: 50,
+    family: 'granules',
+    subtype: 'granule',
+    image: '/products/partenaire/granules-resineux.jpg',
+    variantId: null,
+    checkoutMultiplier: null,
+    unlisted: true,
+    partenaireOnly: true,
+    lots: GRANULES_BURBAN_LOTS,
+    defaultLotId: '30',
+    specs: [{ label: 'Conditionnement', value: 'Sacs de 15 kg' }],
+    category_id: cat('cat-granules').id,
+    category: cat('cat-granules'),
+    badge: null,
+    rating: null,
+    review_count: 0,
+    created_at: '',
+  },
   {
     id: nextId(),
     slug: 'abri-en-bois-massif-19-8m-plus-28mm-traite-teinte-marron-gardy-shelter',

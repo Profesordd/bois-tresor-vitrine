@@ -58,7 +58,7 @@ lignes.forEach((ligne, i) => {
   let interne = variantNonNumerique
   for (let j = i; !interne && j < Math.min(lignes.length, i + 15); j++) {
     if (j > i && /(?<![A-Za-z])price:\s*[\d.]+\s*,/.test(lignes[j])) break
-    if (/checkoutInterne:\s*true/.test(lignes[j])) interne = true
+    if (/checkoutInterne:\s*true/.test(lignes[j]) || /partenaireOnly:\s*true/.test(lignes[j])) interne = true
   }
   if (interne) { exempts++; return }
 
