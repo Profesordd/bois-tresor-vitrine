@@ -982,10 +982,10 @@ const ESSAI_CHECKOUT: Product = {
    `price` du lot, quel qu'il soit ; variantId et checkoutMultiplier ne
    servent qu'à l'affichage. ⚠️ Le prix palette vient de Burban tel quel. */
 const GRANULES_BURBAN_LOTS: Lot[] = [
-  { id: '20',      sacs: 20, poids: '300 kg', price: 49.99, variantId: 'burban-gran-20',  checkoutMultiplier: 1 },
-  { id: '30',      sacs: 30, poids: '450 kg', price: 59.99, variantId: 'burban-gran-30',  checkoutMultiplier: 1 },
-  { id: '40',      sacs: 40, poids: '600 kg', price: 69.99, variantId: 'burban-gran-40',  checkoutMultiplier: 1 },
-  { id: 'palette', sacs: 65, poids: '975 kg', price: 39.99, variantId: 'burban-gran-pal', checkoutMultiplier: 1, label: 'Palette 65 sacs' },
+  { id: '20',      sacs: 20, poids: '300 kg', price: 49.99, variantId: 'burban-gran-20',  checkoutMultiplier: 1, quantiteMax: 10 },
+  { id: '30',      sacs: 30, poids: '450 kg', price: 59.99, variantId: 'burban-gran-30',  checkoutMultiplier: 1, quantiteMax: 10 },
+  { id: '40',      sacs: 40, poids: '600 kg', price: 69.99, variantId: 'burban-gran-40',  checkoutMultiplier: 1, quantiteMax: 10 },
+  { id: 'palette', sacs: 65, poids: '975 kg', price: 39.99, variantId: 'burban-gran-pal', checkoutMultiplier: 1, quantiteMax: 10, label: 'Palette 65 sacs' },
 ]
 
 const PARTENAIRE_PRODUITS: Product[] = [
