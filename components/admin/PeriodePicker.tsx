@@ -10,6 +10,9 @@ interface Props {
   /** Date du jour à Paris, pour borner les champs. */
   max: string
   raccourcis: { label: string; du: string; au: string }[]
+  /** Page cible, par défaut l'accueil admin. Permet de réutiliser le
+      sélecteur sur /admin/analyse sans renvoyer à /admin. */
+  base?: string
 }
 
 /**
@@ -20,7 +23,7 @@ interface Props {
  * « les 7 derniers jours » — pour comparer l'effet d'une campagne au jour
  * le jour.
  */
-export default function PeriodePicker({ du, au, max, raccourcis }: Props) {
+export default function PeriodePicker({ du, au, max, raccourcis, base = '/admin' }: Props) {
   const router = useRouter()
   const [pending, startTransition] = useTransition()
   const [debut, setDebut] = useState(du)
@@ -30,7 +33,7 @@ export default function PeriodePicker({ du, au, max, raccourcis }: Props) {
     /* Dates inversées : on les remet dans l'ordre plutôt que d'afficher
        une erreur, l'intention est sans ambiguïté. */
     const [a, b] = d <= f ? [d, f] : [f, d]
-    startTransition(() => router.push(`/admin/?du=${a}&au=${b}`))
+    startTransition(() => router.push(`${base}/?du=${a}&au=${b}`))
   }
 
   const actif = (r: { du: string; au: string }) => r.du === du && r.au === au

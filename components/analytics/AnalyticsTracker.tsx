@@ -55,9 +55,10 @@ function isTracked(path: string): boolean {
   /* Le canal partenaire a sa propre comptabilité : ses visites ne doivent
      pas entrer dans la mesure d'audience ni dans l'entonnoir checkout de
      bois-tresor, sinon l'admin mélangerait les deux sites. */
-  return !path.startsWith('/admin')
-    && !path.startsWith('/partenaire')
-    && !path.startsWith('/commande/partenaire')
+  /* Le checkout partenaire EST mesuré (entonnoir de son propre tableau de
+     bord), mais l'admin de bois-tresor l'exclut par le chemin, donc aucun
+     mélange. Seuls les espaces d'administration ne sont jamais mesurés. */
+  return !path.startsWith('/admin') && !path.startsWith('/partenaire')
 }
 
 export default function AnalyticsTracker() {
