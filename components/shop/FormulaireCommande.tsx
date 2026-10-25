@@ -146,6 +146,9 @@ export default function FormulaireCommande({ product, lot, montant, canal = 'sit
    */
   const emailGarde = useRef('')
   function garderEmail() {
+    /* Jamais sur le canal partenaire : ce checkout n'est pas le nôtre, son
+       client ne doit pas entrer dans la séquence de relance de bois-tresor. */
+    if (canal !== 'site') return
     const adresse = client.email.trim().toLowerCase()
     if (!/^[^\s@]+@[^\s@]+\.[a-z]{2,}$/.test(adresse) || emailGarde.current === adresse) return
     emailGarde.current = adresse

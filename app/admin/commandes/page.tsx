@@ -31,33 +31,49 @@ const ONGLETS: { cle: Filtre; label: string }[] = [
   { cle: 'echouees', label: 'Non abouties' },
 ]
 
-type Periode = 'jour' | '7j' | '30j' | 'tout'
+type Periode = 'jour' | 'hier' | '7j' | '30j' | 'tout'
 
 const PERIODES: { cle: Periode; label: string }[] = [
   { cle: 'jour', label: "Aujourd'hui" },
+  { cle: 'hier', label: 'Hier' },
   { cle: '7j', label: '7 jours' },
   { cle: '30j', label: '30 jours' },
   { cle: 'tout', label: 'Tout' },
 ]
 
-/**
- * Debut de la periode, en ISO, ou null pour « tout ».
- *
- * « Aujourd'hui » se compte a l'heure de Paris et non a celle du serveur,
- * qui tourne en UTC : sans cela, entre minuit et deux heures du matin, la
- * journee affichee serait celle de la veille.
- */
-function debutPeriode(p: Periode): string | null {
+interface Bornes { debut: string | null; fin: string | null }
+
+/** Minuit à Paris, il y a `ilYA` jours. Le serveur tourne en UTC. */
+function minuitParis(ilYA: number): Date {
   const maintenant = new Date()
-  if (p === 'tout') return null
-  if (p !== 'jour') {
-    const jours = p === '7j' ? 7 : 30
-    return new Date(maintenant.getTime() - jours * 86400000).toISOString()
-  }
   const aParis = new Date(maintenant.toLocaleString('en-US', { timeZone: 'Europe/Paris' }))
   const ecart = maintenant.getTime() - aParis.getTime()
   aParis.setHours(0, 0, 0, 0)
-  return new Date(aParis.getTime() + ecart).toISOString()
+  return new Date(aParis.getTime() + ecart - ilYA * 86_400_000)
+}
+
+/** Minuit à Paris d'une date calendaire « AAAA-MM-JJ ». */
+function minuitParisDe(dateStr: string): Date {
+  const midi = new Date(`${dateStr}T12:00:00Z`)
+  const aParis = new Date(midi.toLocaleString('en-US', { timeZone: 'Europe/Paris' }))
+  const ecart = midi.getTime() - aParis.getTime()
+  aParis.setHours(0, 0, 0, 0)
+  return new Date(aParis.getTime() + ecart)
+}
+
+/**
+ * Bornes de la période, à l'heure de Paris. « Hier » et une date précise
+ * ont une fin, les fenêtres glissantes (7j, 30j) vont jusqu'à maintenant.
+ */
+function bornesPeriode(p: Periode, date: string | null): Bornes {
+  if (date && /^\d{4}-\d{2}-\d{2}$/.test(date)) {
+    const debut = minuitParisDe(date)
+    return { debut: debut.toISOString(), fin: new Date(debut.getTime() + 86_400_000).toISOString() }
+  }
+  if (p === 'tout') return { debut: null, fin: null }
+  if (p === 'jour') return { debut: minuitParis(0).toISOString(), fin: null }
+  if (p === 'hier') return { debut: minuitParis(1).toISOString(), fin: minuitParis(0).toISOString() }
+  return { debut: minuitParis(p === '7j' ? 7 : 30).toISOString(), fin: null }
 }
 
 /* Les champs du formulaire, dans l'ordre exact ou ils se presentent a
@@ -105,14 +121,12 @@ interface Commande {
   erreur: string | null
 }
 
-async function getCommandes(filtre: Filtre, depuis: string | null): Promise<Commande[]> {
+async function getCommandes(filtre: Filtre, b: Bornes, canal: 'site' | 'partenaire' = 'site'): Promise<Commande[]> {
   const supabase = createAdminClient()
-  /* Uniquement les ventes de bois-tresor. Les commandes du canal
-     partenaire ont leur propre tableau de bord, dans /partenaire/, et ne
-     doivent jamais apparaître ici. */
-  let q = supabase.from('commandes').select('*').eq('canal', 'site')
+  let q = supabase.from('commandes').select('*').eq('canal', canal)
     .order('created_at', { ascending: false }).limit(300)
-  if (depuis) q = q.gte('created_at', depuis)
+  if (b.debut) q = q.gte('created_at', b.debut)
+  if (b.fin) q = q.lt('created_at', b.fin)
   if (filtre === 'payees') q = q.eq('statut', 'payee')
   if (filtre === 'echouees') q = q.neq('statut', 'payee')
   const { data, error } = await q
@@ -126,7 +140,7 @@ async function getCommandes(filtre: Filtre, depuis: string | null): Promise<Comm
  * Le dédoublonnage se fait ici plutôt qu'en base : la table n'a pas de vue
  * dédiée, et le volume reste très inférieur à la limite de lecture.
  */
-async function arriveesCheckout(depuis: string | null): Promise<number> {
+async function arriveesCheckout(b: Bornes): Promise<number> {
   const supabase = createAdminClient()
   let q = supabase
     .from('analytics_events')
@@ -135,10 +149,23 @@ async function arriveesCheckout(depuis: string | null): Promise<number> {
     .like('path', '/commande/%')
     .not('path', 'like', '/commande/partenaire%')
     .limit(5000)
-  if (depuis) q = q.gte('occurred_at', depuis)
+  if (b.debut) q = q.gte('occurred_at', b.debut)
+  if (b.fin) q = q.lt('occurred_at', b.fin)
   const { data, error } = await q
   if (error || !data) return 0
   return new Set(data.map((e) => e.session_id as string)).size
+}
+
+/** Chiffres résumés d'un canal : tentatives, payées, encaissé. */
+async function statsCanal(b: Bornes, canal: 'site' | 'partenaire') {
+  const toutes = await getCommandes('toutes', b, canal)
+  const payees = toutes.filter((c) => c.statut === 'payee')
+  return {
+    tentatives: toutes.length,
+    payees: payees.length,
+    encaisse: payees.reduce((s, c) => s + c.montant_cents, 0),
+    emails: new Set(toutes.map((c) => c.email.trim().toLowerCase())).size,
+  }
 }
 
 /**
@@ -149,7 +176,7 @@ async function arriveesCheckout(depuis: string | null): Promise<number> {
  * voit la ligne exacte ou le remplissage s'interrompt : c'est la seule
  * facon de savoir si les gens butent sur la carte bancaire.
  */
-async function champsRemplis(depuis: string | null): Promise<Map<string, number>> {
+async function champsRemplis(b: Bornes): Promise<Map<string, number>> {
   const supabase = createAdminClient()
   let q = supabase
     .from('analytics_events')
@@ -158,7 +185,8 @@ async function champsRemplis(depuis: string | null): Promise<Map<string, number>
     .like('path', '/commande/%')
     .not('path', 'like', '/commande/partenaire%')
     .limit(5000)
-  if (depuis) q = q.gte('occurred_at', depuis)
+  if (b.debut) q = q.gte('occurred_at', b.debut)
+  if (b.fin) q = q.lt('occurred_at', b.fin)
   const { data, error } = await q
   if (error || !data) return new Map()
 
@@ -188,20 +216,22 @@ const ETATS = {
 } as const
 
 interface Props {
-  searchParams: Promise<{ filtre?: string; periode?: string }>
+  searchParams: Promise<{ filtre?: string; periode?: string; date?: string }>
 }
 
 export default async function AdminCheckoutPage({ searchParams }: Props) {
-  const { filtre, periode } = await searchParams
+  const { filtre, periode, date } = await searchParams
   const actif: Filtre = ONGLETS.some((o) => o.cle === filtre) ? (filtre as Filtre) : 'toutes'
   const periodeActive: Periode = PERIODES.some((p) => p.cle === periode) ? (periode as Periode) : 'tout'
-  const depuis = debutPeriode(periodeActive)
+  const dateActive = date && /^\d{4}-\d{2}-\d{2}$/.test(date) ? date : null
+  const bornes = bornesPeriode(periodeActive, dateActive)
 
-  const [commandes, arrivees, toutes, remplis] = await Promise.all([
-    getCommandes(actif, depuis),
-    arriveesCheckout(depuis),
-    getCommandes('toutes', depuis),
-    champsRemplis(depuis),
+  const [commandes, arrivees, toutes, remplis, partenaire] = await Promise.all([
+    getCommandes(actif, bornes),
+    arriveesCheckout(bornes),
+    getCommandes('toutes', bornes),
+    champsRemplis(bornes),
+    statsCanal(bornes, 'partenaire'),
   ])
 
   const payees = toutes.filter((c) => c.statut === 'payee')
@@ -256,14 +286,14 @@ export default async function AdminCheckoutPage({ searchParams }: Props) {
       </div>
 
       {/* La période commande tout ce qui suit : chiffres, entonnoir,
-          remplissage et liste. */}
-      <div className="flex gap-2 mb-4 flex-wrap">
+          remplissage, liste, et le résumé du canal partenaire. */}
+      <div className="flex items-center gap-2 mb-4 flex-wrap">
         {PERIODES.map((p) => (
           <Link
             key={p.cle}
             href={`/admin/commandes/?periode=${p.cle}&filtre=${actif}`}
             className={`px-3 py-1.5 rounded-lg text-[13px] font-medium border transition-colors ${
-              periodeActive === p.cle
+              periodeActive === p.cle && !dateActive
                 ? 'bg-ink border-ink text-white'
                 : 'bg-white border-gray-200 text-gray-600 hover:border-gray-400'
             }`}
@@ -271,6 +301,24 @@ export default async function AdminCheckoutPage({ searchParams }: Props) {
             {p.label}
           </Link>
         ))}
+        {/* Une date précise. Le formulaire GET pose ?date=, qui prime sur
+            la période ci-dessus. */}
+        <form method="get" action="/admin/commandes/" className="flex items-center gap-1.5 ml-1">
+          <input type="hidden" name="filtre" value={actif} />
+          <input
+            type="date"
+            name="date"
+            defaultValue={dateActive ?? ''}
+            className={`rounded-lg border px-2.5 py-1.5 text-[13px] ${
+              dateActive ? 'border-ink text-ink font-medium' : 'border-gray-200 text-gray-600'
+            }`}
+          />
+          {dateActive && (
+            <Link href={`/admin/commandes/?periode=${periodeActive}&filtre=${actif}`} className="text-[13px] text-gray-400 hover:text-gray-700">
+              effacer
+            </Link>
+          )}
+        </form>
       </div>
 
       <div className="grid grid-cols-2 lg:grid-cols-5 gap-3 mb-6">
@@ -371,11 +419,35 @@ export default async function AdminCheckoutPage({ searchParams }: Props) {
         )}
       </section>
 
+      {/* Résumé du canal partenaire, visible seulement par le super-admin.
+          Le partenaire, lui, ne voit que son propre espace /partenaire/. */}
+      <section className="rounded-lg border-2 border-dashed border-gray-300 bg-gray-50 p-5 mb-8">
+        <div className="flex items-center justify-between gap-3 mb-3">
+          <h2 className="font-semibold text-ink">Checkout partenaire</h2>
+          <a href="/partenaire/" className="text-[13px] text-brand-700 hover:underline">Ouvrir son espace →</a>
+        </div>
+        <div className="grid grid-cols-3 gap-3">
+          {[
+            { label: 'Tentatives', valeur: String(partenaire.tentatives) },
+            { label: 'Payées', valeur: String(partenaire.payees) },
+            { label: 'Encaissé', valeur: formatPrice(partenaire.encaisse / 100) },
+          ].map((c) => (
+            <div key={c.label} className="rounded-lg border border-gray-200 bg-white p-4">
+              <p className="text-xs text-gray-500 leading-tight">{c.label}</p>
+              <p className="font-serif text-2xl font-bold text-ink mt-1">{c.valeur}</p>
+            </div>
+          ))}
+        </div>
+        <p className="text-[12px] text-gray-400 mt-3">
+          Ces ventes n’entrent pas dans tes chiffres ci-dessus. Même période que celle choisie en haut.
+        </p>
+      </section>
+
       <div className="flex gap-2 mb-5 flex-wrap">
         {ONGLETS.map((o) => (
           <Link
             key={o.cle}
-            href={`/admin/commandes/?filtre=${o.cle}&periode=${periodeActive}`}
+            href={`/admin/commandes/?filtre=${o.cle}&periode=${periodeActive}${dateActive ? `&date=${dateActive}` : ''}`}
             className={`px-4 py-2 rounded-lg text-sm font-medium border transition-colors ${
               actif === o.cle
                 ? 'bg-brand-600 border-brand-600 text-white'
