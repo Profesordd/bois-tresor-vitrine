@@ -107,7 +107,11 @@ interface Commande {
 
 async function getCommandes(filtre: Filtre, depuis: string | null): Promise<Commande[]> {
   const supabase = createAdminClient()
-  let q = supabase.from('commandes').select('*').order('created_at', { ascending: false }).limit(300)
+  /* Uniquement les ventes de bois-tresor. Les commandes du canal
+     partenaire ont leur propre tableau de bord, dans /partenaire/, et ne
+     doivent jamais apparaître ici. */
+  let q = supabase.from('commandes').select('*').eq('canal', 'site')
+    .order('created_at', { ascending: false }).limit(300)
   if (depuis) q = q.gte('created_at', depuis)
   if (filtre === 'payees') q = q.eq('statut', 'payee')
   if (filtre === 'echouees') q = q.neq('statut', 'payee')
@@ -129,6 +133,7 @@ async function arriveesCheckout(depuis: string | null): Promise<number> {
     .select('session_id')
     .eq('type', 'pageview')
     .like('path', '/commande/%')
+    .not('path', 'like', '/commande/partenaire%')
     .limit(5000)
   if (depuis) q = q.gte('occurred_at', depuis)
   const { data, error } = await q
@@ -151,6 +156,7 @@ async function champsRemplis(depuis: string | null): Promise<Map<string, number>
     .select('session_id, label, meta')
     .eq('type', 'form_field')
     .like('path', '/commande/%')
+    .not('path', 'like', '/commande/partenaire%')
     .limit(5000)
   if (depuis) q = q.gte('occurred_at', depuis)
   const { data, error } = await q
