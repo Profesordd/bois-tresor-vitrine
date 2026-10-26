@@ -28,10 +28,6 @@ export default function CalculateurPartenaire({ lignes, tauxDefaut }: { lignes: 
   const [busy, setBusy] = useState(false)
   const [msg, setMsg] = useState<string | null>(null)
 
-  useEffect(() => {
-    try { const t = localStorage.getItem('spend_taux_eur_usd'); if (t) setTaux(t) } catch { /* privé */ }
-  }, [])
-
   /* Quand on choisit un jour déjà saisi, on pré-remplit ses valeurs. */
   useEffect(() => {
     const l = lignes.find((x) => x.jour === jour)
@@ -41,7 +37,6 @@ export default function CalculateurPartenaire({ lignes, tauxDefaut }: { lignes: 
   async function enregistrer(e: React.FormEvent) {
     e.preventDefault()
     setBusy(true); setMsg(null)
-    try { localStorage.setItem('spend_taux_eur_usd', taux) } catch { /* ignore */ }
     try {
       const r = await fetch('/api/partenaire/spend/', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
@@ -76,7 +71,7 @@ export default function CalculateurPartenaire({ lignes, tauxDefaut }: { lignes: 
           <input id="sp-spend" inputMode="decimal" className={champ} placeholder="0" value={spend} onChange={(e) => setSpend(e.target.value)} />
         </div>
         <div>
-          <label className={label} htmlFor="sp-taux">Taux € → $</label>
+          <label className={label} htmlFor="sp-taux">Taux € → $ <span className="font-normal text-gray-400">(du jour)</span></label>
           <input id="sp-taux" inputMode="decimal" className={champ} value={taux} onChange={(e) => setTaux(e.target.value)} />
         </div>
         <button type="submit" disabled={busy}

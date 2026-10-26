@@ -4,7 +4,7 @@ import { formatPrice } from '@/lib/utils'
 import { createAdminClient } from '@/lib/supabase/server'
 import RefreshButton from '@/components/admin/RefreshButton'
 import CalculateurPartenaire from '@/components/admin/CalculateurPartenaire'
-import { journalPartenaire, TAUX_DEFAUT } from '@/lib/partenaire/journal'
+import { journalPartenaire, tauxActuel } from '@/lib/partenaire/journal'
 
 /**
  * Accueil du super-admin, volontairement minimal.
@@ -46,11 +46,12 @@ async function ventesDuJour(canal: 'site' | 'partenaire'): Promise<{ n: number; 
 }
 
 export default async function AdminAccueil() {
-  const [messages, site, partenaire, journal] = await Promise.all([
+  const [messages, site, partenaire, journal, taux] = await Promise.all([
     messagesEnAttente(),
     ventesDuJour('site'),
     ventesDuJour('partenaire'),
     journalPartenaire(),
+    tauxActuel(),
   ])
 
   const PORTES = [
@@ -121,7 +122,7 @@ export default async function AdminAccueil() {
       </Link>
 
       <div className="mt-8">
-        <CalculateurPartenaire lignes={journal} tauxDefaut={TAUX_DEFAUT} />
+        <CalculateurPartenaire lignes={journal} tauxDefaut={taux} />
       </div>
     </div>
   )

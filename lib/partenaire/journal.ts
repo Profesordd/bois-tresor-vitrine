@@ -31,6 +31,29 @@ function jourParis(iso: string): string {
 
 export const TAUX_DEFAUT = 1.08
 
+/**
+ * Taux euro -> dollar du jour, pour pré-remplir la saisie du matin avec le
+ * bon taux et non un chiffre figé.
+ *
+ * Source : Frankfurter (taux de référence de la BCE), gratuit et sans clé.
+ * Mis en cache une heure : assez frais pour le besoin, sans marteler l'API.
+ * Repli sur le taux par défaut si la source ne répond pas, pour ne jamais
+ * bloquer la page.
+ */
+export async function tauxActuel(): Promise<number> {
+  try {
+    const r = await fetch('https://api.frankfurter.app/latest?from=EUR&to=USD', {
+      next: { revalidate: 3600 },
+    })
+    if (!r.ok) return TAUX_DEFAUT
+    const j = await r.json()
+    const t = Number(j?.rates?.USD)
+    return Number.isFinite(t) && t > 0 ? Math.round(t * 10000) / 10000 : TAUX_DEFAUT
+  } catch {
+    return TAUX_DEFAUT
+  }
+}
+
 export async function journalPartenaire(): Promise<LigneJournal[]> {
   const supabase = createAdminClient()
 

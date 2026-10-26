@@ -3,7 +3,7 @@ import { createAdminClient } from '@/lib/supabase/server'
 import { formatPrice } from '@/lib/utils'
 import RefreshButton from '@/components/admin/RefreshButton'
 import CalculateurPartenaire from '@/components/admin/CalculateurPartenaire'
-import { journalPartenaire, TAUX_DEFAUT } from '@/lib/partenaire/journal'
+import { journalPartenaire, tauxActuel } from '@/lib/partenaire/journal'
 
 /**
  * Tableau de bord du partenaire, calqué sur celui de bois-tresor : chiffres,
@@ -139,7 +139,7 @@ export default async function PartenairePage({ searchParams }: Props) {
   const dateActive = date && /^\d{4}-\d{2}-\d{2}$/.test(date) ? date : null
   const b = bornesPeriode(actif, dateActive)
 
-  const [commandes, arr, remplis, journal] = await Promise.all([getCommandes(b), arrivees(b), champsRemplis(b), journalPartenaire()])
+  const [commandes, arr, remplis, journal, taux] = await Promise.all([getCommandes(b), arrivees(b), champsRemplis(b), journalPartenaire(), tauxActuel()])
   const payees = commandes.filter((c) => c.statut === 'payee')
   const refusees = commandes.filter((c) => c.statut === 'refusee')
   const abandonnees = commandes.filter((c) => c.statut === 'en_attente')
@@ -322,7 +322,7 @@ export default async function PartenairePage({ searchParams }: Props) {
       )}
 
       <div className="mt-8">
-        <CalculateurPartenaire lignes={journal} tauxDefaut={TAUX_DEFAUT} />
+        <CalculateurPartenaire lignes={journal} tauxDefaut={taux} />
       </div>
     </div>
   )
