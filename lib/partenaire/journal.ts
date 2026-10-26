@@ -35,14 +35,14 @@ export const TAUX_DEFAUT = 1.08
  * Taux euro -> dollar du jour, pour pré-remplir la saisie du matin avec le
  * bon taux et non un chiffre figé.
  *
- * Source : Frankfurter (taux de référence de la BCE), gratuit et sans clé.
+ * Source : open.er-api.com, gratuit et sans clé.
  * Mis en cache une heure : assez frais pour le besoin, sans marteler l'API.
  * Repli sur le taux par défaut si la source ne répond pas, pour ne jamais
  * bloquer la page.
  */
 export async function tauxActuel(): Promise<number> {
   try {
-    const r = await fetch('https://api.frankfurter.app/latest?from=EUR&to=USD', {
+    const r = await fetch('https://open.er-api.com/v6/latest/EUR', {
       next: { revalidate: 3600 },
     })
     if (!r.ok) return TAUX_DEFAUT
