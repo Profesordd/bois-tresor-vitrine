@@ -3,7 +3,8 @@ import { Inbox, Receipt, Users, BarChart3, ChevronRight } from 'lucide-react'
 import { formatPrice } from '@/lib/utils'
 import { createAdminClient } from '@/lib/supabase/server'
 import RefreshButton from '@/components/admin/RefreshButton'
-import Calculateur from '@/components/admin/Calculateur'
+import CalculateurPartenaire from '@/components/admin/CalculateurPartenaire'
+import { journalPartenaire, TAUX_DEFAUT } from '@/lib/partenaire/journal'
 
 /**
  * Accueil du super-admin, volontairement minimal.
@@ -44,20 +45,12 @@ async function ventesDuJour(canal: 'site' | 'partenaire'): Promise<{ n: number; 
   return { n: d.length, ca: d.reduce((s, c) => s + Number(c.montant_cents), 0) }
 }
 
-/** CA total encaissé par le canal partenaire, depuis l'ouverture. */
-async function caPartenaireTotal(): Promise<number> {
-  const supabase = createAdminClient()
-  const { data } = await supabase.from('commandes')
-    .select('montant_cents').eq('statut', 'payee').eq('canal', 'partenaire').limit(5000)
-  return (data ?? []).reduce((s, c) => s + Number(c.montant_cents), 0) / 100
-}
-
 export default async function AdminAccueil() {
-  const [messages, site, partenaire, caPartenaire] = await Promise.all([
+  const [messages, site, partenaire, journal] = await Promise.all([
     messagesEnAttente(),
     ventesDuJour('site'),
     ventesDuJour('partenaire'),
-    caPartenaireTotal(),
+    journalPartenaire(),
   ])
 
   const PORTES = [
@@ -128,7 +121,7 @@ export default async function AdminAccueil() {
       </Link>
 
       <div className="mt-8">
-        <Calculateur caDefaut={caPartenaire} />
+        <CalculateurPartenaire lignes={journal} tauxDefaut={TAUX_DEFAUT} />
       </div>
     </div>
   )
