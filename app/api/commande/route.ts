@@ -66,7 +66,7 @@ export async function POST(req: NextRequest) {
     : null
   /* Quantité bornée côté serveur. Un lot impose son propre maximum ; un
      produit sans lot acheté via le partenaire se prend jusqu'à dix. */
-  const maxQuantite = lot ? quantiteMaximum(lot) : (canal === 'partenaire' ? 10 : 1)
+  const maxQuantite = lot ? quantiteMaximum(lot) : (produit.quantiteMax ?? (canal === 'partenaire' ? 10 : 1))
   const demandee = Number(b?.quantite)
   const quantite = Number.isFinite(demandee)
     ? Math.min(maxQuantite, Math.max(1, Math.floor(demandee)))

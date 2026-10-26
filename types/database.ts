@@ -98,6 +98,12 @@ export interface Product {
    */
   partenaireOnly?: boolean
   /**
+   * Nombre d'exemplaires commandables en une fois pour un produit SANS
+   * lots (le bois de chauffage). Absent = 1. Le sélecteur de quantité
+   * s'affiche sur le checkout dès que c'est > 1.
+   */
+  quantiteMax?: number
+  /**
    * Slug de la fiche de référence, pour le lien canonique. Deux fiches au
    * même contenu se cannibalisent sinon dans les résultats de recherche.
    */

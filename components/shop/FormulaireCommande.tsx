@@ -80,7 +80,7 @@ export default function FormulaireCommande({ product, lot, montant, canal = 'sit
   /* Quantité : seuls les lots qui l’autorisent affichent le sélecteur,
      et le serveur reborne de toute façon ce qu’il reçoit. Le total reste
      indicatif ici : celui qui est débité vient du catalogue. */
-  const maxQuantite = lot ? quantiteMaximum(lot) : (canal === 'partenaire' ? 10 : 1)
+  const maxQuantite = lot ? quantiteMaximum(lot) : (product.quantiteMax ?? (canal === 'partenaire' ? 10 : 1))
   const [quantite, setQuantite] = useState(1)
   const total = Math.round(montant * quantite * 100) / 100
 

@@ -18,22 +18,40 @@ import RefreshButton from '@/components/admin/RefreshButton'
 export const dynamic = 'force-dynamic'
 export const metadata = { title: 'Espace partenaire', robots: { index: false, follow: false } }
 
-type Periode = 'jour' | '7j' | '30j' | 'tout'
+type Periode = 'jour' | 'hier' | '7j' | '30j' | 'tout'
 const PERIODES: { cle: Periode; label: string }[] = [
   { cle: 'jour', label: "Aujourd'hui" },
+  { cle: 'hier', label: 'Hier' },
   { cle: '7j', label: '7 jours' },
   { cle: '30j', label: '30 jours' },
   { cle: 'tout', label: 'Tout' },
 ]
 
-function debut(p: Periode): string | null {
+interface Bornes { debut: string | null; fin: string | null }
+
+function minuitParis(ilYA: number): Date {
   const now = new Date()
-  if (p === 'tout') return null
-  if (p !== 'jour') return new Date(now.getTime() - (p === '7j' ? 7 : 30) * 86_400_000).toISOString()
   const paris = new Date(now.toLocaleString('en-US', { timeZone: 'Europe/Paris' }))
   const ecart = now.getTime() - paris.getTime()
   paris.setHours(0, 0, 0, 0)
-  return new Date(paris.getTime() + ecart).toISOString()
+  return new Date(paris.getTime() + ecart - ilYA * 86_400_000)
+}
+function minuitParisDe(dateStr: string): Date {
+  const midi = new Date(`${dateStr}T12:00:00Z`)
+  const paris = new Date(midi.toLocaleString('en-US', { timeZone: 'Europe/Paris' }))
+  const ecart = midi.getTime() - paris.getTime()
+  paris.setHours(0, 0, 0, 0)
+  return new Date(paris.getTime() + ecart)
+}
+function bornesPeriode(p: Periode, date: string | null): Bornes {
+  if (date && /^\d{4}-\d{2}-\d{2}$/.test(date)) {
+    const d = minuitParisDe(date)
+    return { debut: d.toISOString(), fin: new Date(d.getTime() + 86_400_000).toISOString() }
+  }
+  if (p === 'tout') return { debut: null, fin: null }
+  if (p === 'jour') return { debut: minuitParis(0).toISOString(), fin: null }
+  if (p === 'hier') return { debut: minuitParis(1).toISOString(), fin: minuitParis(0).toISOString() }
+  return { debut: minuitParis(p === '7j' ? 7 : 30).toISOString(), fin: null }
 }
 
 interface Commande {
@@ -66,17 +84,19 @@ const PHRASES_ZERO = [
   'Pour l’instant c’est désert. Ça va bientôt sonner à la caisse.',
 ]
 
-interface Props { searchParams: Promise<{ periode?: string }> }
+interface Props { searchParams: Promise<{ periode?: string; date?: string }> }
 
 export default async function PartenairePage({ searchParams }: Props) {
-  const { periode } = await searchParams
+  const { periode, date } = await searchParams
   const actif: Periode = PERIODES.some((p) => p.cle === periode) ? (periode as Periode) : 'jour'
-  const depuis = debut(actif)
+  const dateActive = date && /^\d{4}-\d{2}-\d{2}$/.test(date) ? date : null
+  const b = bornesPeriode(actif, dateActive)
 
   const supabase = createAdminClient()
   let q = supabase.from('commandes').select('*').eq('canal', 'partenaire')
     .order('created_at', { ascending: false }).limit(300)
-  if (depuis) q = q.gte('created_at', depuis)
+  if (b.debut) q = q.gte('created_at', b.debut)
+  if (b.fin) q = q.lt('created_at', b.fin)
   const { data } = await q
   const commandes = (data ?? []) as Commande[]
 
@@ -102,18 +122,29 @@ export default async function PartenairePage({ searchParams }: Props) {
         </div>
       </div>
 
-      <div className="flex gap-2 mb-5 flex-wrap">
+      <div className="flex items-center gap-2 mb-5 flex-wrap">
         {PERIODES.map((p) => (
           <a
             key={p.cle}
             href={`/partenaire/?periode=${p.cle}`}
             className={`px-3 py-1.5 rounded-lg text-[13px] font-medium border transition-colors ${
-              actif === p.cle ? 'bg-ink border-ink text-white' : 'bg-white border-gray-200 text-gray-600 hover:border-gray-400'
+              actif === p.cle && !dateActive ? 'bg-ink border-ink text-white' : 'bg-white border-gray-200 text-gray-600 hover:border-gray-400'
             }`}
           >
             {p.label}
           </a>
         ))}
+        <form method="get" action="/partenaire/" className="flex items-center gap-1.5 ml-1">
+          <input
+            type="date"
+            name="date"
+            defaultValue={dateActive ?? ''}
+            className={`rounded-lg border px-2.5 py-1.5 text-[13px] ${dateActive ? 'border-ink text-ink font-medium' : 'border-gray-200 text-gray-600'}`}
+          />
+          {dateActive && (
+            <a href={`/partenaire/?periode=${actif}`} className="text-[13px] text-gray-400 hover:text-gray-700">effacer</a>
+          )}
+        </form>
       </div>
 
       <div className="grid grid-cols-3 gap-3 mb-6">
