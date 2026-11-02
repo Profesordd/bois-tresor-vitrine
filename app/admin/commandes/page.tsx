@@ -3,6 +3,8 @@ import { ArrowLeft, Receipt, Check, Clock, X, Phone, Mail, MapPin } from 'lucide
 import { createAdminClient } from '@/lib/supabase/server'
 import { formatPrice } from '@/lib/utils'
 import RefreshButton from '@/components/admin/RefreshButton'
+import VentesParFamille from '@/components/admin/VentesParFamille'
+import type { VenteCommande } from '@/lib/admin/ventes'
 
 export const dynamic = 'force-dynamic'
 export const metadata = { title: 'Checkout' }
@@ -121,6 +123,27 @@ interface Commande {
   erreur: string | null
 }
 
+type ResumeCommande = VenteCommande & { email: string }
+
+/** Les résumés portent sur toute la période, même au-delà des 300 cartes affichées. */
+async function getResumeCommandes(b: Bornes, canal: 'site' | 'partenaire'): Promise<ResumeCommande[]> {
+  const supabase = createAdminClient()
+  const lignes: ResumeCommande[] = []
+  const taille = 500
+  for (let debut = 0; ; debut += taille) {
+    let q = supabase.from('commandes')
+      .select('statut, montant_cents, email, produit_slug, produit_nom, lot, quantite')
+      .eq('canal', canal).order('created_at', { ascending: false }).order('id')
+      .range(debut, debut + taille - 1)
+    if (b.debut) q = q.gte('created_at', b.debut)
+    if (b.fin) q = q.lt('created_at', b.fin)
+    const { data, error } = await q
+    if (error) throw new Error('Lecture du récapitulatif des commandes impossible')
+    lignes.push(...(data ?? []) as ResumeCommande[])
+    if (!data || data.length < taille) return lignes
+  }
+}
+
 async function getCommandes(filtre: Filtre, b: Bornes, canal: 'site' | 'partenaire' = 'site'): Promise<Commande[]> {
   const supabase = createAdminClient()
   let q = supabase.from('commandes').select('*').eq('canal', canal)
@@ -158,7 +181,7 @@ async function arriveesCheckout(b: Bornes): Promise<number> {
 
 /** Chiffres résumés d'un canal : tentatives, payées, encaissé. */
 async function statsCanal(b: Bornes, canal: 'site' | 'partenaire') {
-  const toutes = await getCommandes('toutes', b, canal)
+  const toutes = await getResumeCommandes(b, canal)
   const payees = toutes.filter((c) => c.statut === 'payee')
   return {
     tentatives: toutes.length,
@@ -222,14 +245,14 @@ interface Props {
 export default async function AdminCheckoutPage({ searchParams }: Props) {
   const { filtre, periode, date } = await searchParams
   const actif: Filtre = ONGLETS.some((o) => o.cle === filtre) ? (filtre as Filtre) : 'toutes'
-  const periodeActive: Periode = PERIODES.some((p) => p.cle === periode) ? (periode as Periode) : 'tout'
+  const periodeActive: Periode = PERIODES.some((p) => p.cle === periode) ? (periode as Periode) : 'jour'
   const dateActive = date && /^\d{4}-\d{2}-\d{2}$/.test(date) ? date : null
   const bornes = bornesPeriode(periodeActive, dateActive)
 
   const [commandes, arrivees, toutes, remplis, partenaire] = await Promise.all([
     getCommandes(actif, bornes),
     arriveesCheckout(bornes),
-    getCommandes('toutes', bornes),
+    getResumeCommandes(bornes, 'site'),
     champsRemplis(bornes),
     statsCanal(bornes, 'partenaire'),
   ])
@@ -238,6 +261,9 @@ export default async function AdminCheckoutPage({ searchParams }: Props) {
   const refusees = toutes.filter((c) => c.statut === 'refusee')
   const abandonnees = toutes.filter((c) => c.statut === 'en_attente')
   const encaisse = payees.reduce((s, c) => s + c.montant_cents, 0)
+  const libellePeriode = dateActive
+    ? new Date(`${dateActive}T12:00:00Z`).toLocaleDateString('fr-FR', { timeZone: 'Europe/Paris', day: 'numeric', month: 'long', year: 'numeric' })
+    : PERIODES.find((p) => p.cle === periodeActive)!.label
   const pourcent = (n: number, total: number) => (total > 0 ? Math.round((n * 1000) / total) / 10 : 0)
 
   /* Une adresse vaut une personne : deux tentatives du même client ne
@@ -308,11 +334,13 @@ export default async function AdminCheckoutPage({ searchParams }: Props) {
           <input
             type="date"
             name="date"
+            aria-label="Choisir le jour des commandes"
             defaultValue={dateActive ?? ''}
             className={`rounded-lg border px-2.5 py-1.5 text-[13px] ${
               dateActive ? 'border-ink text-ink font-medium' : 'border-gray-200 text-gray-600'
             }`}
           />
+          <button type="submit" className="rounded-lg bg-ink px-3 py-1.5 text-[13px] font-medium text-white hover:bg-brand-800">Afficher</button>
           {dateActive && (
             <Link href={`/admin/commandes/?periode=${periodeActive}&filtre=${actif}`} className="text-[13px] text-gray-400 hover:text-gray-700">
               effacer
@@ -330,6 +358,8 @@ export default async function AdminCheckoutPage({ searchParams }: Props) {
           </div>
         ))}
       </div>
+
+      <VentesParFamille commandes={toutes} periode={libellePeriode} />
 
       <section className="rounded-lg border border-gray-200 bg-white p-5 mb-6">
         <h2 className="font-semibold text-ink mb-4">Où ils s’arrêtent</h2>
