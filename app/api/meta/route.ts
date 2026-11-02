@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server'
 import { envoyerCapi, capiConfigure, type EvenementCapi } from '@/lib/analytics/capi'
 import { estUnRobot } from '@/lib/analytics/geo'
 import { ADMIN_COOKIE, verifyToken } from '@/lib/admin/session'
+import { estCheckoutPartenaire } from '@/lib/analytics/burban-config'
+import { createAdminClient } from '@/lib/supabase/server'
 
 /**
  * Diagnostic, réservé à l'administrateur.
@@ -81,6 +83,15 @@ export async function POST(req: NextRequest) {
 
     if (!NOMS.includes(nom) || typeof eventId !== 'string' || !UUID_RE.test(eventId)) {
       return new NextResponse(null, { status: 204 })
+    }
+    if (estCheckoutPartenaire(typeof body.url === 'string' ? body.url : '')
+      || estCheckoutPartenaire(req.headers.get('referer') ?? '')) {
+      return new NextResponse(null, { status: 204 })
+    }
+    if (nom === 'Purchase') {
+      const { data } = await createAdminClient().from('commandes')
+        .select('canal, statut').eq('id', eventId).maybeSingle()
+      if (data?.canal !== 'site' || data.statut !== 'payee') return new NextResponse(null, { status: 204 })
     }
 
     /* x-forwarded-for peut contenir une chaîne de relais : la première

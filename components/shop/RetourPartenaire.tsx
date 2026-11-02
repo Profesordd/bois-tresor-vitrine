@@ -53,6 +53,7 @@ export default function RetourPartenaire({ redirectUrl }: { redirectUrl?: string
           const retour = j.produitSlug ? `/commande/partenaire/${j.produitSlug}/` : null
           throw Object.assign(new Error(j.error ?? 'Paiement non confirmé'), { retour })
         }
+        if (j.canal !== 'partenaire') throw new Error('Cette commande ne relève pas du checkout partenaire.')
 
         /* Purchase vers le seul pixel Burban, avec l'identifiant de commande
            comme eventId. On laisse à l'envoi le temps de partir avant de

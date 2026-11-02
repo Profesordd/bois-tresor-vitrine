@@ -360,6 +360,7 @@ export default function FormulaireCommande({ product, lot, montant, canal = 'sit
       })
       const j = await r.json()
       if (!r.ok || !j.ok) throw new Error(j.error ?? 'Paiement non confirmé')
+      if (j.canal !== canal) throw new Error('Le canal de cette commande ne correspond pas à ce checkout.')
       if (canal === 'partenaire') {
         /* Purchase vers le seul pixel Burban (cas sans 3-D Secure). */
         await attendreBurban(1500)

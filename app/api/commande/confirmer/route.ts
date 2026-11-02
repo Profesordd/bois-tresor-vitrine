@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/server'
 import { lirePaiement, capturerPaiement, STATUTS_REFUS, STATUTS_DEJA_ENCAISSES } from '@/lib/cawl'
-import { envoyerCapi } from '@/lib/analytics/capi'
+import { envoyerAchatCapi } from '@/lib/analytics/achats-capi'
 
 /**
  * Confirmation d'une commande après le 3-D Secure.
@@ -92,10 +92,9 @@ export async function POST(req: NextRequest) {
        séquence même après avoir commandé. Le marqueur `a_commande` n'est
        donc volontairement pas posé ici. */
 
-    /* L'achat ne remonte à Meta que pour le canal du site : une vente du
-       partenaire n'est pas une conversion de bois-tresor. Attendu, pas
-       `void` : en serverless l'événement serveur se perdrait sinon. */
-    if (commande.canal === 'site') await envoyerCapi([{
+    /* Le canal stocké sélectionne son propre pixel et son propre jeton.
+       Attendu : un envoi détaché se perdrait en serverless. */
+    await envoyerAchatCapi(commande.canal, {
       nom: 'Purchase',
       eventId: commande.id as string,
       url: `${(process.env.NEXT_PUBLIC_SITE_URL ?? 'https://www.bois-tresor.com').replace(/\/$/, '')}/commande/merci/`,
@@ -114,8 +113,8 @@ export async function POST(req: NextRequest) {
         currency: 'EUR',
         order_id: commande.reference,
       },
-    }]).then((r) => {
-      if (!r.ok) console.error('[purchase/capi]', r.status, JSON.stringify(r.corps).slice(0, 300))
+    }).then((r) => {
+      if (r && !r.ok) console.error('[purchase/capi]', r.status)
     })
 
     return NextResponse.json({

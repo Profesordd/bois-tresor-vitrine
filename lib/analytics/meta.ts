@@ -1,4 +1,5 @@
 import type { Product } from '@/types/database'
+import { estCheckoutPartenaire } from '@/lib/analytics/burban-config'
 
 /** Identifiant du pixel Meta, fourni par le client. */
 export const META_PIXEL_ID = '1637953797922220'
@@ -38,6 +39,7 @@ function nouvelId(): string {
  */
 function envoyer(nom: NomEvenement, donnees?: Record<string, unknown>, idImpose?: string): boolean {
   if (typeof window === 'undefined') return false
+  if (estCheckoutPartenaire(window.location.href)) return false
 
   /* `idImpose` sert aux achats : le serveur envoie le même événement de
      son côté, et seul un identifiant partagé évite de compter deux fois.
@@ -46,7 +48,7 @@ function envoyer(nom: NomEvenement, donnees?: Record<string, unknown>, idImpose?
   let pixelOk = false
 
   if (typeof window.fbq === 'function') {
-    window.fbq('track', nom, donnees ?? {}, { eventID: eventId })
+    window.fbq('trackSingle', META_PIXEL_ID, nom, donnees ?? {}, { eventID: eventId })
     pixelOk = true
   }
 

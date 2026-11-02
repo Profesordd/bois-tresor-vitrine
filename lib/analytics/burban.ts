@@ -10,11 +10,24 @@
  * que même si un autre pixel se trouvait sur la page, l'événement
  * n'atteindrait que Burban.
  *
- * Côté navigateur uniquement. L'API Conversions serveur de Burban
- * demanderait son propre jeton, qui n'a pas été fourni.
+ * Son relais CAPI dédié ne contient aucun secret côté navigateur.
  */
 
-const BURBAN_PIXEL_ID = '1635910154593656'
+import { BURBAN_PIXEL_ID, estCheckoutPartenaire } from '@/lib/analytics/burban-config'
+
+function surCheckout(): boolean {
+  return typeof window !== 'undefined' && estCheckoutPartenaire(window.location.href)
+}
+
+function relayer(nom: string, eventId: string, donnees: Record<string, unknown>) {
+  const corps = JSON.stringify({ nom, eventId, donnees, url: window.location.href })
+  try {
+    if (navigator.sendBeacon?.('/api/meta/partenaire/', new Blob([corps], { type: 'application/json' }))) return
+  } catch { /* repli fetch */ }
+  void fetch('/api/meta/partenaire/', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' }, body: corps, keepalive: true,
+  }).catch(() => {})
+}
 
 declare global {
   interface Window {
@@ -32,7 +45,7 @@ let initialise = false
  * garde-fou l'évite. `init` est idempotent côté Meta.
  */
 export function chargerPixelBurban(): void {
-  if (typeof window === 'undefined' || initialise) return
+  if (!surCheckout() || initialise) return
   initialise = true
 
   if (typeof window.fbq !== 'function') {
@@ -60,7 +73,9 @@ export function chargerPixelBurban(): void {
   }
 
   window.fbq?.('init', BURBAN_PIXEL_ID)
-  window.fbq?.('trackSingle', BURBAN_PIXEL_ID, 'PageView')
+  const eventId = crypto.randomUUID()
+  window.fbq?.('trackSingle', BURBAN_PIXEL_ID, 'PageView', {}, { eventID: eventId })
+  relayer('PageView', eventId, {})
 }
 
 /** Attend que le pixel réponde, sans jamais bloquer. */
@@ -87,14 +102,17 @@ export function trackBurban(
   donnees: Record<string, unknown>,
   eventId?: string,
 ): void {
-  if (typeof window === 'undefined' || typeof window.fbq !== 'function') return
-  window.fbq(
+  if (!surCheckout()) return
+  const id = eventId ?? crypto.randomUUID()
+  window.fbq?.(
     'trackSingle',
     BURBAN_PIXEL_ID,
     nom,
     donnees,
-    eventId ? { eventID: eventId } : undefined,
+    { eventID: id },
   )
+  // L'achat serveur est envoyé seulement après validation du paiement en base.
+  if (nom !== 'Purchase') relayer(nom, id, donnees)
 }
 
 /** Mise en forme du produit, aux champs attendus par Meta. */

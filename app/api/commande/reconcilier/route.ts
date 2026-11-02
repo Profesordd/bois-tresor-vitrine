@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/server'
 import { lirePaiement, cawlConfigure, STATUTS_DEJA_ENCAISSES, STATUTS_REFUS } from '@/lib/cawl'
-import { envoyerCapi } from '@/lib/analytics/capi'
+import { envoyerAchatCapi } from '@/lib/analytics/achats-capi'
 
 /**
  * Rattrapage des paiements laissés en suspens.
@@ -45,7 +45,7 @@ export async function GET(req: NextRequest) {
 
   const { data, error } = await supabase
     .from('commandes')
-    .select('id, reference, montant_cents, paiement_id, email, produit_slug, produit_nom')
+    .select('id, reference, montant_cents, paiement_id, email, produit_slug, produit_nom, canal')
     .eq('statut', 'en_attente')
     .not('paiement_id', 'is', null)
     .lt('created_at', new Date(maintenant - GRACE_MINUTES * 60_000).toISOString())
@@ -83,7 +83,7 @@ export async function GET(req: NextRequest) {
              revenu, donc ni le pixel ni la route de confirmation n'ont
              tourné. Même `event_id` que partout ailleurs, pour que Meta
              n'en compte qu'un si le client revient plus tard. */
-          await envoyerCapi([{
+          await envoyerAchatCapi(c.canal, {
             nom: 'Purchase',
             eventId: c.id,
             url: `${(process.env.NEXT_PUBLIC_SITE_URL ?? 'https://www.bois-tresor.com').replace(/\/$/, '')}/commande/merci/`,
@@ -96,7 +96,7 @@ export async function GET(req: NextRequest) {
               currency: 'EUR',
               order_id: c.reference,
             },
-          }]).then((r) => { if (!r.ok) console.error('[reconcilier/capi]', r.status) })
+          }).then((r) => { if (r && !r.ok) console.error('[reconcilier/capi]', r.status) })
         } else bilan.erreurs++
         console.warn(`[reconcilier] ${c.reference} rattrapée : ${p.statut}${conforme ? '' : ' MONTANT DIFFÉRENT'}`)
         continue
