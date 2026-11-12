@@ -172,8 +172,7 @@ export default function FormulaireCommande({ product, lot, montant, canal = 'sit
           window.location.replace(`/commande/merci/?ref=${encodeURIComponent(j.reference)}`)
           return
         }
-        setRetourBanque('Votre paiement n’a pas été finalisé. Vous n’avez pas été débité, '
-          + 'et votre commande n’est pas enregistrée. Vous pouvez recommencer ci-dessous.')
+        setRetourBanque('Le paiement de votre commande n’est pas confirmé. Vérifiez son état dans votre application bancaire avant de recommencer. En cas de doute, contactez votre vendeur avec votre référence.')
       })
       .catch(() => { /* un message manquant ne doit pas bloquer la page */ })
   }, [])
