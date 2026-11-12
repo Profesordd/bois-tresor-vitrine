@@ -15,6 +15,10 @@ import CartDrawer from '@/components/shop/CartDrawer'
 export default function SiteShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
   const isAdmin = pathname?.startsWith('/admin')
+  const segments = pathname?.split('/').filter(Boolean) ?? []
+  const checkoutProduit = segments.length === 2 && segments[0] === 'commande' && !['retour', 'merci'].includes(segments[1])
+  // Le formulaire possède son propre en-tête ; merci/retour client conservent leur habillage.
+  if (checkoutProduit) return <main className="min-h-screen bg-white">{children}</main>
 
   if (isAdmin) {
     return <main className="min-h-screen bg-gray-50">{children}</main>

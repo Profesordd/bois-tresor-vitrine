@@ -1,6 +1,4 @@
-import Link from 'next/link'
 import { notFound } from 'next/navigation'
-import { ArrowLeft } from 'lucide-react'
 import { getProductBySlug } from '@/lib/products'
 import { lotsDisponibles, lotParDefaut } from '@/lib/lots'
 import FormulaireCommande from '@/components/shop/FormulaireCommande'
@@ -44,19 +42,5 @@ export default async function CommandePage({ params, searchParams }: Props) {
     : null
   const montant = lot ? lot.price : produit.price
 
-  /* Fond gris comme le modèle : les blocs blancs doivent se détacher. */
-  return (
-    <div className="bg-gray-50 min-h-screen">
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10">
-        <Link
-          href={`/produits/${produit.slug}/`}
-          className="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-800 mb-5"
-        >
-          <ArrowLeft size={15} /> Revenir au produit
-        </Link>
-
-        <FormulaireCommande product={produit} lot={lot} montant={montant} />
-      </div>
-    </div>
-  )
+  return <FormulaireCommande product={produit} lot={lot} montant={montant} />
 }

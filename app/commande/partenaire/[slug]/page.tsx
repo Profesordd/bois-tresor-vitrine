@@ -1,5 +1,4 @@
 import { notFound } from 'next/navigation'
-import { ShieldCheck } from 'lucide-react'
 import { getProductBySlug } from '@/lib/products'
 import { lotsDisponibles, lotParDefaut } from '@/lib/lots'
 import FormulaireCommande from '@/components/shop/FormulaireCommande'
@@ -50,19 +49,6 @@ export default async function CommandePartenairePage({ params, searchParams }: P
     : null
   const montant = lot ? lot.price : produit.price
 
-  return (
-    <div className="bg-gray-50 min-h-screen">
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10">
-        <p className="inline-flex items-center gap-1.5 text-sm text-gray-500 mb-5">
-          <ShieldCheck size={15} className="text-brand-600" /> Paiement sécurisé
-        </p>
-
-        <FormulaireCommande
-          product={produit} lot={lot} montant={montant}
-          canal="partenaire"
-          redirectSucces={process.env.PARTENAIRE_REDIRECT_URL ?? null}
-        />
-      </div>
-    </div>
-  )
+  return <FormulaireCommande product={produit} lot={lot} montant={montant}
+    canal="partenaire" redirectSucces={process.env.PARTENAIRE_REDIRECT_URL ?? null} />
 }
