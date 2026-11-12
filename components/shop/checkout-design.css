@@ -84,4 +84,5 @@
 .bois-checkout .checkout-return-notice svg{flex-shrink:0}
 .bois-checkout .checkout-header.partner-checkout-header{height:auto;min-height:0;padding:16px 24px}
 .bois-checkout .partner-checkout-banner{display:block;width:min(640px,100%);height:auto;object-fit:contain}
+.bois-checkout[data-checkout="partenaire"] .checkout-timer strong{flex-shrink:0}
 @media(max-width:749px){.bois-checkout .checkout-header.partner-checkout-header{padding:12px 8px}}
