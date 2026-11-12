@@ -62,8 +62,10 @@ export default function CheckoutDesign(p: Props) {
     <div className="summary-total" aria-live="polite"><span>Total TTC</span><strong>{formatPrice(p.total)}</strong></div>
   </>
   return <div className="bois-checkout" data-checkout={p.partenaire ? 'partenaire' : 'principal'}>
-    <header className="public-header checkout-header">
-      <a className="checkout-logo" href={p.logoHref} aria-label={p.partenaire ? 'Paiement sécurisé' : 'Bois Trésor'}>{p.partenaire ? <><Lock size={22} aria-hidden="true" /> Paiement sécurisé</> : <><span>Bois</span> <span>Trésor</span></>}</a>
+    <header className={`public-header checkout-header${p.partenaire ? ' partner-checkout-header' : ''}`}>
+      {p.partenaire
+        ? <Image src="/checkout/bois-burban-trustpilot.png" alt="Bois Burban depuis 1995 — Trustpilot : 3 167 avis, Excellent, 4,8 sur 5" width={1280} height={300} priority unoptimized className="partner-checkout-banner" />
+        : <a className="checkout-logo" href={p.logoHref} aria-label="Bois Trésor"><span>Bois</span> <span>Trésor</span></a>}
     </header>
     {p.apercu && <p className="checkout-preview-note">Aperçu — aucun paiement ni commande</p>}
     <div className="checkout-main">
