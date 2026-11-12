@@ -124,6 +124,8 @@ export async function GET(req: NextRequest) {
       .from('commandes')
       .select('created_at, montant_cents')
       .eq('statut', 'payee')
+      // Flux historique du compte 1 ; Walid possède son agrégateur dédié.
+      .eq('cawl_processor', 'process-1')
       .eq('canal', canal)
       .order('created_at')
       .range(page * 1000, page * 1000 + 999)

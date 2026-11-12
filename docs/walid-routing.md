@@ -10,3 +10,7 @@ Demande du propriétaire : utiliser Walid pour les nouvelles commandes client et
 - Tests : node tests/cawl-routing.mjs ; node tests/cawl-order-routing.mjs ; npx tsc --noEmit ; npm run build. Les appels banque et base des tests sont simulés. La migration a aussi été vérifiée dans PostgreSQL local simulé : défaut historique, compte immuable, mises à jour métier permises, compte inconnu rejeté et réexécution.
 
 Les anciens outils SQL/SAV qui interrogent CAWL doivent choisir le compte selon cawl_processor ; ne pas relire une commande Walid avec les clés historiques. Les exports de statistiques historiques sans ventilation bancaire ne prouvent pas une attribution au compte 1. Aucun test de débit réel automatique.
+
+## Export des statistiques — 12 novembre 2026
+
+Le flux historique /api/partenaire/stats/ est fixé au compte process-1, sans paramètre permettant de le remplacer par Walid. Le relais Stats Partenaires /walid lit séparément les seules commandes Walid payées dans Supabase ; les montants ne sont pas réimportés ni copiés. La comptabilité interne tous comptes reste inchangée. Test dédié : node tests/stats-processors.mjs --bois.
