@@ -1,3 +1,4 @@
+import { orderCawlProcessor } from '@/lib/cawl-routing'
 import { NextRequest, NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/server'
 import { lirePaiement, cawlConfigure, STATUTS_DEJA_ENCAISSES, STATUTS_REFUS } from '@/lib/cawl'
@@ -45,7 +46,7 @@ export async function GET(req: NextRequest) {
 
   const { data, error } = await supabase
     .from('commandes')
-    .select('id, reference, montant_cents, paiement_id, email, produit_slug, produit_nom, canal')
+    .select('id, reference, cawl_processor, montant_cents, paiement_id, email, produit_slug, produit_nom, canal')
     .eq('statut', 'en_attente')
     .not('paiement_id', 'is', null)
     .lt('created_at', new Date(maintenant - GRACE_MINUTES * 60_000).toISOString())
@@ -62,7 +63,7 @@ export async function GET(req: NextRequest) {
 
   for (const c of data ?? []) {
     try {
-      const p = await lirePaiement(c.paiement_id!)
+      const p = await lirePaiement(c.paiement_id!, orderCawlProcessor(c.cawl_processor))
 
       if (STATUTS_DEJA_ENCAISSES.includes(p.statut)) {
         /* Le montant est relu chez CAWL : si la somme encaissée ne

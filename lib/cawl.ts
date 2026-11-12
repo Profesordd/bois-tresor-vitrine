@@ -1,3 +1,4 @@
+import { cawlConfig, activeCawlProcessor, type CawlProcessor } from './cawl-routing'
 import { createHmac } from 'crypto'
 
 /**
@@ -33,10 +34,6 @@ import { createHmac } from 'crypto'
  * à la ligne.
  */
 
-const API_URL    = (process.env.CAWL_API_URL ?? 'https://payment.preprod.cawl-solutions.fr').replace(/\/$/, '')
-const MERCHANT   = process.env.CAWL_MERCHANT_ID ?? ''
-const API_KEY    = process.env.CAWL_API_KEY ?? ''
-const SECRET_KEY = process.env.CAWL_SECRET_KEY ?? ''
 const INTEGRATOR = process.env.CAWL_COMPANY_NAME ?? 'BoisTresor'
 
 const LOCALE = 'fr_FR'
@@ -45,11 +42,11 @@ const LOCALE = 'fr_FR'
 const ACCEPT_PAR_DEFAUT = 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8'
 
 export function cawlConfigure(): boolean {
-  return Boolean(MERCHANT && API_KEY && SECRET_KEY)
+  const c = cawlConfig(); return Boolean(c.merchant && c.key && c.secret)
 }
 
 export function cawlEnvironnement(): { url: string; reel: boolean } {
-  return { url: API_URL, reel: !API_URL.includes('preprod') }
+  const { url } = cawlConfig(); return { url, reel: !url.includes('preprod') }
 }
 
 function metaInfo(): string {
@@ -61,7 +58,7 @@ function metaInfo(): string {
   })).toString('base64')
 }
 
-function signature(method: string, entetes: Record<string, string>, chemin: string): string {
+function signature(method: string, entetes: Record<string, string>, chemin: string, config: ReturnType<typeof cawlConfig>): string {
   let aSigner = method.toUpperCase() + '\n'
   aSigner += (entetes['Content-Type'] ?? '') + '\n'
   aSigner += (entetes['Date'] ?? '') + '\n'
@@ -74,23 +71,25 @@ function signature(method: string, entetes: Record<string, string>, chemin: stri
   }
 
   aSigner += chemin + '\n'
-  return `GCS v1HMAC:${API_KEY}:${createHmac('sha256', SECRET_KEY).update(aSigner).digest('base64')}`
+  return `GCS v1HMAC:${config.key}:${createHmac('sha256', config.secret).update(aSigner).digest('base64')}`
 }
 
 const MAX_RETENTATIVES_409 = 3
 
-async function appel<T>(method: string, chemin: string, corps?: unknown, cleIdempotence?: string): Promise<T> {
-  const cheminComplet = `/v2/${MERCHANT}${chemin}`
+async function appel<T>(method: string, chemin: string, corps?: unknown, cleIdempotence?: string, processor: CawlProcessor = activeCawlProcessor()): Promise<T> {
+  const config = cawlConfig(processor)
+  if (!config.merchant || !config.key || !config.secret) throw new Error('Compte bancaire non configuré.')
+  const cheminComplet = `/v2/${config.merchant}${chemin}`
   const entetes: Record<string, string> = {
     Date: new Date().toUTCString(),
     'X-GCS-ServerMetaInfo': metaInfo(),
   }
   if (corps) entetes['Content-Type'] = 'application/json'
   if (cleIdempotence) entetes['X-GCS-Idempotence-Key'] = cleIdempotence.slice(0, 40)
-  entetes.Authorization = signature(method, entetes, cheminComplet)
+  entetes.Authorization = signature(method, entetes, cheminComplet, config)
 
   for (let essai = 0; ; essai++) {
-    const reponse = await fetch(API_URL + cheminComplet, {
+    const reponse = await fetch(config.url + cheminComplet, {
       method,
       headers: entetes,
       body: corps ? JSON.stringify(corps) : undefined,
@@ -214,7 +213,7 @@ function sansVide<T extends Record<string, unknown>>(o: T): Partial<T> {
 
 /* ── Opérations ────────────────────────────────────────── */
 
-export async function creerPaiement(p: Paiement): Promise<ReponsePaiement> {
+export async function creerPaiement(p: Paiement, processor: CawlProcessor = 'process-1'): Promise<ReponsePaiement> {
   const n = p.navigateur
   const c = p.client
 
@@ -289,12 +288,12 @@ export async function creerPaiement(p: Paiement): Promise<ReponsePaiement> {
          comportement. Voir CardThreeDSecureFactory::create. */
       threeDSecure: { redirectionData: { returnUrl: p.returnUrl } },
     },
-  }, p.cleIdempotence)
+  }, p.cleIdempotence, processor)
 }
 
-export async function lirePaiement(id: string): Promise<{ id: string; statut: string; montantCents: number }> {
+export async function lirePaiement(id: string, processor: CawlProcessor = 'process-1'): Promise<{ id: string; statut: string; montantCents: number }> {
   const d = await appel<{ id: string; status: string; paymentOutput?: { amountOfMoney?: { amount: number } } }>(
-    'GET', `/payments/${id}`
+    'GET', `/payments/${id}`, undefined, undefined, processor
   )
   return { id: d.id, statut: d.status, montantCents: d.paymentOutput?.amountOfMoney?.amount ?? 0 }
 }
@@ -305,10 +304,10 @@ export const STATUTS_REFUS = ['REJECTED', 'REJECTED_CAPTURE', 'CANCELLED', 'CREA
 /** En mode SALE, le paiement est déjà encaissé : plus rien à capturer. */
 export const STATUTS_DEJA_ENCAISSES = ['CAPTURED', 'CAPTURE_REQUESTED', 'PAID']
 
-export async function capturerPaiement(id: string, montantCents: number): Promise<boolean> {
+export async function capturerPaiement(id: string, montantCents: number, processor: CawlProcessor = 'process-1'): Promise<boolean> {
   try {
     const r = await appel<{ status?: string; captureOutput?: { acquiredAmount?: { amount: number } } }>(
-      'POST', `/payments/${id}/capture`, { amount: montantCents, isFinal: true }
+      'POST', `/payments/${id}/capture`, { amount: montantCents, isFinal: true }, undefined, processor
     )
     return (r.captureOutput?.acquiredAmount?.amount ?? 0) === montantCents
       || r.status === 'CAPTURE_REQUESTED'
@@ -318,4 +317,9 @@ export async function capturerPaiement(id: string, montantCents: number): Promis
     if (err instanceof Error && err.message.includes('ACTION_NOT_ALLOWED')) return true
     throw err
   }
+}
+
+/** Connexion seule, aucun débit. */
+export async function testerConnexionCawl(processor: CawlProcessor = activeCawlProcessor()): Promise<void> {
+  await appel<unknown>('GET', '/services/testconnection', undefined, undefined, processor)
 }

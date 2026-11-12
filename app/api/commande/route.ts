@@ -1,3 +1,4 @@
+import { activeCawlProcessor } from '@/lib/cawl-routing'
 import { NextRequest, NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/server'
 import { getProductBySlug } from '@/lib/products'
@@ -99,6 +100,7 @@ export async function POST(req: NextRequest) {
   const { data, error } = await supabase
     .from('commandes')
     .insert({
+      cawl_processor: activeCawlProcessor(),
       reference: reference(),
       produit_slug: produit.slug,
       produit_nom: (lot ? `${produit.name} — ${lot.poids}` : produit.name)

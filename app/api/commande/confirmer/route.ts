@@ -1,3 +1,4 @@
+import { orderCawlProcessor } from '@/lib/cawl-routing'
 import { NextRequest, NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/server'
 import { lirePaiement, capturerPaiement, STATUTS_REFUS, STATUTS_DEJA_ENCAISSES } from '@/lib/cawl'
@@ -19,7 +20,7 @@ export async function POST(req: NextRequest) {
   const supabase = createAdminClient()
   const { data: commande } = await supabase
     .from('commandes')
-    .select('id, reference, statut, montant_cents, paiement_id, produit_slug, produit_nom, email, lot, canal')
+    .select('id, reference, cawl_processor, statut, montant_cents, paiement_id, produit_slug, produit_nom, email, lot, canal')
     .eq('id', commandeId)
     .maybeSingle()
 
@@ -44,7 +45,7 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const paiement = await lirePaiement(commande.paiement_id as string)
+    const paiement = await lirePaiement(commande.paiement_id as string, orderCawlProcessor(commande.cawl_processor))
 
     if (STATUTS_REFUS.includes(paiement.statut)) {
       await supabase.from('commandes')
@@ -62,7 +63,7 @@ export async function POST(req: NextRequest) {
     }
 
     if (paiement.statut === 'PENDING_CAPTURE') {
-      const pris = await capturerPaiement(commande.paiement_id as string, paiement.montantCents)
+      const pris = await capturerPaiement(commande.paiement_id as string, paiement.montantCents, orderCawlProcessor(commande.cawl_processor))
       if (!pris) {
         await supabase.from('commandes')
           .update({ statut: 'refusee', paiement_statut: paiement.statut })

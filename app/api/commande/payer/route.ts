@@ -1,3 +1,4 @@
+import { orderCawlProcessor } from '@/lib/cawl-routing'
 import { NextRequest, NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/server'
 import { creerPaiement, produitCawl, cawlConfigure } from '@/lib/cawl'
@@ -33,7 +34,7 @@ export async function POST(req: NextRequest) {
      autant que le montant : sans elles, la banque refuse l'authentification. */
   const { data: commande } = await supabase
     .from('commandes')
-    .select('id, reference, montant_cents, statut, canal, prenom, nom, email, telephone, adresse, complement, code_postal, ville, pays')
+    .select('id, reference, montant_cents, statut, cawl_processor, canal, prenom, nom, email, telephone, adresse, complement, code_postal, ville, pays')
     .eq('id', commandeId)
     .maybeSingle()
 
@@ -78,7 +79,7 @@ export async function POST(req: NextRequest) {
       ipClient: req.headers.get('x-forwarded-for')?.split(',')[0].trim()
         ?? req.headers.get('x-real-ip') ?? undefined,
       cleIdempotence: String(commande.id),
-    })
+    }, orderCawlProcessor(commande.cawl_processor))
 
     /* L'identifiant du paiement est écrit tout de suite, avant le
        3-D Secure : si le navigateur le perd en route, la page de retour le
