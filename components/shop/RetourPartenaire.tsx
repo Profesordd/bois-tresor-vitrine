@@ -90,13 +90,12 @@ export default function RetourPartenaire({ redirectUrl }: { redirectUrl?: string
   return (
     <div className="max-w-md mx-auto px-4 py-16 text-center">
       <AlertTriangle size={34} className="text-amber-600 mx-auto mb-4" />
-      <h1 className="font-serif text-2xl font-bold text-ink">Le paiement n’a pas abouti</h1>
+      <h1 className="font-serif text-2xl font-bold text-ink">Paiement non confirmé</h1>
       <p className="text-[15px] text-gray-600 mt-3">
-        Votre banque n’a pas confirmé l’opération. <strong className="text-ink">Vous n’avez pas été débité.</strong>
+        Nous n’avons pas reçu de confirmation définitive de votre banque.
       </p>
       <p className="text-[14px] text-gray-500 mt-2">
-        Cela arrive quand la validation prend trop de temps. Vous pouvez recommencer, votre carte
-        n’est pas en cause.
+        Vérifiez le résultat dans votre application bancaire avant de recommencer. En cas de doute, contactez votre vendeur avec votre référence de commande.
       </p>
       {echec.retour && (
         <a

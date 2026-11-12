@@ -250,6 +250,7 @@ export async function creerPaiement(p: Paiement, processor: CawlProcessor = 'pro
             screenWidth: String(n.screenWidth),
             colorDepth: n.colorDepth,
             javaEnabled: n.javaEnabled,
+            javaScriptEnabled: true,
           }
         : undefined,
     }),
@@ -299,7 +300,7 @@ export async function lirePaiement(id: string, processor: CawlProcessor = 'proce
 }
 
 /** Statuts de refus. Il n'existe pas de statut « FAILED » chez CAWL. */
-export const STATUTS_REFUS = ['REJECTED', 'REJECTED_CAPTURE', 'CANCELLED', 'CREATED', 'REDIRECTED']
+export const STATUTS_REFUS = ['REJECTED', 'REJECTED_CAPTURE', 'CANCELLED']
 
 /** En mode SALE, le paiement est déjà encaissé : plus rien à capturer. */
 export const STATUTS_DEJA_ENCAISSES = ['CAPTURED', 'CAPTURE_REQUESTED', 'PAID']

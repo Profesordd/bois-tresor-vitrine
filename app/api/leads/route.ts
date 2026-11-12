@@ -62,7 +62,7 @@ export async function POST(req: NextRequest) {
       .eq('a_commande', false)
       .gte('created_at', new Date(Date.now() - 12 * 86400_000).toISOString())
       .limit(1)
-    if (deja && deja.length > 0) return
+    if (deja && deja.length > 0) return new NextResponse(null, { status: 204 })
 
     const { error } = await supabase.from('leads').insert({
       email: email.toLowerCase(),

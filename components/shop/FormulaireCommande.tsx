@@ -282,17 +282,16 @@ export default function FormulaireCommande({ product, lot, montant, canal = 'sit
           anneeExpiration: carte.annee,
           cvv: carte.cvv,
           titulaire: carte.titulaire,
-          /* Empreinte du navigateur, telle que le plugin officiel la
-             recueille. `javaEnabled` et non `javaScriptEnabled` : ce sont
-             deux champs distincts côté Worldline, et c'est le premier que
-             le plugin transmet. */
+          /* Empreinte du navigateur. Java et JavaScript sont distincts ;
+             le serveur indique aussi que JavaScript est actif sur ce formulaire.
+             Le décalage conserve le signe natif, comme le plugin CAWL. */
           navigateur: {
             screenWidth: window.screen.width,
             screenHeight: window.screen.height,
             colorDepth: window.screen.colorDepth,
             javaEnabled: typeof navigator.javaEnabled === 'function' ? navigator.javaEnabled() : false,
             userAgent: navigator.userAgent,
-            timezoneOffsetUtcMinutes: new Date().getTimezoneOffset() * -1,
+            timezoneOffsetUtcMinutes: new Date().getTimezoneOffset(),
           },
         }),
       })
